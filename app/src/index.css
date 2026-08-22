@@ -1,0 +1,135 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+/* 本地 @import 必须位于文件顶部（@tailwind 之前），否则构建时会被整条丢弃 */
+@import './ink/ink.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --paper: 250 250 249;
+    --ink: 10 10 10;
+    --ink-2: 64 64 64;
+    --ink-3: 117 117 115; /* 数据/图表装饰色：纸面上对比度 3.4:1（2026-08-15 由 2.4 上调） */
+    --line: 229 229 226;
+    --cinnabar: 192 57 43;
+    /* 上善若水：深海灰蓝——沉静但有力 */
+    --water: 61 90 108;
+    --water-deep: 22 36 45;
+    --water-mist: 237 241 243;
+    /* 辅助中性色：暖米白——仅用于品牌终幕等极少量场合 */
+    --ivory: 243 240 233;
+  }
+
+  * {
+    border-color: rgb(var(--line));
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+  }
+
+  body {
+    background: rgb(var(--paper));
+    color: rgb(var(--ink));
+    font-family: 'Noto Sans SC', -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: rgb(var(--ink));
+    color: rgb(var(--paper));
+  }
+
+  .font-serif-sc {
+    font-family: 'Noto Serif SC', 'Songti SC', 'SimSun', serif;
+  }
+
+  .font-mono-num {
+    font-family: 'IBM Plex Mono', 'Noto Sans SC', monospace;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+  }
+
+  .tnum {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+  }
+
+  /* 标签：小型大写风格，加宽字距。
+     承载信息的最小文字，用 ink-2（4.8:1），不用 ink-3 —— 看得清优先于好看。 */
+  .label-sm {
+    font-family: 'IBM Plex Mono', 'Noto Sans SC', monospace;
+    font-size: 0.6875rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgb(var(--ink-2));
+  }
+
+  /* 极慢旋转：太极 */
+  @keyframes taiji-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .taiji-slow {
+    animation: taiji-spin 90s linear infinite;
+  }
+
+  /* 朱砂呼吸点 */
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.25; }
+  }
+  .dot-breathe {
+    animation: pulse-dot 3.2s ease-in-out infinite;
+  }
+
+  /* 内容缓慢浮现：位移极小，时长偏长，只发生一次 */
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 900ms ease, transform 900ms ease;
+  }
+  [data-reveal].is-revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-reveal] { opacity: 1; transform: none; transition: none; }
+    .taiji-slow { animation: none; }
+  }
+}
+
+@layer components {
+  /* 发丝线按钮：悬停反白 */
+  .btn-line {
+    @apply inline-flex items-center gap-2 border border-current px-5 py-2.5 text-sm tracking-widest transition-colors duration-200;
+  }
+  .btn-line:hover {
+    background: rgb(var(--ink));
+    color: rgb(var(--paper));
+    border-color: rgb(var(--ink));
+  }
+
+  .hairline-t { border-top: 1px solid rgb(var(--line)); }
+  .hairline-b { border-bottom: 1px solid rgb(var(--line)); }
+
+  .ink { color: rgb(var(--ink)); }
+  .ink-2 { color: rgb(var(--ink-2)); }
+  .ink-3 { color: rgb(var(--ink-3)); }
+  .cinnabar { color: rgb(var(--cinnabar)); }
+  .water { color: rgb(var(--water)); }
+  .bg-paper { background: rgb(var(--paper)); }
+  .bg-ink { background: rgb(var(--ink)); }
+  .bg-cinnabar { background: rgb(var(--cinnabar)); }
+  .bg-water { background: rgb(var(--water)); }
+  .bg-water-deep { background: rgb(var(--water-deep)); }
+  .bg-water-mist { background: rgb(var(--water-mist)); }
+  .bg-ivory { background: rgb(var(--ivory)); }
+}

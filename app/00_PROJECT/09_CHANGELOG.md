@@ -1,0 +1,88 @@
+# 09 · CHANGELOG — 决策与变更史
+
+> 回答："过去发生了什么变化？为什么当初这样设计？"
+> 新条目加在最上方。格式：Decision / Why / Impact / Not Changed。
+
+---
+
+## 2026-08-22 · 导航分层：11 项平铺 → 6 项两组（TASK-001）
+
+**Decision**：顶栏收拢为 索引/宣言/体系/观察/文集/日志。「体系」下辖 系统·四象·框架·无为，「观察」下辖 命题·地图·周期。桌面端父组悬停/键盘聚焦展开下拉（纯 CSS group-hover + focus-within，无 JS 无动效）；移动抽屉按组呈现，组名为非链接标签；子项激活时父组同步加粗。组英文名定为 体系=STRUCTURE、观察=OBSERVE。
+**Why**：用户裁决——11 项平铺不符合极简风格（见上一条建议讨论，用户选择了分层方案并指定分组归属）。
+**Impact**：site.ts NAV 改为一二级混合结构（NavEntry 联合类型）；Layout.tsx 桌面/移动两套渲染；SwipeBack 父级标签查找改为扁平化遍历。页面、路由、INDEX_ITEMS、ARCHIVE_TREE 全部未动。
+**Not Changed**：11 个页面与路径；墨系 hover；朱砂规则；返回系统层级（文章详情→文集仍是唯一）。
+
+**同日修正**：组触发器由 `<button>` 改为 `<span tabindex=0>`——button 的元素级渲染与 `<a>` 行盒不一致导致基线偏下、字重观感不一。二次修正（用户实测仍偏 2px）：nav 改 `items-stretch self-stretch`，六项统一等高并各自 `flex items-center` 居中，墨晕收到内层 span 保持紧凑——无头 Chrome 截图实测六项 top/bottom 完全一致。下拉面板去除内部发丝分隔线、改疏朗行距，柔化"表格感"。焦点环（朱砂 :focus-visible）保留。
+
+**同日修正②**：下拉互斥——点击组名后焦点驻留使面板常开（focus-within），再悬停另一组时两面板重叠。新增 ink.css 规则：悬停任一组时其余组的驻留面板强制收起（`:has()` 实现，纯 CSS），键盘焦点展开能力保留。
+
+**同日修正③（移动端抽屉）**：组名行字号与上下发丝线间距对齐普通行（text-sm + py-3.5 全行统一）；抽屉展开时加「纸面遮蔽层」（bg-paper/88 固定覆盖层，点击收起）区分抽屉与下方页面——不用模糊/玻璃拟态，保持纸墨语言。修正层级：遮蔽层 z-40、抽屉 z-50，避免抽屉被自身遮蔽层盖住（CDP 截图实测确认）。
+
+## 2026-08-21 · 首页封面与幕次标记减重
+
+**Decision**：①删除封面顶部两枚标签胶囊（「HSN · 交易研究档案 · 持续更新」与「持续演进中」）；②ActMark 删除朱砂幕次名后的黑色重复英文（NOW/WHY/SYSTEM/CAPITAL/NEXT 各一处），保留朱砂幕次名 + 右侧注记。
+**Why**：用户截图圈选删除——封面标签与超大标题抢注意力；幕次名 no 与 en 同词渲染两遍，是冗余而非强调。
+**Impact**：Home.tsx 两处；ACTS 数据的 en 字段保留未删（数据不动，组件不再渲染它）。
+**Not Changed**：朱砂规则、幕次编号颜色、五幕内容、目录、终幕。
+
+## 2026-08-15 · 六层上下文系统建立
+
+**Decision**：项目记忆从聊天记录迁移到 `00_PROJECT/` 结构化文档（Spec → Task → Execute → Review → Log → Handoff 工作流）。
+**Why**：用户提供的 AI 项目上下文管理方案；DESIGN.md 继续作为工程操作手册（怎么做），00_PROJECT 管方向（为什么）。
+**Impact**：新增 00_PROJECT/ 13 个文件。
+**Not Changed**：任何页面、组件、数据。
+
+## 2026-08-15 · 工程债清理四件套（94be411）
+
+**Decision**：①删 53 个零引用 shadcn 组件 + 42 个死依赖（React Router/Radix/recharts/zod 等）；②ink-3 加深至 3.4:1、label-sm 用 ink-2(4.8:1)、Thesis 手风琴补 aria、smooth-scroll 加 reduced-motion 守卫；③ErrorBoundary + scripts/check-data.mjs（80 项断言）+ 两处非空断言改防御式；④React.lazy 按路由分包。
+**Why**：用户审计——依赖超重是最大工程债；a11y 欠账；数据文件零防御；单包过重。
+**Impact**：CSS 90→29KB；首屏 JS 387→232KB（gzip 125→75KB）；运行时依赖仅剩 react+react-dom。
+**Not Changed**：任何视觉设计与页面结构。
+
+## 2026-08-15 · 返回=收束交互系统（b3aecf2）
+
+**Decision**：引擎加 recede/revealBack 镜像模式；BackNav 极简返回钮（仅文章详情）；SwipeBack 移动端左缘手势；history.state 方向感知统一浏览器后退。规范中 Symbol 逆向动效一条与符号静止禁令冲突，**有意不实现**。
+**Why**：用户提供的完整返回交互规范（进入=展开，返回=收束）。
+**Impact**：新增 src/ink/{nav,inkBus,BackNav,SwipeBack}；engine 加双模式。顺手清理 Framework.tsx 的 md:py-18 死类。
+**Not Changed**：正向转场、符号、印章。
+
+## 2026-08-15 · 朱砂规则成文 + 全站收敛（f761d21）
+
+**Decision**：朱砂三类使用规则 + 一豁免（估值透支/转换中）；审计收敛 14 处越界用法（阳/阴格逗号、但是标签、权重最高值、退潮、观察点、框架核心句、日志标记与收尾句号等）改墨色或深水蓝。
+**Why**：用户指出规则未成文、漂移已开始；"克制必须可执行"。
+**Impact**：7 个页面文件 + DESIGN.md 朱砂规则节。
+**Not Changed**：印章、焦点环、地图选中态、首页两个句号。
+
+## 2026-08-15 · 符号静止令（b7aa446）
+
+**Decision**：删除「川·标点」全部 hover 动效（含当天上午刚加的"水流呼吸"）。
+**Why**：用户明确否决："不要有任何动效。"呼吸/旋转/位移方向整体关闭，不再恢复。
+**Impact**：ink.css；DESIGN.md 禁令清单。
+**Not Changed**：印章 hover 微转（用户未否决，保留）。
+
+## 2026-08-15 · 墨系交互层复活 + a11y（893ff9f）
+
+**Decision**：修复 `@import './ink/ink.css'` 位于 @tailwind 之后被构建整条静默丢弃的 bug——墨系交互上线以来从未真正生效；同步落地 `:focus-visible` 朱砂焦点环与光标环悬停感知（is-hover）。
+**Why**：用户 a11y 走查：键盘导航对焦点隐身、原生光标功能无替代品。
+**Impact**：index.css 导入顺序、ink.css、InkCursor.tsx。全站悬停墨晕首次真正上线。
+**Not Changed**：任何内容。
+
+## 2026-08-14 · 产业地图升级 + 四轮版式修正（afd88da → f959846）
+
+**Decision**：吸收凌鹏/佩雷斯/肖璟三书——15 节点（+光模块CPO/通用存储/国产设备材料/Token经济）、产业阴阳×估值位置双层编码、渗透率与 stageFocus 字段、佩雷斯时代标尺、命题↔节点双链；随后按用户截图标注做四轮间距/遮挡修正。
+**Why**：用户上传三本书要求丰富地图。
+**Not Changed**：地图"手写坐标"原则未动摇。
+
+## 2026-08-14 · 数据层拆分 + 四新命题（db79b9c）
+
+**Decision**：内容层拆为 src/data/domains/ 11 领域文件 + barrel；命题库 4→8。
+**Why**：降低维护成本，新对话可只改数据。
+
+## 2026-08-14 · 撤除首屏动效（e253fb2）
+
+**Decision**：删除 DaoSymbol + WaterField，还原静态符号。
+**Why**：用户否决："设计的一言难尽。"——首屏动效方向永久关闭。
+
+## 更早（2a263e6 → fdc631a）
+
+字标印章 → 小篆朱砂印章 → 篆意手稿印章（定稿，用户手稿描摹）→ 墨入水交互系统建立。

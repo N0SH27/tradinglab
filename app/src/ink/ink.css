@@ -1,0 +1,233 @@
+/* ─────────────────────────────────────────────
+ * 墨系交互语言（CSS 层）
+ * Hover = 水面：墨落在宣纸上，边缘微微晕开，随即收回。
+ * 不用发光、不用霓虹、不用明显阴影。
+ * ───────────────────────────────────────────── */
+
+/* —— 墨点游标 —— */
+/* 键盘焦点 = 朱砂描边：与「朱砂=决策标记」的语义一致。
+   墨点光标接管指针后，焦点环是键盘用户的唯一导航信号，必须明确。 */
+:focus-visible {
+  outline: 1px solid rgb(var(--cinnabar));
+  outline-offset: 2px;
+}
+
+.ink-cursor-on,
+.ink-cursor-on * {
+  cursor: none !important;
+}
+.ink-cursor-dot {
+  position: fixed;
+  top: 0; left: 0;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: rgb(var(--ink));
+  z-index: 95;
+  pointer-events: none;
+}
+.ink-cursor-ring {
+  position: fixed;
+  top: 0; left: 0;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  border: 1px solid rgb(var(--ink));
+  z-index: 95;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 260ms ease, box-shadow 320ms ease;
+}
+/* 悬停可交互元素时：环内淡入一点墨色——「这里可点击」的替代信号 */
+.ink-cursor-ring.is-hover {
+  box-shadow: inset 0 0 0 100px rgba(22, 34, 45, 0.045);
+}
+.ink-cursor-spark {
+  position: fixed;
+  top: 0; left: 0;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(192,57,43,0.9) 0%, rgba(192,57,43,0.35) 55%, rgba(192,57,43,0) 75%);
+  z-index: 94;
+  pointer-events: none;
+  opacity: 0;
+}
+@media (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .ink-cursor-dot, .ink-cursor-ring, .ink-cursor-spark { display: none; }
+}
+
+/* —— 文字/导航墨晕：一圈极轻的雾化扩散，迅速收回 —— */
+.ink-hv {
+  position: relative;
+  isolation: isolate;
+  transition: color 320ms ease;
+}
+.ink-hv::after {
+  content: '';
+  position: absolute;
+  inset: -7px -10px;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(10,10,10,0.07), rgba(10,10,10,0.025) 55%, transparent 78%);
+  opacity: 0;
+  transform: scale(0.72);
+  transition: opacity 480ms ease, transform 680ms cubic-bezier(.22,.8,.36,1);
+}
+.ink-hv:hover::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* —— 卡片：不下沉、不浮起，内部墨意轻变 —— */
+.ink-card {
+  position: relative;
+  transition: border-color 320ms ease, background-color 480ms ease;
+}
+.ink-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(120px 90px at 12% 0%, rgba(10,10,10,0.035), transparent 70%),
+    radial-gradient(180px 120px at 100% 100%, rgba(10,10,10,0.028), transparent 72%);
+  opacity: 0;
+  transition: opacity 600ms ease;
+}
+.ink-card:hover::before { opacity: 1; }
+.ink-card:hover { border-color: rgb(var(--ink-3)); }
+/* 卡片内的小圆点：hover 时前移一点——活起来，而非弹起来 */
+.ink-card .ink-dot {
+  transition: transform 560ms cubic-bezier(.22,.8,.36,1), background-color 400ms ease;
+}
+.ink-card:hover .ink-dot {
+  transform: translateX(6px);
+  background: rgb(var(--cinnabar));
+}
+/* 卡片标题：极细微的色深变化 */
+.ink-card .ink-title { transition: color 400ms ease; }
+.ink-card:hover .ink-title { color: rgb(var(--ink)); }
+
+/* —— 按钮：发丝线，悬停时墨自左向右漫入（不用瞬变） —— */
+.btn-line {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.btn-line::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: rgb(var(--ink));
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 520ms cubic-bezier(.7,0,.2,1);
+}
+.btn-line:hover::before { transform: scaleX(1); }
+.btn-line:hover {
+  background: transparent;
+  color: rgb(var(--paper));
+  border-color: rgb(var(--ink));
+}
+
+/* —— 符号（川·标点）：静止。悬停无任何动效（用户 2026-08-15 明确否决，
+   呼吸/旋转均不再恢复）。类名保留仅作语义标记。 —— */
+
+/* —— 印章：hover 时阴阳微转——白文轻移，负形被看见 —— */
+.ink-seal .seal-glyph {
+  transform-origin: 60px 60px;
+  transition: transform 1600ms cubic-bezier(.33,.9,.3,1);
+}
+.ink-seal:hover .seal-glyph {
+  transform: rotate(-6deg) scale(0.965);
+}
+
+/* —— 目录行（索引项）：hover 时编号转朱砂、底线如墨迹推进 —— */
+.ink-row {
+  position: relative;
+}
+.ink-row::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: -1px;
+  height: 1px;
+  width: 100%;
+  background: rgb(var(--ink));
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 640ms cubic-bezier(.7,0,.2,1);
+}
+.ink-row:hover::after { transform: scaleX(1); }
+.ink-row .row-no { transition: color 400ms ease; }
+.ink-row:hover .row-no { color: rgb(var(--cinnabar)); }
+.ink-row .row-zh { transition: transform 560ms cubic-bezier(.22,.8,.36,1); display: inline-block; }
+.ink-row:hover .row-zh { transform: translateX(8px); }
+
+/* —— 返回（收束）：极细左向线性符号 + 极简文字，默认极低存在感 —— */
+.ink-back {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  color: rgb(var(--ink-3));
+  transition: color 360ms ease;
+}
+.ink-back::before {
+  /* 水墨回流：极浅墨晕 */
+  content: '';
+  position: absolute;
+  inset: -12px -18px;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(10,10,10,0.05), rgba(10,10,10,0.018) 55%, transparent 78%);
+  opacity: 0;
+  transform: scale(0.8);
+  transition: opacity 520ms ease, transform 700ms cubic-bezier(.22,.8,.36,1);
+}
+.ink-back:hover { color: rgb(var(--ink)); }
+.ink-back:hover::before { opacity: 1; transform: scale(1); }
+.ink-back .bk-arrow {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  transition: transform 520ms cubic-bezier(.22,.8,.36,1);
+}
+.ink-back .bk-trail {
+  /* 向左拖尾：回去的方向已经被打开 */
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  width: 16px;
+  height: 1px;
+  background: linear-gradient(to left, currentColor, transparent);
+  opacity: 0;
+  transform: translateX(6px);
+  transition: opacity 520ms ease, transform 620ms cubic-bezier(.22,.8,.36,1);
+}
+.ink-back:hover .bk-arrow { transform: translateX(-4px); }
+.ink-back:hover .bk-trail { opacity: 0.55; transform: translateX(0); }
+.ink-back .bk-text { transition: transform 520ms cubic-bezier(.22,.8,.36,1); }
+.ink-back:hover .bk-text { transform: translateX(-2px); }
+
+/* —— 产业地图节点墨晕 —— */
+.map-halo {
+  opacity: 0;
+  transition: opacity 500ms ease;
+  pointer-events: none;
+}
+g:hover .map-halo { opacity: 1; }
+
+/* —— 导航下拉互斥 —— */
+/* 点击组名后焦点驻留（focus-within 面板常开）；悬停另一组时，
+   只显示最新悬停的面板，其余焦点驻留的面板强制收起。 */
+nav:has(.nav-group:hover) .nav-group:not(:hover) .nav-panel {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ink-hv::after, .ink-card::before, .btn-line::before { transition: none; }
+  .ink-seal .seal-glyph { transition: none; }
+  .ink-back, .ink-back::before, .ink-back .bk-arrow, .ink-back .bk-trail, .ink-back .bk-text { transition: none; }
+}
