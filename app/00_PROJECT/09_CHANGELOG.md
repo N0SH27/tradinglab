@@ -5,6 +5,13 @@
 
 ---
 
+## 2026-08-22 · 接入 Google Analytics 4（TASK-002）
+
+**Decision**：index.html 以 async 外链加载 gtag.js（G-CFRXCQLQMF），`send_page_view: false` 关闭自动上报；新增 src/analytics.ts 的 `trackPageView(path)`，App.tsx 监听 hash 路由变化手动上报 page_view（含 page_path/location/title）。
+**Why**：用户要求接入访问统计。hash 路由 SPA 下 GA4 自动增强测量对页面切换的捕获不可靠，手动上报才准确；gtag 走外链脚本，不违反零依赖红线（运行时 npm 依赖仍仅 react+react-dom）。
+**Impact**：index.html +2 个 script 标签；新增 analytics.ts；App.tsx +2 行。CDP 无头实测：路由切换逐条触发 page_view。注意：GA4 实时报表数秒可见，标准报表有 24–48h 延迟。
+**Not Changed**：任何视觉、交互、数据文件；墨入水转场。
+
 ## 2026-08-22 · 导航分层：11 项平铺 → 6 项两组（TASK-001）
 
 **Decision**：顶栏收拢为 索引/宣言/体系/观察/文集/日志。「体系」下辖 系统·四象·框架·无为，「观察」下辖 命题·地图·周期。桌面端父组悬停/键盘聚焦展开下拉（纯 CSS group-hover + focus-within，无 JS 无动效）；移动抽屉按组呈现，组名为非链接标签；子项激活时父组同步加粗。组英文名定为 体系=STRUCTURE、观察=OBSERVE。

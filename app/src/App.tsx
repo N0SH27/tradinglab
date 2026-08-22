@@ -1,7 +1,8 @@
-import React, { Suspense, lazy } from 'react'
+import React, { Suspense, lazy, useEffect } from 'react'
 import Layout from './components/Layout'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { useHashRoute } from './hooks/useHashRoute'
+import { trackPageView } from './analytics'
 import { InkTransition } from './ink/InkTransition'
 import { InkCursor } from './ink/InkCursor'
 import { SwipeBack } from './ink/SwipeBack'
@@ -39,6 +40,7 @@ function route(path: string): React.ReactNode {
 
 export default function App() {
   const path = useHashRoute()
+  useEffect(() => { trackPageView(path) }, [path])
   return (
     <>
       <Layout path={path}>
