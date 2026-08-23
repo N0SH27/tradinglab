@@ -6,6 +6,31 @@
 
 ---
 
+## 2026-08-23 · V2-04.5 Engineering Readiness Review
+
+**执行内容**：实码审计 G-01~G-07 后产出 `07_V2_ENGINEERING_READINESS.md`——
+V2-05 的 Canonical Data Contract。关键裁决：
+
+- **G-03 采用 Option C（Derived Thesis Polarity）**：`MapNode.state` 是全站 polarity 唯一事实源，
+  命题极性由纯函数 `deriveThesisPolarity` 推导（全同→该态；含 turn 且其余一致→"X → TURN"；
+  阴阳混合→MIXED 并陈），Thesis 不加 polarity 字段，杜绝双数据源冲突；
+- **G-04 增量演进**：journal items 追加可选字段 `thesisId?/prev?/current?`，旧条目不迁移，
+  delta = current − prev 计算值，禁止从 note 正则提取；
+- **G-01 Observation 契约**：`domains/now.ts` 新 domain（id/title/summary/date/mapNodeId?/thesisId?），
+  polarity 不持有字段、经 mapNodeId 推导；SIGNALS 完整形态仍挂 C-04；
+- **G-02 路由契约**：`#/thesis/:id` 镜像 `/essays/:id` 模式，parentOf 登记 单命题→命题聚合；
+- **Blocking 顺序**：T-1 导航改组（site.ts）→ T-2 now.ts → T-3 journal 增量+断言 →
+  T-4 推导函数 → T-5 thesis 路由；G-05 延期 V2-06；
+- **Migration 风险：低**——全部新增/可选/配置级，无旧字段改写，回滚 = revert 单 commit。
+
+另转入两项 V2-05 验收观察项：O-1（阴阳仪 hover/click transform 叠加走查序列）、
+O-2（TURN=朱砂语义不得外溢）。
+
+**未做的事**：未修改任何生产代码、Router、数据、导航；未做数据 migration；未实现 Homepage。
+仅新增 1 份 V2 文档 + 更新本日志。
+
+---
+
 ## 2026-08-23 · V2-04 Polarity Instrument 实施
 
 **执行内容**（V2 首次生产代码变更，基线 = Design Freeze commit `71ea8b8`）：
