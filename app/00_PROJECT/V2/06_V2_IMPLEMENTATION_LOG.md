@@ -6,6 +6,32 @@
 
 ---
 
+## 2026-08-23 · V2-04 Polarity Instrument 实施
+
+**执行内容**（V2 首次生产代码变更，基线 = Design Freeze commit `71ea8b8`）：
+
+- 新增 `src/components/PolarityInstrument.tsx`：`state: 'yin'|'turn'|'yang'`、
+  `interactive`、`size`、`showLabel`；默认完全静止；hover 有界微转（30°，单次过渡）；
+  click 循环 YANG→TURN→YIN 并翻转 180°；键盘 Enter/Space 可操作；
+  `aria-label` 播报当前状态；非 interactive 时 `role="img"`；
+- 新增 `src/index.css` `.polarity-disc` 样式（900ms 过渡，墨系时长区间），
+  `prefers-reduced-motion` 下 `transition: none`；
+- P1 成文例外写入：`02_DESIGN_CONSTITUTION.md` §17 + 根 `DESIGN.md` 禁令表
+  （严格按已批准范围：全站阴阳图形 ≤2、默认静止、reduced-motion 零运动，未扩大例外）；
+- 07_COMPONENT_SYSTEM.md 组件表同步（07 号文件规定的维护义务）；
+- 09_CHANGELOG.md 记一条（P0 AI 工作原则规定的任务后义务）。
+
+**数量复核**：全站阴阳图形 = 2（Cycle 页 Taiji + PolarityInstrument），无第三个；
+Cycle.tsx 与 Taiji 组件**零改动**。状态色沿用 PolarityTag 语义（阳=墨/阴=深水蓝/转换中=朱砂豁免），未新增强调色，未新增依赖。
+
+**过渡态说明**：组件暂无页面引用——V2-05 首页 POLARITY 章节挂载，属七阶段计划内的
+中间态（不是死组件）；项目无测试 runner（无 vitest/jest），行为验证以 tsc + build + 人工走查为准。
+
+**未做的事**：未实施 Homepage / NOW / Thesis route / Thesis schema / Journal schema /
+导航改造；未修改 Cycle 页；未安装依赖；未做无关重构。
+
+---
+
 ## 2026-08-23 · V2-03 Homepage Specification Final Review
 
 **执行内容**：将 04_V2_HOME_SPEC.md 重写为 **Homepage Final Product Specification**——

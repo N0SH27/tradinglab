@@ -21,6 +21,12 @@
 | SectionHead | 节头（符号 + 中文 + 英文 + 注记） |
 | PolarityTag | 阴阳/转换中标签（转换中 = 朱砂方块，风险语义豁免） |
 
+## 仪器（src/components/PolarityInstrument.tsx）
+
+| 组件 | 用途 | 硬规则 |
+|---|---|---|
+| PolarityInstrument | 阴阳仪（V2-04）：三态 YANG/TURN/YIN 认知仪器，用于首页 POLARITY 章节 | 全站阴阳图形至多 2 个（Cycle 页 Taiji + 本组件），禁止第三个；默认完全静止，hover 有界微转、click 翻转切态；reduced-motion 零运动；状态色沿用 PolarityTag 语义。详见 02_DESIGN_CONSTITUTION §17 成文例外 |
+
 ## 布局（src/components/Layout.tsx）
 
 Header（固定 14 高，hairline 底；lg 以下"目录"抽屉）+ Footer（知识归档树 + 印章落款）。

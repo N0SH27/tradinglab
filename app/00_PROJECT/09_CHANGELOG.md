@@ -5,6 +5,13 @@
 
 ---
 
+## 2026-08-23 · Polarity Instrument 组件 + P1 成文例外（V2-04）
+
+**Decision**：新增 `src/components/PolarityInstrument.tsx`（三态 YANG/TURN/YIN 阴阳仪，props：state/interactive/size/showLabel）+ index.css `.polarity-disc` 有界过渡（默认静止、hover 微转 30°、click 翻转 180°、reduced-motion 零运动）；02_DESIGN_CONSTITUTION §17 与根 DESIGN.md 禁令表写入「太极图禁令」的成文例外；07_COMPONENT_SYSTEM 组件表同步。
+**Why**：V2-01 用户裁决（C-01/C-02）——全站阴阳图形至多 2 个、首页仪器默认静止仅 hover/click 运动；V2-04 任务要求先把仪器做成可复用组件，避免首页开发时临时写。
+**Impact**：新增 1 个组件文件；index.css +18 行；P1 两份文档各 +1 例外段；组件表现阶段暂无页面引用（V2-05 首页 POLARITY 章节挂载，属计划内过渡态）。
+**Not Changed**：Cycle 页 Taiji 原样；首页、导航、Router、数据模型、其他页面全部未动；朱砂规则、符号静止令、首屏无动效不变。
+
 ## 2026-08-22 · 接入 Google Analytics 4（TASK-002）
 
 **Decision**：index.html 以 async 外链加载 gtag.js（G-CFRXCQLQMF），`send_page_view: false` 关闭自动上报；新增 src/analytics.ts 的 `trackPageView(path)`，App.tsx 监听 hash 路由变化手动上报 page_view（含 page_path/location/title）。
