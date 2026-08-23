@@ -6,6 +6,43 @@
 
 ---
 
+## 2026-08-23 · V2-05 首页实施（T-1 ~ T-7）
+
+**执行内容**（基线 = V2-04.5 commit `360481a`，严格按 07_V2_ENGINEERING_READINESS.md 的 Blocking 顺序）：
+
+- **T-1** `data/domains/site.ts`：NAV 改组为 Option C——当下 NOW(#/) / 世界 WORLD[地图·周期·四象] /
+  命题 THESIS[命题·系统·框架] / 日志 JOURNAL[日志·文集] / 无为 WUWEI / HSN[宣言]；
+- **T-2** 新增 `data/domains/now.ts`：Observation 接口（id/title/summary/date/mapNodeId?/thesisId?）+
+  5 条观察数据；`content.ts` 加 barrel 导出一行；
+- **T-3** `data/domains/journal.ts`：JournalItem 增量可选字段 `thesisId?/previousConviction?/currentConviction?`；
+  3 条旧条目补结构化数据（国产算力 65→72/compute、新能源 57→63/newenergy、机器人 55→51/robot）；
+- **T-4** 新增 `data/polarity.ts`：`derivePolarity/deriveThesisPolarity/formatPolarity`。
+  规则：空→null；全同→single；含 turn 且其余一致→"X → TURN"；阴阳混合→MIXED。MapNode.state 唯一事实源；
+- **T-5** 新增 `pages/ThesisDetail.tsx`；`App.tsx` 注册 `#/thesis/:id`（镜像 essays/:id 模式）；
+  `ink/nav.ts` parentOf 登记 单命题→命题聚合；
+- **T-6** `pages/Home.tsx` 全量重写为七章（01 NOW / 02 POLARITY / 03 HOW I THINK / 04 LIVE THESIS /
+  05 WHAT CHANGED MY MIND / 06 WUWEI / 07 END），V1 封面 hero 与终幕骨架保留，
+  ChapterMark 复用 V1 ActMark 视觉；POLARITY 章节挂载 `<PolarityInstrument state="yang" size={150} interactive showLabel />`；
+  数据铁律全部遵守（组件零业务数据、polarity 只经 deriveThesisPolarity、delta 计算值、Observation 空则整章不渲染）；
+  hooks 顺序修正为 useRevealRoot 先于任何 early return（原 V1 lint error 随重写顺带消除）；
+- **check-data.mjs** 断言扩展：[9] NOW 观察、[10] 日志结构化字段，总计 92 项。
+
+**T-7 验证结果**：
+- `npm run check` 92/92 ✓；`npm run build` ✓（index gzip 74.82KB，Home chunk 17.12KB/5.03KB gzip）；
+- `npm run lint` 无新增 error（仅剩 InkTransition.tsx 1 个既有 react-refresh error，未动）；
+- 真实 Chrome（headless + CDP）实测：1440/768/375 三档整页截图（页高 6148/6684/7952px）；
+- **O-1 交互序列全过**：静态 YANG → hover 30° → click 180° 切 TURN → 移出 → 键盘 Enter 切 YIN →
+  reduced-motion 重载后 click 切 TURN 且 transitionDuration=0s（零运动）；
+- **O-2**：TURN 朱砂仅出现在仪器态标与既有规范位置，无外溢；
+- 回归：其他页面文件零改动（git status 仅 7 改 3 增，全部属本任务清单）。
+
+**未做的事**：未动 Cycle Taiji、其他页面、InkTransition lint 债、SIGNALS、实时数据、G-05（留 V2-06）；
+未删 site.ts 旧数据（ACTS/CYCLE_STAGES/CYCLE_INDUSTRIES/INDEX_ITEMS 保留）；未 push。
+
+**冲突**：无新增。
+
+---
+
 ## 2026-08-23 · V2-04.5 Engineering Readiness Review
 
 **执行内容**：实码审计 G-01~G-07 后产出 `07_V2_ENGINEERING_READINESS.md`——

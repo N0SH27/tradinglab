@@ -24,34 +24,45 @@ export const ACTS = {
   next: { no: 'NEXT', en: 'NEXT', note: '下一阶段可能发生什么' },
 }
 
-/* 顶部导航（2026-08-22 分层：11 项平铺 → 6 项两组）
-   体系 = 系统·四象·框架·无为（方法论与心法）；
-   观察 = 命题·地图·周期（进行中的研究）。 */
+/* 顶部导航（V2-05 T-1，Option C：NOW/WORLD/THESIS/JOURNAL/WUWEI/HSN）
+   机制不变（NavLink | 分组）。组内首项为该组主页面：
+   WORLD=地图·周期·四象；THESIS=命题·系统·框架；JOURNAL=日志·文集；HSN=宣言。
+   过渡态：NOW 暂链首页（独立 NOW 页待 C-04）；ABOUT 待 V2-07。 */
 export interface NavLink { path: string; label: string; en: string }
 export type NavEntry = NavLink | { label: string; en: string; children: NavLink[] }
 
 export const NAV: NavEntry[] = [
-  { path: '/', label: '索引', en: 'INDEX' },
-  { path: '/manifesto', label: '宣言', en: 'MANIFESTO' },
+  { path: '/', label: '当下', en: 'NOW' },
   {
-    label: '体系', en: 'STRUCTURE',
+    label: '世界', en: 'WORLD',
     children: [
-      { path: '/system', label: '系统', en: 'SYSTEM' },
-      { path: '/dimensions', label: '四象', en: 'DIMENSIONS' },
-      { path: '/framework', label: '框架', en: 'FRAMEWORK' },
-      { path: '/wuwei', label: '无为', en: 'WU WEI' },
-    ],
-  },
-  {
-    label: '观察', en: 'OBSERVE',
-    children: [
-      { path: '/thesis', label: '命题', en: 'THESIS' },
       { path: '/map', label: '地图', en: 'MAP' },
       { path: '/cycle', label: '周期', en: 'CYCLE' },
+      { path: '/dimensions', label: '四象', en: 'DIMENSIONS' },
     ],
   },
-  { path: '/essays', label: '文集', en: 'ESSAYS' },
-  { path: '/journal', label: '日志', en: 'JOURNAL' },
+  {
+    label: '命题', en: 'THESIS',
+    children: [
+      { path: '/thesis', label: '命题', en: 'LIVE THESIS' },
+      { path: '/system', label: '系统', en: 'SYSTEM' },
+      { path: '/framework', label: '框架', en: 'FRAMEWORK' },
+    ],
+  },
+  {
+    label: '日志', en: 'JOURNAL',
+    children: [
+      { path: '/journal', label: '日志', en: 'JOURNAL' },
+      { path: '/essays', label: '文集', en: 'ESSAYS' },
+    ],
+  },
+  { path: '/wuwei', label: '无为', en: 'WUWEI' },
+  {
+    label: 'HSN', en: 'HSN',
+    children: [
+      { path: '/manifesto', label: '宣言', en: 'MANIFESTO' },
+    ],
+  },
 ]
 /* 首页目录（索引页十个入口） */
 export const INDEX_ITEMS = [

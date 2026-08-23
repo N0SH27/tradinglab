@@ -1,7 +1,20 @@
 // ── 日志 ─────────────────────────────────────
+// 增量 schema 演进（V2-05 T-3）：items 追加可选结构化字段，
+// 旧条目不迁移、note 自由文本保留为 legacy display；
+// 概率变化的唯一事实源是 structured fields，delta 由代码计算（current - previous），
+// 禁止从 note 正则提取。
+export interface JournalItem {
+  type: 'up' | 'down' | 'risk' | 'new'
+  target: string
+  note: string
+  thesisId?: string            // 结构化关联命题（#/thesis/:id）
+  previousConviction?: number  // 修正前概率（0–100）
+  currentConviction?: number   // 修正后概率（0–100）
+}
+
 export interface JournalEntry {
   date: string
-  items: { type: 'up' | 'down' | 'risk' | 'new'; target: string; note: string }[]
+  items: JournalItem[]
 }
 
 export const JOURNAL: JournalEntry[] = [
@@ -21,7 +34,7 @@ export const JOURNAL: JournalEntry[] = [
   {
     date: '2026.07.31',
     items: [
-      { type: 'up', target: '国产算力', note: '上调概率 65% → 72%。北京智算项目推进速度快于预期。' },
+      { type: 'up', target: '国产算力', note: '上调概率 65% → 72%。北京智算项目推进速度快于预期。', thesisId: 'compute', previousConviction: 65, currentConviction: 72 },
       { type: 'risk', target: '液冷散热', note: '新增风险：竞争者密集入局，格局恶化快于预期。弱者道之用——拥挤的强信号不如冷清的弱信号。' },
       { type: 'new', target: 'TL 指标', note: '底部确认标准更新：连续 3 个交易日放量站上 MA5；7 个交易日内至少 1–2 天放巨量（系数 ×1.45）。' },
     ],
@@ -42,13 +55,13 @@ export const JOURNAL: JournalEntry[] = [
   {
     date: '2026.07.05',
     items: [
-      { type: 'up', target: '新能源', note: '上调概率 57% → 63%。龙头经营性现金流连续两季为正，出清证据链闭合。否极泰来的早期形态。' },
+      { type: 'up', target: '新能源', note: '上调概率 57% → 63%。龙头经营性现金流连续两季为正，出清证据链闭合。否极泰来的早期形态。', thesisId: 'newenergy', previousConviction: 57, currentConviction: 63 },
     ],
   },
   {
     date: '2026.06.25',
     items: [
-      { type: 'down', target: '机器人', note: '下调概率 55% → 51%。成交拥挤度创年内新高，估值透支速度超过产业兑现速度。盛极而衰的预警，不是结论。' },
+      { type: 'down', target: '机器人', note: '下调概率 55% → 51%。成交拥挤度创年内新高，估值透支速度超过产业兑现速度。盛极而衰的预警，不是结论。', thesisId: 'robot', previousConviction: 55, currentConviction: 51 },
     ],
   },
   {

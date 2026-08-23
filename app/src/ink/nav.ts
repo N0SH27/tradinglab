@@ -5,8 +5,9 @@
  * 使浏览器原生前进/后退可被 popstate 识别方向，
  * 从而套用与自定义返回一致的「收束」过渡。
  *
- * parentOf：站点是扁平结构，唯一天然层级是
- * 文章详情 → 文集。返回按钮与滑动返回只在其上出现，
+ * parentOf：站点以扁平结构为主，天然层级仅两处——
+ * 文章详情 → 文集；单命题 → 命题聚合（V2-05 T-5）。
+ * 返回按钮与滑动返回只在其上出现，
  * 不在一级页面无条件显示。
  * ───────────────────────────────────────────── */
 
@@ -39,5 +40,6 @@ export function popDirection(e: PopStateEvent): 'back' | 'fwd' {
 /** 当前路径的明确上一层级；一级页面返回 null */
 export function parentOf(p: string): string | null {
   if (p.startsWith('/essays/')) return '/essays'
+  if (p.startsWith('/thesis/')) return '/thesis'
   return null
 }

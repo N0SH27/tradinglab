@@ -12,6 +12,7 @@ const Home = lazy(() => import('./pages/Home'))
 const Manifesto = lazy(() => import('./pages/Manifesto'))
 const System = lazy(() => import('./pages/System'))
 const Thesis = lazy(() => import('./pages/Thesis'))
+const ThesisDetail = lazy(() => import('./pages/ThesisDetail'))
 const Essays = lazy(() => import('./pages/Essays'))
 const Essay = lazy(() => import('./pages/Essay'))
 const IndustryMap = lazy(() => import('./pages/IndustryMap'))
@@ -23,6 +24,7 @@ const Journal = lazy(() => import('./pages/Journal'))
 
 function route(path: string): React.ReactNode {
   if (path.startsWith('/essays/')) return <Essay id={path.replace('/essays/', '')} />
+  if (path.startsWith('/thesis/')) return <ThesisDetail id={path.replace('/thesis/', '')} />
   switch (path) {
     case '/manifesto': return <Manifesto />
     case '/system': return <System />

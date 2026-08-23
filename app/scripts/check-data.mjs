@@ -120,6 +120,36 @@ try {
       validPaths.has(r.path) ? ok(`${e.id} → ${r.path}`) : bad(`${e.id} 延伸链接无效: ${r.path}`)
     }
   }
+
+  // ── 9. NOW 观察（V2-05 T-2）──
+  console.log('\n[9] NOW 观察')
+  Array.isArray(d.OBSERVATIONS) ? ok(`OBSERVATIONS ${d.OBSERVATIONS.length} 条`) : bad('OBSERVATIONS 缺失')
+  for (const o of d.OBSERVATIONS ?? []) {
+    const errs = []
+    if (!o.id || !o.title || !o.summary || !o.date) errs.push('必填字段缺失')
+    if (o.mapNodeId && !nodeIds.has(o.mapNodeId)) errs.push(`mapNodeId 悬空: ${o.mapNodeId}`)
+    if (o.thesisId && !thesisIds.has(o.thesisId)) errs.push(`thesisId 悬空: ${o.thesisId}`)
+    errs.length === 0 ? ok(o.id) : bad(`${o.id ?? '?'}: ${errs.join(' / ')}`)
+  }
+
+  // ── 10. 日志结构化 Revision（V2-05 T-3）──
+  console.log('\n[10] 日志结构化字段')
+  for (const entry of d.JOURNAL ?? []) {
+    for (const it of entry.items ?? []) {
+      const hasP = it.previousConviction !== undefined
+      const hasC = it.currentConviction !== undefined
+      if (hasP !== hasC) { bad(`${entry.date} ${it.target}: previous/current 必须成对出现`); continue }
+      if (hasP) {
+        const inRange = (v) => typeof v === 'number' && v >= 0 && v <= 100
+        ;(inRange(it.previousConviction) && inRange(it.currentConviction))
+          ? ok(`${entry.date} ${it.target}: ${it.previousConviction} → ${it.currentConviction}`)
+          : bad(`${entry.date} ${it.target}: conviction 越界`)
+      }
+      if (it.thesisId !== undefined) {
+        thesisIds.has(it.thesisId) ? ok(`${entry.date} ${it.target} → ${it.thesisId}`) : bad(`${entry.date} ${it.target}: thesisId 悬空: ${it.thesisId}`)
+      }
+    }
+  }
 } catch (err) {
   bad(`数据文件无法解析：${err.message}`)
   console.error(err)

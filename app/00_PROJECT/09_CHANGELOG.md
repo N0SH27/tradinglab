@@ -5,6 +5,22 @@
 
 ---
 
+## 2026-08-23 · V2 首页实施（V2-05 T-1~T-7）
+
+**Decision**：
+- 导航改组为 Option C：当下 NOW → 世界 WORLD（地图/周期/四象）→ 命题 THESIS（命题/系统/框架）→ 日志 JOURNAL（日志/文集）→ 无为 WUWEI → HSN（宣言）；
+- 新增 `data/domains/now.ts`（Observation 接口 + 5 条当下观察）；
+- journal 条目增量可选字段 `thesisId?/previousConviction?/currentConviction?`，3 条旧条目补结构化数据（delta 由 current−previous 计算，不解析 note）；
+- 新增 `data/polarity.ts`：`derivePolarity/deriveThesisPolarity/formatPolarity` 纯函数，MapNode.state 为 polarity 唯一事实源；
+- 新增 `#/thesis/:id` 路由 + `pages/ThesisDetail.tsx` 单命题页，parentOf 登记层级；
+- `pages/Home.tsx` 全量重写为七章：01 NOW → 02 POLARITY（挂载 PolarityInstrument）→ 03 HOW I THINK → 04 LIVE THESIS → 05 WHAT CHANGED MY MIND → 06 WUWEI → 07 END，V1 封面 hero 与终幕骨架保留；check-data 断言扩展至 92 项（[9] NOW、[10] 结构化 Revision）。
+
+**Why**：V2-03 首页规格（04_V2_HOME_SPEC.md）+ V2-04.5 工程契约（07_V2_ENGINEERING_READINESS.md）的 Blocking 实施序列；首页定位 Brand + Orientation + Research Entry Point，禁止 Dashboard 化。
+
+**Impact**：修改 7 个既有文件，新增 3 个文件。验证：check 92/92 ✓、build ✓（index gzip 74.82KB，Home chunk 5.03KB）、lint 无新增 error（原 Home.tsx hooks 规则 error 因重写顺带消除，属重写范围内；InkTransition.tsx 既有 error 未动）。真实 Chrome（CDP 无头）实测：1440/768/375 三档整页截图、O-1 交互序列（静态→hover→click YANG→TURN→键盘 Enter→YIN→reduced-motion 零运动 transitionDuration 0s）全部通过。其他页面路由零改动。
+
+**Not Changed**：Cycle 页 Taiji 原样（全站阴阳图形仍 2 个：Cycle Taiji + 首页仪器）；InkTransition lint 既有债不动；SIGNALS、实时数据、G-05 留 V2-06；site.ts 中 ACTS/CYCLE_STAGES/CYCLE_INDUSTRIES/INDEX_ITEMS 数据保留未删（旧目录章节被七章取代，数据本身未移除）；未 push、不触发 Vercel。
+
 ## 2026-08-23 · Polarity Instrument 组件 + P1 成文例外（V2-04）
 
 **Decision**：新增 `src/components/PolarityInstrument.tsx`（三态 YANG/TURN/YIN 阴阳仪，props：state/interactive/size/showLabel）+ index.css `.polarity-disc` 有界过渡（默认静止、hover 微转 30°、click 翻转 180°、reduced-motion 零运动）；02_DESIGN_CONSTITUTION §17 与根 DESIGN.md 禁令表写入「太极图禁令」的成文例外；07_COMPONENT_SYSTEM 组件表同步。
