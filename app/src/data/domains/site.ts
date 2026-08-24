@@ -1,6 +1,9 @@
 // ── 站点信息 · 导航 · 首页目录 · 归档树 ────────
 export const SITE = {
-  name: 'trading-lab',
+  // Canonical Brand（V2-06-00 裁决 A）：全站唯一正式品牌名。
+  // ⚠️ 与视觉 lockup 正式解耦——Header wordmark「trading·lab BY HSN」是
+  // Founder Signature，由 Layout.tsx 的 HEADER_LOCKUP 字面量独立承担，不随本字段变化。
+  name: 'TradingLabb',
   nameZh: '交易实验室',
   author: 'HSN',
   motto: '计划交易，交易计划；应对变化，变化应对。',

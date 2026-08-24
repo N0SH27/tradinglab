@@ -6,6 +6,248 @@
 
 ---
 
+## 2026-08-23 · V2-06-00 Brand Canonicalization（裁决 A 落地）
+
+**执行内容**（基线 = V2-06 Milestone Review 工作区状态；品牌清单已核定）：
+
+- **阶段一（3/4 安全项）**：index.html title `HSN · trading-lab` → `TradingLabb · HSN`；
+  journal.ts 条目 `target: 'trading-lab'` → `'TradingLabb'`（note 原文零修改）；
+  ErrorBoundary console label `[trading-lab]` → `[TradingLabb]`；
+- **冲突发现与暂停**：`SITE.name` 被 Header wordmark（Layout.tsx:13，lowercase 渲染）
+  与 Footer（:155）直接消费——直接改值会使 Header 退化为 `tradinglabb`，
+  Required Change #2 与 AC-03 冲突且 Layout.tsx 不在白名单 → 主动回退 site.ts，
+  上报 A/B/C 三选项；ChatGPT 裁决 **A（解耦，授权扩白名单 +Layout.tsx）**；
+- **阶段二（裁决 A）**：site.ts `name` → `'TradingLabb'` + 解耦注释；
+  Layout.tsx 新增 `HEADER_LOCKUP = 'trading-lab'` 模块级常量（含契约注释），
+  Header wordmark 改渲染常量、不再消费 SITE.name；Footer 保持 `· {SITE.name}` 结构，
+  随 canonical 自然落地 `HSN · TradingLabb` attribution。
+
+**验证**：check **174/174** ✓；build ✓（index gzip 74.84KB）；lint 无新增 error
+（仍仅 InkTransition 既有 1 个）。CDP 真实 Chrome（v20600-header/footer-1440.png）：
+title = `TradingLabb · HSN`；Header wordmark `trading-lab` + `by HSN`——
+font（IBM Plex Mono）/ 16px / -0.4px tracking / lowercase 逐项与改前一致，像素级不变；
+Footer = `HSN · TRADINGLABB`。
+grep 分类：D 类 = HEADER_LOCKUP 字面量（授权保留）；E 类 = content.ts barrel 注释；
+其余全部 TradingLabb canonical，无单 b 残留；无 B/C 类遗留。
+
+**未做的事**：未动 Header CSS/布局/logo/导航/Homepage/路由/数据结构/journal note/URL/
+SEO description/favicon；未顺手修 lint 债；**未 commit、未 push**——等 FINAL CHECK Review。
+
+**冲突**：无新增（阶段一冲突已按裁决 A 解决）。
+
+---
+
+## 2026-08-23 · V2-06 Milestone Review（冻结审查，无代码改动）
+
+**性质**：V2-06-05 Review 裁决的收口阶段——只做审查与登记，不改功能代码，不进入 V2-06-06。
+
+**A · Architecture Freeze（通过）**：
+- check **174/174** ✓ 复跑确认；
+- conviction 持久化全站仅 `domains/ledger.ts` 一处（grep 验证；`map.ts` 的 `current: 1.8`
+  是 MAP_ERA 时代刻度，属另一实体）；
+- `deriveCurrentBelief()` 消费点 = Home / Thesis / ThesisDetail 三页（Journal 不显示信念值，
+  语义正确）；Map 为例外 → 已登记 G-08；
+- `polarity` 字段仅存于 dimensions 域实体与 PolarityTag props，Thesis 零字段化 ✓；
+- Ledger / Current Belief / Revision / Thesis / Archive / Polarity / Journal 关系全部稳定。
+
+**B · Product Review（五页统一语言，通过）**：CDP 真实 Chrome 全页截图
+v206m-{home,thesis,thesis-compute,journal,map}-1440.png + v206m-map-375.png
+（存 v2-05-screenshots/）——Home 七章 / Thesis 注册表 / ThesisDetail 优先级结构 /
+Journal 双层 / Map 全部保持 paper·ink·发丝线·衬线展示·等宽数字语言，无 Dashboard 漂移；
+六张图全部零横向溢出。
+
+**C · Brand Review（V2-06-00 工作清单）**——`TradingLabb` 为唯一 canonical 拼写
+（OD-1 已裁决，`trading·lab BY HSN` 保留为视觉 lockup，不动）：
+1. `index.html:8` title `HSN · trading-lab` → 待改；
+2. `site.ts:3` `SITE.name: 'trading-lab'` → 待改；
+3. `journal.ts:30` 叙事条目 `target: 'trading-lab'`（结构化字段，note 不动）→ 待改；
+4. `ErrorBoundary.tsx:22` console 标签 `[trading-lab]` → 低优先，随同阶段处理；
+5. 已是 canonical 无需动：`Home.tsx:253` 终幕 `HSN · TRADINGLABB`、
+   `Home.tsx:117` `TradingLabb Loop`、header 视觉 lockup。
+
+**登记**：G-08（IndustryMap → Thesis.probability 直读）已写入 08 号契约文档第十节技术债，
+Map 阶段统一改走 deriveCurrentBelief()；G-05 继续挂起。
+
+**未做的事**：未改任何功能代码；未做 V2-06-00 品牌统一；**未 commit、未 push**——
+等 ChatGPT 的 V2-06-00 执行 Prompt 与用户的 push 许可。
+
+**冲突**：无新增。
+
+---
+
+## 2026-08-23 · V2-06-05 Thesis as Belief Registry
+
+**执行内容**（基线 = V2-06-04 工作区状态；Review 两架构钉死项已裁决）：
+
+- **前置审计**：真实读取 theses.ts / domains/ledger.ts / data/ledger.ts / polarity.ts /
+  Thesis.tsx / ThesisDetail.tsx / map.ts / 08 号契约 / 04 号 HOME SPEC / check-data.mjs 后动手；
+- **R-01 落地**：`revisionsOf` 排序 = date 升序 + 同日 id 序号（`seqOf` 只匹配
+  `-\d{8}-(\d+)$`，防止把日期数字误当序号——check [18] 合成用例当场抓住首版
+  `/-(\d+)$/` 误吞日期的真实 bug，修复后全过）；domains/ledger.ts 注释写入
+  同日多条入账的 `-N` 序号契约；`deriveCurrentBelief` 注释升级为"确定性排序后的最新
+  Revision.current"；
+- **Thesis 聚合页全量重写**：手风琴 + 内联详情（含局部 YinYangColumns、证据链、
+  修订记录区块）整体退役 → Belief Registry：01 ACTIVE BELIEFS 注册行
+  （编号 / ACTIVE / 题名 / 一句核心主张「虽然…——但是…」/ Current Belief /
+  PolarityMark / HORIZON / LAST REVISED，整行 `<a>` 进 `#/thesis/:id`）
+  + 02 ARCHIVE（closed/invalidated 分组，无数据整区不渲染、不显示"暂无"）；
+  新局部组件 PolarityMark（方块字形 + 文字，复用 阳=墨方块/阴=水色空心/turn=朱砂
+  语义，非阴阳图形，全站太极仍 ≤2）；06-04 遗留的 YinYangColumns 双实现随
+  Thesis.tsx 版退役自然闭环（ThesisDetail 版为唯一实现）；
+- **派生入口统一**：注册行 Current Belief / LAST REVISED / Polarity 全部经
+  deriveCurrentBelief / lastRevisedOf / deriveThesisPolarity——与 ThesisDetail 同一函数，
+  页面内零业务逻辑重复实现；
+- **check-data 163 → 174**：[18] 确定性排序（同日多条 × 三种物理顺序恒等、
+  revisionsOf 次序、lastRevisedOf 乱序不变、真实数据同日序号连续性待命）、
+  [19] Archive 语义（8 active + 0 archived 分区完备、Archive 不含 active）、
+  [20] 派生入口一致（四页面必用 canonical 函数、禁内联 `current - previous`、
+  禁直读 `.probability`（剥离注释后扫描）、polarity 必走 deriveThesisPolarity）。
+
+**验证**：check **174/174** ✓；build ✓（index gzip 74.83KB）；lint 无新增 error
+（仍仅 InkTransition 既有 react-refresh 1 个）。
+CDP 真实 Chrome：v20605-thesis-1440/375.png 整页截图 + v20605-thesis-to-detail-1440.png
+（存工作区 v2-05-screenshots/）；抽查全过——ACTIVE BELIEFS 呈现、ARCHIVE 闸门
+（无 "What I once believed"、无"暂无"）、8 行 × LAST REVISED/HORIZON、无手风琴残留
+（无 aria-expanded）、无 Dashboard 词汇（BUY/SELL/Bull/Bear/信号/涨跌零命中）、
+点击行进详情（compute 72% / 2026.07.31 一致）、移动端 scrollWidth=375 零溢出、
+真实 Tab 键序焦点落在行链接且朱砂焦点环生效（outline solid rgb(192,57,43)）。
+dev server 与调试 Chrome 已清理。
+
+**未做的事**：未动 Ledger/Thesis 数据；未制造 CONFIRM 数据；未动 Homepage/导航/Map/Essay；
+未删除 Thesis.probability（migration-era fallback 保留）；未做品牌统一（V2-06-00）；
+**未 commit、未 push**——等 Review。
+
+**遗留**：IndustryMap.tsx:196 直读 `t.probability` 显示（Map 属本阶段禁区，
+建议 Map 阶段统一改走 deriveCurrentBelief）；CONFIRM 真实视觉待首条 delta=0 入账。
+
+**冲突**：无新增。
+
+---
+
+## 2026-08-23 · V2-06-04 Revision Engine 呈现层实施
+
+**执行内容**（基线 = V2-06-03 工作区状态；Rule 01/02/03 已成文）：
+
+- **deriveCurrentBelief**：`data/ledger.ts` 新增 SSOT 函数——`revisionsOf(thesisId)` 非空取末条
+  `current`，空取 `thesis.probability`（migration-era fallback，Rule 02）；
+  4 处显示全量切换：Home 章 04 LIVE THESIS 卡、Thesis 聚合页 ThesisBlock、
+  ThesisDetail CURRENT BELIEF、（Thesis.tsx 聚合行）；
+- **ThesisDetail 全量重写**：信息优先级 CURRENT BELIEF → THE CLAIM → WHY
+  （新局部组件 YinYangColumns 阴阳两面）→ WHAT WOULD CHANGE MY MIND
+  （ASSUMPTIONS 编号 + INVALIDATION ×n，字段存在才渲染）→ 单一 REVISION HISTORY
+  （Ledger 行：prev→current (delta) + direction.toUpperCase() 墨灰 label + reason/note/evidence?；
+  legacy `thesis.revisions` 按日期去重后以 "NARRATIVE · 叙事存档" 行并入，按日期降序合并；
+  compute 页 "2026.07.31" 恰出现 2 次 = LAST REVISED + ledger 行，去重实测确认）
+  → EVIDENCE + COUNTER → RELATED MAP → CTA；
+- **Journal 全量重写**：01 REVISION · WHAT CHANGED MY MIND（LEDGER 全量降序行）+
+  02 NARRATIVE · 研究叙事（既有日期分组流原样保留，thesisId 条目改链接）；
+- **Thesis 聚合页**：`(t.status ?? 'active') === 'active'` 过滤；新增 ARCHIVE 区块
+  （closed/invalidated 分组、链接 #/thesis/:id，`archived.length > 0` 才渲染——当前全 active 不渲染）；
+- **Home**：liveTheses 改 filter active 再 slice(0,3)；LIVE THESIS 卡 conviction 走 deriveCurrentBelief；
+- **check-data 132 → 163**：[14] deriveCurrentBelief 一致性（esbuild 二次打包 src/data/ledger.ts
+  后 require，8 命题 derive === probability）、[15] direction 派生（合成 up/down/confirm +
+  逐 entry）、[16] delta 派生、[17] UI 静态扫描（src/pages/*.tsx 禁 previousConviction/
+  currentConviction/note.match/note.split）；[18] status 合法性已由 [13] 覆盖（注释注明映射）。
+
+**验证**：check **163/163** ✓；build ✓（index gzip 74.83KB，ThesisDetail chunk 14.08KB）；
+lint 无新增 error（仍仅 InkTransition 既有 react-refresh 1 个）。
+CDP 真实 Chrome 实测：v20604-thesis-compute / journal / thesis × 1440/375 六张整页截图
+（存工作区 v2-05-screenshots/），单一修订史、A/I 区、双层 Journal、active 过滤均确认；
+dev server 与调试 Chrome 已全部清理。
+
+**未做的事**：未动 Ledger/Thesis 数据、首页七章结构、导航、样式系统；无新阴阳图形；
+未做 Thesis 聚合页升级与 YinYangColumns 合并（V2-06-05）；未做品牌统一（V2-06-00）；
+**未 commit、未 push**——等 Review。
+
+**冲突**：无新增。
+
+---
+
+## 2026-08-23 · V2-06-03 Thesis Schema Extension
+
+**执行内容**（基线 = V2-06-02 工作区状态；V2-06-02 Review 三规则已裁决）：
+
+- **接口扩展**：`Thesis` 新增 `status?: 'active'|'closed'|'invalidated'`、`assumptions?: string[]`、
+  `invalidation?: string[]`；`probability` 注释声明 migration-era snapshot（Rule 02）；
+- **数据补录**：8 个命题全部 `status: 'active'`；assumptions 各 2 条、invalidation 各 1–2 条——
+  全部直接转录各自 `counter` 文本的"最大漏洞/证伪信号"（compute 供给突破 / ai-app 模型跃升 /
+  robot 十万台 / newenergy 出清≠反转 / optical 收入结构 / memory HBM 周期性 /
+  rare-earth 缓和协议 / drug BD 预算），无虚构、无正则提取；
+- **Rule 01 落地**：check-data 撤除 `thesisId+date` 唯一性断言，只保留 `Revision.id` 全局唯一；
+- **check [13] 新增**：status 枚举合法性、polarity 禁字段化（`'polarity' in t`）、
+  assumptions/invalidation 非空字符串数组结构、legacy revisions 仅 {date,note} 两键（Rule 03 防夹带）；
+- **08 文档第十节**：OD 裁决结果 + 最高原则 + Rule 01/02/03 + roadmap 顺序成文。
+
+**验证**：check **132/108→132 项**全过；build ✓（index gzip 74.77KB）；lint 无新增 error
+（既有 InkTransition react-refresh 1 个，按 Prompt 不顺手修）。
+
+**未做的事**：未动 Homepage / Navigation / 任何 UI / Journal UI / ThesisDetail Revision UI；
+未进入 V2-06-04；未动 Ledger 数据；**未 commit、未 push**。
+
+**冲突**：无新增。
+
+---
+
+## 2026-08-23 · V2-06-02 Ledger Data Layer 实施
+
+**执行内容**（基线 = V2-05 commit `f2964ad` + V2-06-01 文档；四项 OD 已裁决）：
+
+- **T-1** 新增 `data/domains/ledger.ts`：Revision{id/date/thesisId/previous/current/reason/evidence?/note?}，
+  append-only；新增 `data/ledger.ts` 派生层：deltaOf / directionOf（up/down/confirm，OD-3）/
+  revisionsOf / lastRevisedOf；
+- **T-2** 3 条事件完整迁移入账（保留 date/reason/note，无正则提取）；
+- **T-3** journal.ts 删 `previousConviction/currentConviction`（OD-2 授权），保留 thesisId，note 未动；
+- **T-4** `Thesis.revisions[]` 冻结：4 处消费方（Thesis.tsx:116 / ThesisDetail ×2 / Home:156）依赖，
+  不可安全删除 → 保留字段 + 接口注释禁新增，性质 = legacy narrative history；
+- **消费方重接**：Home 章 05 与 ThesisDetail 修订史改从 Ledger 取数（视觉结构零改动；
+  行首显示由短 target 变为命题全称——消除重复字段的直接结果）；
+- **T-5** check-data 92 → 108 项：[10] Journal 无 conviction 字段防回归、[11] Ledger 八类断言、
+  [12] Ledger↔Thesis probability 一致性；
+- **T-6** barrel 一行接入，无新 data framework。
+
+**验证**：check 108/108 ✓；build ✓（index gzip 74.78KB）；lint 无新增 error（仍仅 InkTransition 既有 1 个）。
+CDP 真实浏览器回归：首页章 05 三条 Ledger 行渲染正确（含 +7/+6/−4 delta），
+ThesisDetail 仪表条与修订史正常。
+
+**顺带修复（范围内发现）**：V2-05 既有显示 bug——LAST REVISED 取 `revisions[revisions.length-1]`
+（数组新→旧，实际是最早日），compute 曾显示 2026.05.12；Home/ThesisDetail 统一改走
+`lastRevisedOf` 派生后正确显示 2026.07.31。截图存工作区 v2-05-screenshots/v206-*.png。
+
+**未做的事**：未动 Homepage 视觉/导航/样式；未做 Archive UI、ThesisDetail 双呈现去重（V2-06-04）、
+Thesis 聚合页升级（V2-06-05）；未动 status/assumptions/invalidation 字段（V2-06-03）；
+**未 commit、未 push**。
+
+**冲突**：无新增。
+
+---
+
+## 2026-08-23 · V2-06-01 Thesis Schema & Belief Ledger Architecture Review
+
+**执行内容**：实码审计（theses/journal/now/map/essays 接口、polarity.ts、check-data.mjs 全文、
+ThesisDetail.tsx 全文、V2 文档 01–07）后产出 `08_V2_THESIS_BELIEF_LEDGER.md`——
+V2-06 的 Canonical Contract。关键裁决：
+
+- **核心发现：Revision 双源隐患**——`Thesis.revisions[{date,note}]` 与 journal 结构化字段并存，
+  ThesisDetail 已同时渲染两个列表，同一事件两处叙述；
+- **Belief Ledger 采用独立 `domains/ledger.ts`**（方案 B）：Revision 为 append-only 账本实体，
+  journal/thesis/首页均为投影；canonical 字段 = id/date/thesisId/previous/current/reason/evidence?/note?，
+  delta 与方向一律派生不持久化；
+- **Canonical Thesis Schema**：存储名稳定（probability/window 不重命名，显示层 CONVICTION/HORIZON 已落地），
+  新增可选 `status?/assumptions?/invalidation?`；`revisions[]` 冻结为 legacy snapshot；
+  lastRevised/created 派生；polarity 维持 G-03 禁止字段化；
+- **唯一受控旧字段改写（M-2，待授权 OD-2）**：journal 3 items 的 conviction 字段迁出至 Ledger；
+- **品牌命名不统一实码清单**：index.html title / SITE.name / journal target 用 `trading-lab`，
+  V2 文档层与终幕用 TradingLabb——列 V2-06-00 Push 前置任务；
+- Migration 风险低-中：增量 + 一处授权改写，回滚 = revert；
+- Open Decisions 4 项（OD-1 品牌拼写与顶栏形式 / OD-2 M-2 授权 / OD-3 confirm 类入账 / OD-4 封闭命题呈现）。
+
+**未做的事**：未修改任何生产代码（git status 仅新增本文档 + 更新本日志）；
+未实现 ledger.ts；未 commit、未 push——等 Review。
+
+**冲突**：无新增（P0/P1/P2 全部兼容；M-2 属授权事项而非规则冲突）。
+
+---
+
 ## 2026-08-23 · V2-05 首页实施（T-1 ~ T-7）
 
 **执行内容**（基线 = V2-04.5 commit `360481a`，严格按 07_V2_ENGINEERING_READINESS.md 的 Blocking 顺序）：

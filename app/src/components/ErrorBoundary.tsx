@@ -19,7 +19,7 @@ export class ErrorBoundary extends React.Component<React.PropsWithChildren, Stat
   }
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
-    console.error('[trading-lab] 页面渲染失败：', error, info.componentStack)
+    console.error('[TradingLabb] 页面渲染失败：', error, info.componentStack)
   }
 
   render() {

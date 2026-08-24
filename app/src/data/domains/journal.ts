@@ -1,15 +1,14 @@
 // ── 日志 ─────────────────────────────────────
-// 增量 schema 演进（V2-05 T-3）：items 追加可选结构化字段，
-// 旧条目不迁移、note 自由文本保留为 legacy display；
-// 概率变化的唯一事实源是 structured fields，delta 由代码计算（current - previous），
-// 禁止从 note 正则提取。
+// Journal is the narrative record. Ledger is the factual record.
+// Journal 记录我为什么这样想；Ledger（domains/ledger.ts）记录我改变了什么。
+// V2-06-02（OD-2 授权）：previousConviction/currentConviction 已迁出至 Belief Ledger——
+// 本文件不再持有 conviction 事实字段，仅经 thesisId 建立叙事关联；
+// note 自由文本保留为 legacy display，禁止正则提取。
 export interface JournalItem {
   type: 'up' | 'down' | 'risk' | 'new'
   target: string
   note: string
-  thesisId?: string            // 结构化关联命题（#/thesis/:id）
-  previousConviction?: number  // 修正前概率（0–100）
-  currentConviction?: number   // 修正后概率（0–100）
+  thesisId?: string            // 结构化关联命题（#/thesis/:id）；conviction 事实见 domains/ledger.ts
 }
 
 export interface JournalEntry {
@@ -28,13 +27,13 @@ export const JOURNAL: JournalEntry[] = [
   {
     date: '2026.08.03',
     items: [
-      { type: 'new', target: 'trading-lab', note: '网站上线。把 Notion 里的交易知识库公开化：系统、四象、无为、框架、周期、命题。从私密笔记到公开档案——写下来，就要接受检验。—— HSN' },
+      { type: 'new', target: 'TradingLabb', note: '网站上线。把 Notion 里的交易知识库公开化：系统、四象、无为、框架、周期、命题。从私密笔记到公开档案——写下来，就要接受检验。—— HSN' },
     ],
   },
   {
     date: '2026.07.31',
     items: [
-      { type: 'up', target: '国产算力', note: '上调概率 65% → 72%。北京智算项目推进速度快于预期。', thesisId: 'compute', previousConviction: 65, currentConviction: 72 },
+      { type: 'up', target: '国产算力', note: '上调概率 65% → 72%。北京智算项目推进速度快于预期。', thesisId: 'compute' },
       { type: 'risk', target: '液冷散热', note: '新增风险：竞争者密集入局，格局恶化快于预期。弱者道之用——拥挤的强信号不如冷清的弱信号。' },
       { type: 'new', target: 'TL 指标', note: '底部确认标准更新：连续 3 个交易日放量站上 MA5；7 个交易日内至少 1–2 天放巨量（系数 ×1.45）。' },
     ],
@@ -55,13 +54,13 @@ export const JOURNAL: JournalEntry[] = [
   {
     date: '2026.07.05',
     items: [
-      { type: 'up', target: '新能源', note: '上调概率 57% → 63%。龙头经营性现金流连续两季为正，出清证据链闭合。否极泰来的早期形态。', thesisId: 'newenergy', previousConviction: 57, currentConviction: 63 },
+      { type: 'up', target: '新能源', note: '上调概率 57% → 63%。龙头经营性现金流连续两季为正，出清证据链闭合。否极泰来的早期形态。', thesisId: 'newenergy' },
     ],
   },
   {
     date: '2026.06.25',
     items: [
-      { type: 'down', target: '机器人', note: '下调概率 55% → 51%。成交拥挤度创年内新高，估值透支速度超过产业兑现速度。盛极而衰的预警，不是结论。', thesisId: 'robot', previousConviction: 55, currentConviction: 51 },
+      { type: 'down', target: '机器人', note: '下调概率 55% → 51%。成交拥挤度创年内新高，估值透支速度超过产业兑现速度。盛极而衰的预警，不是结论。', thesisId: 'robot' },
     ],
   },
   {

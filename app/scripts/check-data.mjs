@@ -10,7 +10,7 @@
 
 import { execFileSync } from 'node:child_process'
 import { createRequire } from 'node:module'
-import { mkdtempSync, rmSync } from 'node:fs'
+import { mkdtempSync, rmSync, readdirSync, readFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -132,24 +132,200 @@ try {
     errs.length === 0 ? ok(o.id) : bad(`${o.id ?? '?'}: ${errs.join(' / ')}`)
   }
 
-  // ── 10. 日志结构化 Revision（V2-05 T-3）──
-  console.log('\n[10] 日志结构化字段')
+  // ── 10. Journal 叙事层 SSOT 防回归（V2-06-02 OD-2）──
+  console.log('\n[10] Journal 不得持有 conviction 字段')
   for (const entry of d.JOURNAL ?? []) {
     for (const it of entry.items ?? []) {
-      const hasP = it.previousConviction !== undefined
-      const hasC = it.currentConviction !== undefined
-      if (hasP !== hasC) { bad(`${entry.date} ${it.target}: previous/current 必须成对出现`); continue }
-      if (hasP) {
-        const inRange = (v) => typeof v === 'number' && v >= 0 && v <= 100
-        ;(inRange(it.previousConviction) && inRange(it.currentConviction))
-          ? ok(`${entry.date} ${it.target}: ${it.previousConviction} → ${it.currentConviction}`)
-          : bad(`${entry.date} ${it.target}: conviction 越界`)
-      }
+      ;(it.previousConviction === undefined && it.currentConviction === undefined)
+        ? ok(`${entry.date} ${it.target}: 无 conviction 字段`)
+        : bad(`${entry.date} ${it.target}: conviction 字段回流（事实层只许在 Ledger）`)
       if (it.thesisId !== undefined) {
         thesisIds.has(it.thesisId) ? ok(`${entry.date} ${it.target} → ${it.thesisId}`) : bad(`${entry.date} ${it.target}: thesisId 悬空: ${it.thesisId}`)
       }
     }
   }
+
+  // ── 11. Belief Ledger（V2-06-02：conviction 变化唯一事实源）──
+  console.log('\n[11] Belief Ledger')
+  Array.isArray(d.LEDGER) ? ok(`LEDGER ${d.LEDGER.length} 条`) : bad('LEDGER 缺失')
+  const revIds = new Set()
+  const lastCurrentByThesis = new Map()
+  for (const r of d.LEDGER ?? []) {
+    const errs = []
+    if (!r.id || !r.date || !r.thesisId || !r.reason) errs.push('必填字段缺失')
+    if (r.thesisId && !thesisIds.has(r.thesisId)) errs.push(`thesisId 悬空: ${r.thesisId}`)
+    const inRange = (v) => typeof v === 'number' && v >= 0 && v <= 100
+    if (!inRange(r.previous) || !inRange(r.current)) errs.push(`conviction 越界: ${r.previous} → ${r.current}`)
+    if (!/^\d{4}\.\d{2}\.\d{2}$/.test(r.date ?? '')) errs.push(`date 格式异常: ${r.date}`)
+    if ('delta' in r) errs.push('delta 不得持久化')
+    if ('direction' in r) errs.push('direction 不得持久化')
+    // Rule 01（V2-06-02 Review）：Revision 是 Event 不是 Daily Snapshot——
+    // 唯一性只要求 id 全局唯一；同一命题同日允许多条入账。
+    if (revIds.has(r.id)) errs.push(`id 重复: ${r.id}`)
+    revIds.add(r.id)
+    errs.length === 0 ? ok(`${r.id}: ${r.previous} → ${r.current}`) : bad(`${r.id ?? '?'}: ${[...new Set(errs)].join(' / ')}`)
+    // 记录每命题末条（按 date 字典序 = 时间序）用于一致性断言
+    const prev = lastCurrentByThesis.get(r.thesisId)
+    if (!prev || r.date > prev.date) lastCurrentByThesis.set(r.thesisId, { date: r.date, current: r.current })
+  }
+  // 一致性：Thesis.probability 必须等于 Ledger 末条 current（防账本与现状漂移）
+  console.log('\n[12] Ledger ↔ Thesis 一致性')
+  for (const t of d.THESES) {
+    const last = lastCurrentByThesis.get(t.id)
+    if (!last) continue // 无账本记录的命题不断言（渐进补录）
+    last.current === t.probability
+      ? ok(`${t.id}: probability ${t.probability} = Ledger 末条`)
+      : bad(`${t.id}: probability ${t.probability} ≠ Ledger 末条 current ${last.current}（${last.date}）`)
+  }
+
+  // ── 13. Thesis 扩展字段（V2-06-03）──
+  console.log('\n[13] Thesis 扩展字段')
+  const statusOk = new Set(['active', 'closed', 'invalidated'])
+  for (const t of d.THESES) {
+    const errs = []
+    if (t.status !== undefined && !statusOk.has(t.status)) errs.push(`status 非法: ${t.status}`)
+    if ('polarity' in t) errs.push('polarity 不得字段化（唯一事实源 = MapNode.state）')
+    for (const key of ['assumptions', 'invalidation']) {
+      if (t[key] !== undefined) {
+        ;(Array.isArray(t[key]) && t[key].length > 0 && t[key].every((s) => typeof s === 'string' && s.trim().length > 0))
+          ? ok(`${t.id}.${key} ${t[key].length} 条`)
+          : errs.push(`${key} 结构非法（须为非空字符串数组）`)
+      }
+    }
+    // Rule 03：legacy revisions 只读冻结——条目只允许 {date, note} 两键，禁止夹带 conviction 字段
+    for (const r of t.revisions ?? []) {
+      const extra = Object.keys(r).filter((k) => k !== 'date' && k !== 'note')
+      if (extra.length > 0) errs.push(`revisions 条目夹带字段: ${extra.join(',')}`)
+    }
+    errs.length === 0 ? ok(t.id) : bad(`${t.id}: ${[...new Set(errs)].join(' / ')}`)
+  }
+
+  // ── 14–16. 派生层（V2-06-04：CURRENT BELIEF / direction / delta 只能派生）──
+  // 注：prompt 的 [18] status 合法性已由 [13] 覆盖。
+  const deriveOut = join(tmp, 'ledger.cjs')
+  execFileSync(join(root, 'node_modules', '.bin', 'esbuild'), [
+    join(root, 'src/data/ledger.ts'),
+    '--bundle', '--format=cjs', '--platform=node',
+    `--outfile=${deriveOut}`, '--log-level=error',
+  ])
+  const derive = require(deriveOut)
+
+  console.log('\n[14] deriveCurrentBelief 一致性（UI 当前信念唯一入口）')
+  for (const t of d.THESES) {
+    const belief = derive.deriveCurrentBelief(t, d.LEDGER)
+    belief === t.probability
+      ? ok(`${t.id}: derive = ${belief}`)
+      : bad(`${t.id}: deriveCurrentBelief ${belief} ≠ probability ${t.probability}（迁移期快照漂移）`)
+  }
+
+  console.log('\n[15] direction 派生正确性')
+  const dirCases = [
+    [{ previous: 60, current: 70 }, 'up'],
+    [{ previous: 70, current: 60 }, 'down'],
+    [{ previous: 60, current: 60 }, 'confirm'],
+  ]
+  for (const [fixture, expected] of dirCases) {
+    derive.directionOf(fixture) === expected
+      ? ok(`directionOf(${fixture.previous}→${fixture.current}) = ${expected}`)
+      : bad(`directionOf(${fixture.previous}→${fixture.current}) 应=${expected} 实=${derive.directionOf(fixture)}`)
+  }
+  for (const r of d.LEDGER ?? []) {
+    const expected = r.current > r.previous ? 'up' : r.current < r.previous ? 'down' : 'confirm'
+    derive.directionOf(r) === expected
+      ? ok(`${r.id}: ${expected}`)
+      : bad(`${r.id}: direction 派生错误`)
+  }
+
+  console.log('\n[16] delta 派生正确性')
+  derive.deltaOf({ previous: 65, current: 72 }) === 7
+    ? ok('deltaOf(65→72) = 7')
+    : bad(`deltaOf 合成用例失败: ${derive.deltaOf({ previous: 65, current: 72 })}`)
+  for (const r of d.LEDGER ?? []) {
+    derive.deltaOf(r) === r.current - r.previous
+      ? ok(`${r.id}: delta ${derive.deltaOf(r)}`)
+      : bad(`${r.id}: delta 派生错误`)
+  }
+
+  // ── 17. UI 不得从旧字段/文本生成 conviction history（静态扫描）──
+  console.log('\n[17] UI 静态扫描（禁旧 conviction 字段与文本提取）')
+  const pagesDir = join(root, 'src/pages')
+  const banned = ['previousConviction', 'currentConviction', 'note.match(', 'note.split(']
+  const pageSrc = new Map()
+  for (const f of readdirSync(pagesDir).filter((f) => f.endsWith('.tsx'))) {
+    const src = readFileSync(join(pagesDir, f), 'utf8')
+    pageSrc.set(f, src)
+    const hit = banned.filter((b) => src.includes(b))
+    hit.length === 0 ? ok(f) : bad(`${f}: 命中禁用模式 ${hit.join(', ')}`)
+  }
+
+  // ── 18. Current Belief 确定性排序（V2-06-05 R-01：不依赖 LEDGER 数组物理顺序）──
+  console.log('\n[18] Current Belief 确定性排序（R-01）')
+  const mk = (id, date, previous, current) => ({ id, date, thesisId: 't', previous, current, reason: 'x' })
+  const r0 = mk('rev-t-20260701', '2026.07.01', 45, 50)
+  const r1 = mk('rev-t-20260801', '2026.08.01', 50, 60)
+  const r2 = mk('rev-t-20260801-2', '2026.08.01', 60, 55) // 同日更晚事件（序号大者）
+  const fakeThesis = { id: 't', probability: 50 }
+  const orders = [[r0, r1, r2], [r2, r1, r0], [r1, r2, r0]]
+  const beliefs = orders.map((arr) => derive.deriveCurrentBelief(fakeThesis, arr))
+  beliefs.every((b) => b === 55)
+    ? ok('同日多条 + 三种物理顺序 → Current Belief 恒为当日序号大者')
+    : bad(`确定性失败: ${beliefs.join(',')}`)
+  const seqIds = derive.revisionsOf([r2, r0, r1], 't').map((r) => r.id).join(',')
+  seqIds === 'rev-t-20260701,rev-t-20260801,rev-t-20260801-2'
+    ? ok('revisionsOf = date 升序 + 同日 id 序号升序')
+    : bad(`revisionsOf 次序异常: ${seqIds}`)
+  derive.lastRevisedOf([r2, r1, r0], 't', 'X') === '2026.08.01'
+    ? ok('lastRevisedOf 与物理顺序无关')
+    : bad('lastRevisedOf 依赖物理顺序')
+  // 真实数据：同命题同日多条入账时，id 序号必须 1..n 连续（否则 Current Belief 不确定）
+  const byDay = new Map()
+  for (const r of d.LEDGER ?? []) {
+    const key = `${r.thesisId}|${r.date}`
+    byDay.set(key, [...(byDay.get(key) ?? []), r.id])
+  }
+  let dayGroups = 0
+  for (const [key, ids] of byDay) {
+    if (ids.length <= 1) continue
+    dayGroups++
+    const seqs = ids
+      .map((id) => { const m = /-\d{8}-(\d+)$/.exec(id); return m ? parseInt(m[1], 10) : 1 })
+      .sort((a, b) => a - b)
+    const expect = Array.from({ length: ids.length }, (_, i) => i + 1)
+    JSON.stringify(seqs) === JSON.stringify(expect)
+      ? ok(`${key}: ${ids.length} 条同日记录序号连续`)
+      : bad(`${key}: 同日 ${ids.length} 条记录序号 ${seqs.join(',')} 不连续——Current Belief 不确定`)
+  }
+  dayGroups === 0 ? ok('当前无同命题同日多条记录（规则待命）') : null
+
+  // ── 19. Archive 语义（active 不进存档；分区不重不漏）──
+  console.log('\n[19] Archive 语义')
+  const activeSet = d.THESES.filter((t) => (t.status ?? 'active') === 'active')
+  const archivedSet = d.THESES.filter((t) => t.status === 'closed' || t.status === 'invalidated')
+  activeSet.length + archivedSet.length === d.THESES.length
+    ? ok(`分区完备：${activeSet.length} active + ${archivedSet.length} archived = ${d.THESES.length}`)
+    : bad(`分区不完备：${activeSet.length} + ${archivedSet.length} ≠ ${d.THESES.length}`)
+  archivedSet.every((t) => t.status !== 'active')
+    ? ok('Archive 不含 active 命题')
+    : bad('Archive 混入 active 命题')
+
+  // ── 20. 聚合页与详情页派生入口一致（禁止页面内重复实现业务逻辑）──
+  console.log('\n[20] 聚合页 / 详情页 / 首页派生入口一致')
+  const stripComments = (src) =>
+    src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '')
+  for (const f of ['Thesis.tsx', 'ThesisDetail.tsx', 'Home.tsx', 'Journal.tsx']) {
+    const src = pageSrc.get(f)
+    if (!src) { bad(`${f}: 未找到`); continue }
+    const code = stripComments(src)
+    const errs = []
+    if (f !== 'Journal.tsx' && !code.includes('deriveCurrentBelief')) errs.push('未使用 deriveCurrentBelief')
+    if (f !== 'Journal.tsx' && !code.includes('lastRevisedOf')) errs.push('未使用 lastRevisedOf')
+    if (/current\s*-\s*previous/.test(code)) errs.push('内联计算 delta（必须走 deltaOf）')
+    if (/\.probability\b/.test(code)) errs.push('直接读取 .probability 字段（Current Belief 必须走 deriveCurrentBelief）')
+    errs.length === 0 ? ok(f) : bad(`${f}: ${errs.join(' / ')}`)
+  }
+  pageSrc.get('Thesis.tsx')?.includes('deriveThesisPolarity')
+    ? ok('Thesis.tsx: polarity 经 deriveThesisPolarity（无字段化）')
+    : bad('Thesis.tsx: polarity 未走 deriveThesisPolarity')
 } catch (err) {
   bad(`数据文件无法解析：${err.message}`)
   console.error(err)

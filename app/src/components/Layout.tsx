@@ -3,6 +3,12 @@ import { NAV, SITE, ARCHIVE_TREE } from '../data/content'
 import { Label } from './Bits'
 import { HSNSeal, HSNSymbol } from './Brand'
 
+/* 视觉 lockup「trading·lab BY HSN」= Founder Signature（V2-06-00 裁决 A）：
+   与 canonical brand（SITE.name = 'TradingLabb'）正式解耦——
+   Header wordmark 永远渲染此字面量，不消费 SITE.name，不随 canonical brand 变化。
+   字面量保持原 'trading-lab' 形态（配合 lowercase class，像素级不变）。 */
+const HEADER_LOCKUP = 'trading-lab'
+
 function Header({ path }: { path: string }) {
   const [open, setOpen] = useState(false)
   return (
@@ -10,7 +16,7 @@ function Header({ path }: { path: string }) {
       <div className="max-w-[1400px] mx-auto px-5 md:px-10 h-14 flex items-center justify-between">
         <a href="#/" className="flex items-center gap-2.5 group" onClick={() => setOpen(false)}>
           <HSNSymbol size={22} />
-          <span className="font-mono-num font-medium tracking-tight text-base lowercase">{SITE.name}</span>
+          <span className="font-mono-num font-medium tracking-tight text-base lowercase">{HEADER_LOCKUP}</span>
           <span className="label-sm hidden xl:inline">by {SITE.author}</span>
         </a>
         <nav className="hidden lg:flex items-stretch gap-5 self-stretch">

@@ -1,5 +1,6 @@
-import { SITE, THESES, OBSERVATIONS, JOURNAL, INDUSTRY_MAP } from '../data/content'
+import { SITE, THESES, OBSERVATIONS, LEDGER, INDUSTRY_MAP } from '../data/content'
 import { deriveThesisPolarity, formatPolarity } from '../data/polarity'
+import { deltaOf, lastRevisedOf, deriveCurrentBelief } from '../data/ledger'
 import { Label } from '../components/Bits'
 import { HSNSeal, HSNSymbol } from '../components/Brand'
 import { PolarityInstrument } from '../components/PolarityInstrument'
@@ -28,12 +29,10 @@ export default function Home() {
   const rootRef = useRevealRoot<HTMLDivElement>()
 
   const mapNodes = INDUSTRY_MAP.nodes
-  const liveTheses = THESES.slice(0, 3)
-  const revisions = JOURNAL.flatMap((entry) =>
-    entry.items
-      .filter((it) => it.thesisId && it.previousConviction !== undefined && it.currentConviction !== undefined)
-      .map((it) => ({ date: entry.date, ...it })),
-  ).slice(0, 3)
+  // 首页只呈现 active 命题（closed / invalidated 属 ARCHIVE，V2-06-04）
+  const liveTheses = THESES.filter((t) => (t.status ?? 'active') === 'active').slice(0, 3)
+  // WHAT CHANGED MY MIND：conviction 修正的唯一事实源 = Belief Ledger（V2-06-02）
+  const revisions = LEDGER.slice(0, 3)
 
   return (
     <div ref={rootRef}>
@@ -153,7 +152,8 @@ export default function Home() {
           <div className="mt-10 md:mt-14 grid md:grid-cols-3 gap-px bg-[rgb(var(--line))] border border-[rgb(var(--line))]" data-reveal>
             {liveTheses.map((t) => {
               const polarity = formatPolarity(deriveThesisPolarity(t, mapNodes))
-              const lastRevision = t.revisions[t.revisions.length - 1]
+              const lastRevised = lastRevisedOf(LEDGER, t.id, t.revisions[0]?.date ?? t.updated)
+              const belief = deriveCurrentBelief(t, LEDGER)
               return (
                 <a key={t.id} href={`#/thesis/${t.id}`} className="ink-card group bg-paper p-6 md:p-8 flex flex-col">
                   <div className="flex items-center justify-between mb-6">
@@ -167,7 +167,7 @@ export default function Home() {
                   <span className="text-sm ink-2 leading-relaxed block mb-8 line-clamp-3">{t.conflict.but}</span>
                   <span className="mt-auto block hairline-t pt-5">
                     <span className="flex items-baseline gap-1.5 mb-3">
-                      <span className="font-mono-num tnum text-4xl md:text-5xl font-medium">{t.probability}</span>
+                      <span className="font-mono-num tnum text-4xl md:text-5xl font-medium">{belief}</span>
                       <span className="font-mono-num tnum text-base ink-3">%</span>
                       <span className="label-sm ml-2">CONVICTION</span>
                     </span>
@@ -175,7 +175,7 @@ export default function Home() {
                       {polarity && <span className="font-mono-num">{polarity}</span>}
                       <span className="font-mono-num tnum">{t.window}</span>
                       <span className="font-mono-num tnum">
-                        修正 {lastRevision ? lastRevision.date : t.updated}
+                        修正 {lastRevised}
                       </span>
                     </span>
                     <span className="block mt-5 text-xs tracking-[0.2em] ink-2">READ THESIS →</span>
@@ -193,23 +193,24 @@ export default function Home() {
           <div className="max-w-[1400px] mx-auto px-5 md:px-10 py-16 md:py-24">
             <ChapterMark no="WHAT CHANGED MY MIND" note="Revision, not news" />
             <div className="mt-10 md:mt-14 max-w-4xl">
-              {revisions.map((r, i) => {
-                const delta = (r.currentConviction as number) - (r.previousConviction as number)
+              {revisions.map((r) => {
+                const delta = deltaOf(r)
+                const thesis = THESES.find((t) => t.id === r.thesisId)
                 return (
                   <a
-                    key={`${r.date}-${r.thesisId}-${i}`}
+                    key={r.id}
                     href={`#/thesis/${r.thesisId}`}
                     className="ink-row group grid grid-cols-12 items-baseline gap-3 md:gap-6 py-7 md:py-9 hairline-b first:border-t first:border-[rgb(var(--line))] px-2 md:px-4 -mx-2 md:-mx-4"
                     data-reveal
                   >
                     <span className="col-span-12 md:col-span-3 font-serif-sc font-bold text-xl md:text-2xl tracking-tight">
-                      {r.target}
+                      {thesis?.title ?? r.thesisId}
                     </span>
                     <span className="col-span-6 md:col-span-2 font-mono-num tnum text-2xl md:text-3xl font-medium">
-                      {r.previousConviction} → {r.currentConviction}
+                      {r.previous} → {r.current}
                       <span className="text-sm ink-3 ml-2">{delta > 0 ? '+' : ''}{delta}</span>
                     </span>
-                    <span className="col-span-12 md:col-span-5 text-sm ink-2 leading-relaxed">{r.note}</span>
+                    <span className="col-span-12 md:col-span-5 text-sm ink-2 leading-relaxed">{r.note ?? r.reason}</span>
                     <span className="col-span-6 md:col-span-2 font-mono-num tnum text-xs ink-3 md:text-right">
                       {r.date}
                     </span>

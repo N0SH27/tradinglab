@@ -11,10 +11,16 @@ export interface Thesis {
   evidence: string[]
   counter: string
   window: string
+  // ⚠️ migration-era snapshot（V2-06-02 Review Rule 02）：当前 conviction 的迁移期快照，
+  // 最终 SSOT 是 Ledger 末条 current（check [12] 一致性断言约束）；
+  // 不得成为长期第二事实源，待 Ledger 覆盖全部命题后降级为派生显示。
   probability: number
   probabilityNote: string
-  revisions: { date: string; note: string }[]
+  revisions: { date: string; note: string }[] // ❄️ legacy narrative（V2-06-02 冻结）：不再新增条目；conviction 变化唯一事实源为 domains/ledger.ts
   nodes?: string[] // 关联产业地图节点 id
+  status?: 'active' | 'closed' | 'invalidated' // V2-06-03 新增：缺省 = active；封闭命题进 ARCHIVE（呈现属 V2-06-04）
+  assumptions?: string[]  // 命题成立依赖的关键条件——只表达条件，不表达结论，不与 evidence 混淆
+  invalidation?: string[] // 可观察/可验证/可判断的证伪条件——不记录"我感觉错了"
 }
 
 export const THESES: Thesis[] = [
@@ -49,6 +55,14 @@ export const THESES: Thesis[] = [
     window: '2025 — 2028，渗透率陡峭段',
     probability: 72,
     probabilityNote: '上调中',
+    status: 'active',
+    assumptions: [
+      '推理负载占比持续提升，算力需求保持分布式、碎片化、成本敏感的结构',
+      '供给端先进制程产能最终能够突破，"政策意志"可以兑现为"产业能力"',
+    ],
+    invalidation: [
+      '连续两年国产芯片出货增速低于智算中心投资增速',
+    ],
     revisions: [
       { date: '2026.07.31', note: '上调概率 65% → 72%。北京项目推进速度快于预期；新增风险：液冷环节竞争加剧。' },
       { date: '2026.05.12', note: '首次建立命题，初始概率 65%。' },
@@ -85,6 +99,14 @@ export const THESES: Thesis[] = [
     window: '2026 — 2029，商业模式验证期',
     probability: 58,
     probabilityNote: '观察中',
+    status: 'active',
+    assumptions: [
+      '模型能力不出现新一轮指数级跃升，"套壳"应用仍保有防御空间',
+      '企业级付费意愿由"尝鲜"转为"预算科目"的趋势延续',
+    ],
+    invalidation: [
+      '头部应用公司的收入增速连续两个季度低于模型 API 调用量增速',
+    ],
     revisions: [
       { date: '2026.07.18', note: '维持概率 58%。续费率数据支持命题，但估值透支程度加深，阴阳趋于平衡。' },
       { date: '2026.03.02', note: '首次建立命题，初始概率 55%。' },
@@ -120,6 +142,14 @@ export const THESES: Thesis[] = [
     window: '2026 — 2030，从主题到产业的跨越期',
     probability: 51,
     probabilityNote: '中性观察',
+    status: 'active',
+    assumptions: [
+      '核心零部件降本曲线延续，量产良率不以牺牲可靠性为代价',
+      '2027 年真实出货量能够从"万台"级迈向"十万台"级',
+    ],
+    invalidation: [
+      '2027 年真实出货量仍停留在"万台"级别而非"十万台"级别，供应链面临估值回归',
+    ],
     revisions: [
       { date: '2026.06.25', note: '下调概率 55% → 51%。估值透支速度超过了产业兑现速度，阴阳失衡。' },
       { date: '2026.01.15', note: '首次建立命题，初始概率 55%。' },
@@ -155,6 +185,14 @@ export const THESES: Thesis[] = [
     window: '2026 — 2027，出清尾声与重构前夜',
     probability: 63,
     probabilityNote: '上调中',
+    status: 'active',
+    assumptions: [
+      '落后产能的退出最终能兑现为幸存者的盈利能力恢复（"出清"不被误读为"反转"）',
+      '技术路线不发生颠覆性切换，现有产能的"幸存"不失去意义',
+    ],
+    invalidation: [
+      '龙头现金流回正后两个季度内再次转负',
+    ],
     revisions: [
       { date: '2026.07.05', note: '上调概率 57% → 63%。现金流拐点证据增强。否极泰来的早期形态。' },
       { date: '2026.02.20', note: '首次建立命题，初始概率 57%。' },
@@ -191,6 +229,14 @@ export const THESES: Thesis[] = [
     window: '2026 — 2027 年底，"死线"到期前的博弈期',
     probability: 60,
     probabilityNote: '偏空命题 · 观察中',
+    status: 'active',
+    assumptions: [
+      '国内需求不足以重写收入结构，海外限制持续压制估值倍数',
+      '"估值天花板"即"股价天花板"——收入结构不被国内爆发改写',
+    ],
+    invalidation: [
+      '国内智算订单占比持续超过海外收入下滑幅度，且估值中枢止跌回升',
+    ],
     revisions: [
       { date: '2026.08.09', note: '首次建立命题，初始概率 60%。源自一周政策解读：FCC 限制 = 白嘉轩的腰被打折。此命题为阴面命题——看空的不是公司，是估值结构。' },
     ],
@@ -226,6 +272,14 @@ export const THESES: Thesis[] = [
     window: '2026 — 2028，价格见顶前的背离观察期',
     probability: 65,
     probabilityNote: '周期回归 · 上调中',
+    status: 'active',
+    assumptions: [
+      'HBM 短缺本质是周期性而非结构性（AI 资本开支不持续超预期）',
+      '价格×产量双击结构继续成立，价格先跌回、估值跟随',
+    ],
+    invalidation: [
+      '三星、海力士的盈利预测不降反升，周期判据失效',
+    ],
     revisions: [
       { date: '2026.08.09', note: '首次建立命题，初始概率 65%。碳酸锂类比 + 三星海力士 5 倍 PE 双重印证。与地图中 HBM 节点的"阳"判断并存——节点看产业，命题看估值。' },
     ],
@@ -260,6 +314,15 @@ export const THESES: Thesis[] = [
     window: '2026 — 2027，摩擦升温期与资产注入窗口',
     probability: 68,
     probabilityNote: '上调中',
+    status: 'active',
+    assumptions: [
+      '政策目标与股东回报不长期背离，"国家意志"可部分兑现为"股东回报"',
+      '中美不达成"稀土换芯片"式实质性缓和协议',
+    ],
+    invalidation: [
+      '中美达成实质性缓和协议，反制逻辑阶段性失效',
+      '配额政策转向放量保供',
+    ],
     revisions: [
       { date: '2026.08.09', note: '首次建立命题，初始概率 68%。四重底：缺位、摩擦、降息、注入。逆向投资框架的典型场景——悲观有极限。' },
     ],
@@ -294,6 +357,15 @@ export const THESES: Thesis[] = [
     window: '2026 — 2028，先遣队的卡位期',
     probability: 62,
     probabilityNote: '观察中',
+    status: 'active',
+    assumptions: [
+      '全球 MNC 的 BD 预算不收紧，license-out 规则不改',
+      '先遣五巨头核心管线不出现临床黑天鹅',
+    ],
+    invalidation: [
+      '连续两个季度无重大 BD 交易落地',
+      '头部公司核心管线临床失败',
+    ],
     revisions: [
       { date: '2026.08.09', note: '首次建立命题，初始概率 62%。先遣图已画，五巨头为观察锚点。AI+医药商业化是命题的延伸变量。' },
     ],
