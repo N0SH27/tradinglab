@@ -450,6 +450,128 @@ try {
       ? ok(`observations ${s.now.observations.length} 条 / industries ${Object.keys(s.cycle.industries).length} 个 / era 齐备`)
       : bad('initial 快照 now/cycle/era 不完整')
   }
+
+  // ── 27–32. Essay Versions（V2-C4：Work Memory，20/21 号文契约）──
+  const evs = d.ESSAY_VERSIONS
+  const essayIds = new Set(d.ESSAYS.map((e) => e.id))
+  // Work Content 视图（一致性断言唯一范围；metadata 不进入 equality——LOCK-C4-02）
+  const workContentOf = (v) => ({ title: v.title, subtitle: v.subtitle, category: v.category, body: v.body })
+
+  console.log('\n[27] ESSAY_VERSIONS 结构与 identity 纪律')
+  Array.isArray(evs) && evs.length >= 6 ? ok(`ESSAY_VERSIONS ${evs.length} 条`) : bad('ESSAY_VERSIONS 缺失或少于 6 条')
+  const evKeys = new Set()
+  for (const v of evs ?? []) {
+    const errs = []
+    if (!essayIds.has(v.essayId)) errs.push(`essayId 悬空: ${v.essayId}`)
+    if (!Number.isInteger(v.version) || v.version < 1) errs.push(`version 非法: ${v.version}`)
+    if (!/^\d{4}\.\d{2}\.\d{2}$/.test(v.date ?? '')) errs.push(`date 格式异常: ${v.date}`)
+    if (!v.reason || !v.reason.trim()) errs.push('reason 缺失（写不出 reason 的改动不是 Version）')
+    for (const k of ['thesisId', 'themeId', 'authorId', 'publicationId', 'distributionId']) {
+      if (k in v) errs.push(`关联字段禁挂: ${k}`)
+    }
+    for (const k of ['delta', 'direction', 'previous', 'diff']) {
+      if (k in v) errs.push(`派生事实不得持久化: ${k}`)
+    }
+    const key = `${v.essayId}#${v.version}`
+    if (evKeys.has(key)) errs.push(`identity 重复: ${key}`)
+    evKeys.add(key)
+    errs.length === 0 ? ok(`${v.essayId} v${v.version}`) : bad(`${v.essayId ?? '?'}#${v.version ?? '?'}: ${[...new Set(errs)].join(' / ')}`)
+  }
+  for (const id of essayIds) {
+    const vs = d.versionsOf(evs ?? [], id).map((v) => v.version)
+    const expect = Array.from({ length: vs.length }, (_, i) => i + 1)
+    JSON.stringify(vs) === JSON.stringify(expect)
+      ? ok(`${id}: version 从 1 严格递增连续（${vs.join(',')}）`)
+      : bad(`${id}: version 序列 ${vs.join(',')} 不连续`)
+  }
+
+  console.log('\n[28] 快照完整性（Work Content 齐备）')
+  const evTypeOk = new Set(['p', 'h', 'quote'])
+  for (const v of evs ?? []) {
+    const errs = []
+    if (!v.title || !v.subtitle || !v.category) errs.push('title/subtitle/category 缺失')
+    if (!Array.isArray(v.body) || v.body.length === 0) errs.push('body 为空')
+    else for (const b of v.body) {
+      if (!evTypeOk.has(b.type)) errs.push(`未知节点 type="${b.type}"`)
+      if (typeof b.text !== 'string' || !b.text) errs.push('空 text')
+    }
+    if (typeof v.readTime !== 'number' || v.readTime <= 0) errs.push('readTime 异常')
+    errs.length === 0 ? ok(`${v.essayId} v${v.version}（${v.body.length} 节点）`) : bad(`${v.essayId} v${v.version}: ${[...new Set(errs)].join(' / ')}`)
+  }
+
+  console.log('\n[29] latest Version ↔ ESSAYS 当前一致性（Current Source Integrity）')
+  for (const e of d.ESSAYS) {
+    const latest = d.latestVersionOf(evs ?? [], e.id)
+    if (!latest) { bad(`${e.id}: 无任何 Version`); continue }
+    deepEq(workContentOf(latest), workContentOf(e))
+      ? ok(`${e.id}: latest v${latest.version} Work Content === ESSAYS 当前`)
+      : bad(`${e.id}: latest v${latest.version} 与 ESSAYS 当前漂移（expectedWork !== actualWork）`)
+  }
+
+  console.log('\n[30] Metadata Equality Integrity（LOCK-C4-02 合成用例）')
+  const fxv = evs?.[0]
+  if (fxv) {
+    const metaShifted = { ...fxv, readTime: 999 }
+    deepEq(workContentOf(metaShifted), workContentOf(fxv))
+      ? ok('metadata 变化（readTime 999）→ Work Content equality 仍为 true，不产生新 Version')
+      : bad('metadata 污染了 Work Content equality')
+    let noopViolations = 0
+    for (const id of essayIds) {
+      const vs = d.versionsOf(evs ?? [], id)
+      for (let i = 1; i < vs.length; i++) {
+        if (deepEq(workContentOf(vs[i]), workContentOf(vs[i - 1]))) noopViolations++
+      }
+    }
+    noopViolations === 0
+      ? ok('No-op：不存在 Work Content 与上一 Version 相同的虚假 Version（当前每篇仅 v1，规则待命）')
+      : bad(`发现 ${noopViolations} 个 No-op 虚假 Version`)
+  }
+
+  console.log('\n[31] Migration 诚信与排序确定性')
+  const v1s = (evs ?? []).filter((v) => v.version === 1)
+  const v1Dates = new Set(v1s.map((v) => v.date))
+  v1Dates.size === 1
+    ? ok(`六篇 v1 同日迁移（${[...v1Dates][0]}）`)
+    : bad(`v1 迁移日不一致: ${[...v1Dates].join(', ')}`)
+  ;(evs ?? []).every((v) => {
+    const e = d.ESSAYS.find((x) => x.id === v.essayId)
+    return e && v.date >= e.date
+  })
+    ? ok('无 Version date 早于对应 Essay.date（不倒填首次发布日）')
+    : bad('存在早于首次发布日的 Version——伪造历史')
+  const shuffled = [...(evs ?? [])].reverse()
+  essayIds.size > 0 && deepEq(
+    d.versionsOf(shuffled, fxv?.essayId ?? '').map((v) => v.version),
+    d.versionsOf(evs ?? [], fxv?.essayId ?? '').map((v) => v.version),
+  )
+    ? ok('versionsOf 不依赖数组物理顺序（确定性）')
+    : bad('versionsOf 依赖物理顺序')
+
+  console.log('\n[32] Consumer Source Integrity + 机制泄漏扫描')
+  const consumerLeak = []
+  for (const [f, src] of pageSrc) {
+    if (src.includes('essay-versions') || src.includes("data/essay'") || src.includes('ESSAY_VERSIONS')) consumerLeak.push(`pages/${f}`)
+  }
+  const dataDir = join(root, 'src/data')
+  for (const f of readdirSync(dataDir).filter((f) => f.endsWith('.ts'))) {
+    if (f === 'essay.ts' || f === 'content.ts') continue
+    const src = readFileSync(join(dataDir, f), 'utf8')
+    if (src.includes('essay-versions') || src.includes('ESSAY_VERSIONS')) consumerLeak.push(`data/${f}`)
+  }
+  for (const f of readdirSync(join(dataDir, 'domains')).filter((f) => f.endsWith('.ts'))) {
+    if (f === 'essay-versions.ts') continue
+    const src = readFileSync(join(dataDir, 'domains', f), 'utf8')
+    if (src.includes('essay-versions') || src.includes('ESSAY_VERSIONS')) consumerLeak.push(`domains/${f}`)
+  }
+  consumerLeak.length === 0
+    ? ok('ESSAY_VERSIONS 未改变任何 consumer / 数据源的数据来源（仅 essay.ts 与 barrel 引用）')
+    : bad(`ESSAY_VERSIONS 泄漏到: ${consumerLeak.join(', ')}`)
+  const c1Mechanism = /\b(fold|sparse|previous|delta|direction|ContextHistory|Ledger)\b/
+  for (const f of ['domains/essay-versions.ts', 'essay.ts']) {
+    const code = stripComments(readFileSync(join(dataDir, f), 'utf8'))
+    const hit = code.match(c1Mechanism)
+    !hit ? ok(`${f}: 无 C1 机制泄漏`) : bad(`${f}: 命中 C1 机制标识符 "${hit[1]}"`)
+  }
 } catch (err) {
   bad(`数据文件无法解析：${err.message}`)
   console.error(err)

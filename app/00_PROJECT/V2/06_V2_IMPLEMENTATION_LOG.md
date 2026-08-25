@@ -6,6 +6,51 @@
 
 ---
 
+## 2026-08-25 · V2-C4 Essay Versioning 实施（17 P1 → 20 Contract → 21 Authorization）
+
+**执行内容**（授权边界 = 21 号文三节 Allowed Files，逐项核对）：
+
+- **新建 `data/domains/essay-versions.ts`**（S1/S2）：`EssayVersion` 类型（identity =
+  `{ essayId, version:number }`；readonly、append-only）+ `ESSAY_VERSIONS` 六篇各 v1 整篇快照
+  （Work Content = title/subtitle/category/body + readTime 作 associated metadata；
+  快照由 esbuild 打包 barrel 后脚本提取，零手工转写）；
+  **v1.date = 2026.08.25（实际迁移执行日）**；reason 如实陈述 2026-08-15 头注释结构升级为
+  **历史证据**，明确不据此重建历史 Version（20 号文五节 OD-5）；
+- **新建 `data/essay.ts`**（S3）：`versionsOf`（version 序号确定性排序，不依赖数组物理顺序）
+  / `essayHistory` / `latestVersionOf` / `currentEssay`（= ESSAYS 定位读取，非派生）；
+  **无 update/delete/rewrite 任何入口**；零独立状态，窄职责 Read Boundary（21 号文 7.2 新纪律）；
+  与 C1 机制零共享——无 fold / sparse / previous / delta / direction；
+- **修改 `data/content.ts`**：仅追加 2 行 barrel 导出（`./domains/essay-versions`、`./essay`），
+  既有 15 行（含 C1 的 2 行）零改动；
+- **修改 `scripts/check-data.mjs`**（S4）：仅追加断言块 [27]–[32]，既有 189 项零改动——
+  [27] 结构与 identity 纪律（version 同篇从 1 递增连续、禁关联字段、禁派生事实）；
+  [28] 快照完整性（Work Content 齐备、body 节点类型合法）；
+  [29] **Current Source Integrity**：每篇 latest Work Content === ESSAYS 当前（漂移 = exit 1）；
+  [30] **Metadata Equality Integrity（LOCK-C4-02 合成用例）**：readTime→999 后 equality 仍为 true、
+  不产生新 Version；No-op 断言待命；
+  [31] Migration 诚信（六篇 v1 同日、无 Version date 早于 Essay.date）+ versionsOf 乱序确定性；
+  [32] **Consumer Source Integrity 反向架构断言**（ESSAY_VERSIONS 未泄漏到任何页面/数据文件）+
+  C1 机制泄漏静态扫描（fold/sparse/previous/delta/direction/ContextHistory/Ledger 标识符零命中）。
+
+**验证**：check **222/222** ✓（既有 189 + 新增 33）；build ✓（index gzip 74.84KB，与 C1 后持平）；
+lint 无新增 error（仍仅 InkTransition 既有 1 个）；preview 冒烟首页与 #/essays/casino-boss HTTP 200
+（起后即关）。UI 零改动证明：git diff 中无任何页面/组件/样式文件；**essays.ts 零修改**（LOCK-C4-01）。
+
+**未做的事**：未动 ESSAYS 当前源；未做任何 Consumer migration；无 UI / Timeline / Version Viewer；
+未碰 C1 文件（context-history.ts / context.ts）/ Thesis / Ledger / G-08 / G-05 / InkTransition /
+Distribution / Newsletter；无新依赖；**未 commit、未 push**——停等 Implementation Review →
+Production Review → Commit Authorization（21 号文六节，本授权不含 Commit/Push）。
+
+**冲突**：无新增。
+
+**Review 登记（2026-08-25，Implementation Review PASS / Production Review PASS 入档）**：
+非阻塞观察——C4 当前 Versioning 只建立 Historical Work Memory，不提供任何 UI / timeline /
+version viewer；这不是缺陷，而是 21 号文范围控制的正确结果。未来如需 Version Viewer，
+必须产生新的 Implementation Task / Authorization，不得因 `essayHistory()` 已存在而顺手做 UI。
+（Observation ≠ Blocker。）
+
+---
+
 ## 2026-08-25 · V2-C1 Context Revision Boundary 实施（17 P0 → 18 Contract → 19 Authorization）
 
 **执行内容**（授权边界 = 19 号文三节 Allowed Files，逐项核对）：
