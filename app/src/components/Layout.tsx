@@ -69,7 +69,7 @@ function Header({ path }: { path: string }) {
           onClick={() => setOpen(!open)}
           aria-label="菜单"
         >
-          {open ? '关闭' : '目录'}
+          {open ? '关闭' : '菜单'}
         </button>
       </div>
       {open && (

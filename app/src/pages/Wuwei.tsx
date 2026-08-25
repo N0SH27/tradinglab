@@ -1,5 +1,5 @@
 import { STOP_LOSS, EMOTION, LIFE_OS } from '../data/content'
-import { Label, PageHead, SectionHead } from '../components/Bits'
+import { PageHead, SectionHead } from '../components/Bits'
 
 export default function Wuwei() {
   return (
@@ -55,10 +55,7 @@ export default function Wuwei() {
       {/* ── 生活即系统 ────────────────────── */}
       <section className="hairline-t py-20 md:py-28">
         <div className="max-w-4xl">
-          <Label className="block mb-8">Ⅲ · {LIFE_OS.en}</Label>
-          <h2 className="font-serif-sc font-black text-3xl md:text-5xl leading-snug tracking-tight mb-10">
-            {LIFE_OS.title}
-          </h2>
+          <SectionHead no="Ⅲ" zh={LIFE_OS.title} en={LIFE_OS.en} />
           <div className="space-y-8">
             {LIFE_OS.body.map((p, i) => (
               <p key={i} className={`leading-loose ${i === 0 ? 'text-lg md:text-xl' : 'text-base ink-2'}`}>

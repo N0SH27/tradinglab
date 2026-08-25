@@ -17,7 +17,7 @@ export default function Journal() {
   return (
     <div className="max-w-[1400px] mx-auto px-5 md:px-10">
       <PageHead
-        no="07"
+        no="10"
         zh="日志"
         en="JOURNAL"
         intro="不是日记，而是研究的迭代史。每一次观点的修正都留下日期、方向与原因——沉默地改观点，是研究的死亡。"

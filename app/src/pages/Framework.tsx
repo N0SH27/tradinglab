@@ -5,7 +5,7 @@ export default function Framework() {
   return (
     <div className="max-w-[1400px] mx-auto px-5 md:px-10">
       <PageHead
-        no="06"
+        no="09"
         zh="框架"
         en="FRAMEWORK"
         intro="网站的知识底座。把私人的研究习惯沉淀为公开的方法论——框架的价值不在于正确，而在于可以被检验、被复用、被推翻。"

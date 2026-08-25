@@ -3,7 +3,7 @@ import { HSNSeal } from './Brand'
 
 /* ─────────────────────────────────────────────
  * 错误边界：数据文件写错一个逗号，也不许整站白屏。
- * 崩溃时以品牌化兜底页接住（印章 + 墨染提示 + 返回目录），
+ * 崩溃时以品牌化兜底页接住（印章 + 墨染提示 + 返回首页），
  * 同时把错误打进控制台供排查。
  * ───────────────────────────────────────────── */
 
@@ -36,7 +36,7 @@ export class ErrorBoundary extends React.Component<React.PropsWithChildren, Stat
               {this.state.error.message}
             </p>
             <a href="#/" className="btn-line" onClick={() => this.setState({ error: null })}>
-              返回目录 →
+              返回首页 →
             </a>
           </div>
         </main>

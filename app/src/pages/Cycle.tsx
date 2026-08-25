@@ -11,6 +11,7 @@ export default function Cycle() {
 
       {/* ── 七阶段谱系 ───────────────────── */}
       <section className="hairline-t pt-14 md:pt-20 pb-20 md:pb-28">
+        <SectionHead no="Ⅰ" zh="七阶段" en="SEVEN STAGES" note="盛极而衰，否极泰来" />
         <div className="flex flex-col md:flex-row items-center gap-10 md:gap-20 mb-16 md:mb-20">
           <Taiji size={150} slow />
           <div className="max-w-xl text-center md:text-left">

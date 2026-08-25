@@ -43,7 +43,7 @@ try {
   d.THESES.length > 0 ? ok(`THESES ${d.THESES.length} 篇`) : bad('THESES 为空（Home 页将无内容）')
   d.INDUSTRY_MAP.nodes.length > 0 ? ok(`地图节点 ${d.INDUSTRY_MAP.nodes.length} 个`) : bad('INDUSTRY_MAP.nodes 为空')
   d.ESSAYS.length > 0 ? ok(`文集 ${d.ESSAYS.length} 篇`) : bad('ESSAYS 为空')
-  d.ACT_COUNT ?? Object.keys(d.ACTS).length ? ok(`ACTS ${Object.keys(d.ACTS).length} 幕`) : bad('ACTS 为空')
+  // （ACTS 断言已随 V1 dead export 一并移除——Track B · B2-5，222 → 221 为预期变化）
 
   // ── 2. 命题必填字段 ──
   console.log('\n[2] 命题字段')

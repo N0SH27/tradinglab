@@ -23,7 +23,9 @@ function ChapterMark({ no, note }: { no: string; note: string }) {
   )
 }
 
-const LOOP_STEPS = ['OBSERVE', 'MAP', 'THINK', 'THESIS', "ACT / DON'T ACT", 'REVISE', 'ARCHIVE']
+/* Research Loop v1.0（13 号文 LOCKED）：OBSERVE→CONTEXT→FRAME→THESIS→TEST→BELIEVE→REVISE→REFLECT。
+   ACT 不进 Research Loop（属 Trading Loop）；WUWEI 是约束层，不是节点。 */
+const LOOP_STEPS = ['OBSERVE', 'CONTEXT', 'FRAME', 'THESIS', 'TEST', 'BELIEVE', 'REVISE', 'REFLECT']
 
 export default function Home() {
   const rootRef = useRevealRoot<HTMLDivElement>()
@@ -111,10 +113,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── 03 HOW I THINK · TradingLabb Loop ── */}
+      {/* ── 03 HOW I THINK · Research Loop ── */}
       <section className="hairline-t">
         <div className="max-w-[1400px] mx-auto px-5 md:px-10 py-16 md:py-24">
-          <ChapterMark no="HOW I THINK" note="TradingLabb Loop" />
+          <ChapterMark no="HOW I THINK" note="Research Loop" />
           <div className="mt-12 md:mt-16 grid md:grid-cols-12 gap-10">
             <div className="md:col-span-7" data-reveal>
               <ol className="border border-[rgb(var(--line))]">
