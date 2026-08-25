@@ -6,6 +6,52 @@
 
 ---
 
+## 2026-08-25 · V2-C1 Context Revision Boundary 实施（17 P0 → 18 Contract → 19 Authorization）
+
+**执行内容**（授权边界 = 19 号文三节 Allowed Files，逐项核对）：
+
+- **新建 `data/domains/context-history.ts`**（S1/S2/S5）：`ContextHistory` 类型 +
+  `CONTEXT_HISTORY`（readonly、append-only）；id 纪律 `ctx-<yyyymmdd>[-N]`；
+  首条 = initial version `ctx-20260825`（唯一全量快照：15 节点 × 6 语义字段 +
+  MAP_ERA + 5 条 Observation + 7 行业 stage；快照由 esbuild 打包 barrel 后脚本提取，
+  零手工转写）；`date = 2026.08.25` = 实际迁移执行日，不倒填历史；
+- **新建 `data/context.ts`**（S3）：`orderedHistory`（date + 同日 id 序号，R-01 同纪律）
+  / `foldContext`（initial 起点 + sparse 叠加，纯函数，缺 initial 或多 snapshot 直接抛错）
+  / `currentContext()` / `contextHistory()`；**无 update/delete/rewrite 任何入口**（锁 2）；
+  本文件只持有派生逻辑、零独立状态（锁 1）；
+- **修改 `data/content.ts`**：仅追加 2 行 barrel 导出（`./domains/context-history`、`./context`），
+  既有 13 行零改动；
+- **修改 `scripts/check-data.mjs`**（S4）：仅追加断言块 [21]–[26]，既有 [1]–[20] 零改动——
+  [21] 结构与 id 纪律（snapshot/changes 互斥、reason 必填、禁 delta/direction/previous、
+  同日序号连续）；[22] append-only API 面（barrel 无 mutation 导出 + 派生四函数齐备）；
+  [23] fold 合成用例（Sparse Inheritance / 乱序确定性 / 缺 initial 抛错 / 第二 snapshot 抛错）；
+  [24] **fold(CONTEXT_HISTORY) === map/now/cycle 当前态**（expectedCurrent ↔ actualCurrent，
+  漂移 = check exit 1 = BUILD FAILURE）；[25] No-op（入账必须产生真实状态变化）；
+  [26] Migration 诚信（initial 唯一且为首、无更早 date、快照完整性）。
+
+**验证**：check **189/189** ✓（既有 174 + 新增 15）；build ✓（index gzip 74.84KB，
++0.01KB = 新数据模块进 barrel 预期增量）；lint 无新增 error（仍仅 InkTransition 既有 1 个，
+按 F5 未触碰）；preview 冒烟 HTTP 200（vite preview 起后即关）。
+UI 零改动证明：git diff 中无任何页面/组件/样式文件。
+
+**Production Review 登记的限制（Review 要求入档）**：本轮未执行完整 CDP；
+由于零 UI / Consumer / 组件修改，以 diff audit + preview smoke 作为非侵入性验证——
+能证明应用正常启动返回 200，但不等价于完整 runtime UI behavior 证明；风险经 diff 审计已足够低，
+Review 明确「不要为形式主义重跑完整 CDP」。
+另登记长期 Observation（不阻塞）：`readonly` 是 TS 类型层保护而非运行时不可变机制；
+当前契约组合（readonly + 无 update/delete API + append-only + 一致性断言 + git 管理）已足够，
+不为理论上的 runtime mutation 扩大 C1 范围。
+
+**未做的事**：未动 map.ts / now.ts / cycle.ts（Strategy B：当前态保持手写，initial 只快照引用）；
+未做任何 Consumer migration（IndustryMap/Thesis/ThesisDetail/Home/Cycle/polarity.ts 零改动）；
+未修 G-08（IndustryMap 行 196 probability 直读原样）/ G-05 / InkTransition；无 UI、无历史展示面
+（锁 3）；无新依赖；**未 commit、未 push**——停等 Implementation Review → Production Review →
+Commit Authorization（19 号文六节，本授权不含 Commit/Push）。
+
+**冲突**：无新增。
+
+---
+
 ## 2026-08-23 · V2-06-00 Brand Canonicalization（裁决 A 落地）
 
 **执行内容**（基线 = V2-06 Milestone Review 工作区状态；品牌清单已核定）：

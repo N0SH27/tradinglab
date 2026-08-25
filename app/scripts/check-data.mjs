@@ -326,6 +326,130 @@ try {
   pageSrc.get('Thesis.tsx')?.includes('deriveThesisPolarity')
     ? ok('Thesis.tsx: polarity 经 deriveThesisPolarity（无字段化）')
     : bad('Thesis.tsx: polarity 未走 deriveThesisPolarity')
+
+  // ── 21–26. Context History（V2-C1：Context Revision Boundary，18/19 号文契约）──
+  const canon = (v) =>
+    Array.isArray(v) ? v.map(canon)
+      : v && typeof v === 'object'
+        ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, canon(v[k])]))
+        : v
+  const deepEq = (a, b) => JSON.stringify(canon(a)) === JSON.stringify(canon(b))
+
+  console.log('\n[21] CONTEXT_HISTORY 结构与 id 纪律')
+  const hist = d.CONTEXT_HISTORY
+  Array.isArray(hist) && hist.length > 0 ? ok(`CONTEXT_HISTORY ${hist.length} 条`) : bad('CONTEXT_HISTORY 缺失或为空')
+  const ctxIds = new Set()
+  for (const h of hist ?? []) {
+    const errs = []
+    if (!/^ctx-\d{8}(-\d+)?$/.test(h.id ?? '')) errs.push(`id 格式异常: ${h.id}`)
+    if (!/^\d{4}\.\d{2}\.\d{2}$/.test(h.date ?? '')) errs.push(`date 格式异常: ${h.date}`)
+    if (!h.reason || !h.reason.trim()) errs.push('reason 缺失（写不出 reason 的变化不是 Revision）')
+    if (('snapshot' in h) === ('changes' in h)) errs.push('snapshot 与 changes 必须恰居其一')
+    if ('delta' in h || 'direction' in h || 'previous' in h) errs.push('派生事实不得持久化（delta/direction/previous）')
+    if (ctxIds.has(h.id)) errs.push(`id 重复: ${h.id}`)
+    ctxIds.add(h.id)
+    errs.length === 0 ? ok(h.id) : bad(`${h.id ?? '?'}: ${[...new Set(errs)].join(' / ')}`)
+  }
+  // 同日多条时 id 序号 1..n 连续（fold 确定性前提）
+  const ctxByDay = new Map()
+  for (const h of hist ?? []) ctxByDay.set(h.date, [...(ctxByDay.get(h.date) ?? []), h.id])
+  for (const [day, ids] of ctxByDay) {
+    if (ids.length <= 1) continue
+    const seqs = ids.map((id) => { const m = /-\d{8}-(\d+)$/.exec(id); return m ? parseInt(m[1], 10) : 1 }).sort((a, b) => a - b)
+    JSON.stringify(seqs) === JSON.stringify(ids.map((_, i) => i + 1))
+      ? ok(`${day}: ${ids.length} 条同日记录序号连续`)
+      : bad(`${day}: 同日序号 ${seqs.join(',')} 不连续——fold 不确定`)
+  }
+
+  console.log('\n[22] append-only API 面（锁 2：不存在 update/delete/rewrite 入口）')
+  const mutationApi = Object.keys(d).filter((k) => /(update|delete|remove|rewrite)/i.test(k))
+  mutationApi.length === 0
+    ? ok('barrel 导出中无任何 mutation API')
+    : bad(`发现 mutation API: ${mutationApi.join(', ')}`)
+  ;['foldContext', 'orderedHistory', 'currentContext', 'contextHistory'].every((f) => typeof d[f] === 'function')
+    ? ok('派生层四函数齐备（foldContext / orderedHistory / currentContext / contextHistory）')
+    : bad('派生层函数缺失')
+
+  console.log('\n[23] fold 语义合成用例（Sparse Inheritance / 确定性 / initial 唯一）')
+  const fxNode = { state: 'yang', valuation: 'fair', penetration: 'p', stageFocus: 'f', stateNote: 's', observation: 'o' }
+  const fx1 = { id: 'ctx-20260101', date: '2026.01.01', reason: 'init', snapshot: { map: { era: { current: 1, note: 'n' }, nodes: { a: fxNode } }, now: { observations: [] }, cycle: { industries: { X: '萌芽' } } } }
+  const fx2 = { id: 'ctx-20260201', date: '2026.02.01', reason: 'r2', changes: { map: { nodes: { a: { state: 'yin' } } } } }
+  const fx3 = { id: 'ctx-20260201-2', date: '2026.02.01', reason: 'r3', changes: { map: { era: { current: 2 } }, cycle: { industries: { X: '泡沫' } } } }
+  const fxFold = d.foldContext([fx3, fx1, fx2]) // 乱序物理输入
+  fxFold.map.nodes.a.state === 'yin' && fxFold.map.nodes.a.valuation === 'fair'
+    ? ok('Sparse Inheritance：v2 只改 state，valuation 继承 initial')
+    : bad(`Sparse Inheritance 失败: ${JSON.stringify(fxFold.map.nodes.a)}`)
+  fxFold.map.era.current === 2 && fxFold.cycle.industries.X === '泡沫'
+    ? ok('同日多条按 id 序号次序叠加（-2 为当日更晚事件）')
+    : bad('同日序号叠加次序异常')
+  deepEq(d.foldContext([fx1, fx2, fx3]), d.foldContext([fx3, fx2, fx1]))
+    ? ok('fold 不依赖数组物理顺序（确定性）')
+    : bad('fold 依赖物理顺序')
+  let threwNoInitial = false
+  try { d.foldContext([fx2]) } catch { threwNoInitial = true }
+  threwNoInitial ? ok('缺 initial 直接抛错') : bad('缺 initial 未抛错')
+  let threwDupSnapshot = false
+  try { d.foldContext([fx1, { ...fx1, id: 'ctx-20260301', date: '2026.03.01' }]) } catch { threwDupSnapshot = true }
+  threwDupSnapshot ? ok('第二条 snapshot 直接抛错（initial 唯一）') : bad('未拦截第二条 snapshot')
+  let folded = null
+  try { folded = d.foldContext(hist) } catch (e) { bad(`真实数据 fold 抛错: ${e.message}`) }
+
+  console.log('\n[24] Current fold ↔ 生产当前态一致性（expectedCurrent === actualCurrent）')
+  if (folded) {
+    const actual = {
+      map: {
+        era: { current: d.MAP_ERA.current, note: d.MAP_ERA.note },
+        nodes: Object.fromEntries(d.INDUSTRY_MAP.nodes.map((n) => [n.id, {
+          state: n.state, valuation: n.valuation, penetration: n.penetration,
+          stageFocus: n.stageFocus, stateNote: n.stateNote, observation: n.observation,
+        }])),
+      },
+      now: { observations: d.OBSERVATIONS },
+      cycle: { industries: Object.fromEntries(d.CYCLE_INDUSTRIES.map((x) => [x.name, x.stage])) },
+    }
+    deepEq(folded, actual)
+      ? ok('fold(CONTEXT_HISTORY) === map/now/cycle 当前态（无漂移）')
+      : bad('fold 结果与生产当前态漂移——expectedCurrent !== actualCurrent')
+  }
+
+  console.log('\n[25] No-op / Sparse 真实数据断言')
+  if (folded) {
+    const ordered = d.orderedHistory(hist)
+    if (ordered.length === 1) {
+      ok('当前仅 initial version（无多余 Version，No-op 规则待命）')
+    } else {
+      for (let i = 1; i < ordered.length; i++) {
+        deepEq(d.foldContext(ordered.slice(0, i + 1)), d.foldContext(ordered.slice(0, i)))
+          ? bad(`${ordered[i].id}: 入账后状态未变——No-op 虚假 Version`)
+          : ok(`${ordered[i].id}: 入账产生真实状态变化`)
+      }
+    }
+  }
+
+  console.log('\n[26] Initial Migration 诚信')
+  const initial = d.orderedHistory(hist)[0]
+  const snapCount = (hist ?? []).filter((h) => 'snapshot' in h).length
+  snapCount === 1 && initial && 'snapshot' in initial
+    ? ok(`initial = ${initial.id}（唯一全量快照，确定性次序首条）`)
+    : bad(`initial 异常：snapshot 条目 ${snapCount} 条`)
+  if (initial?.snapshot) {
+    ;(hist ?? []).every((h) => h.date >= initial.date)
+      ? ok('无任何 Version 的 date 早于 initial（不倒填历史）')
+      : bad('存在早于 initial 的 Version——伪造历史')
+    const s = initial.snapshot
+    const nodeKeys = Object.keys(s.map.nodes)
+    const nodeFieldsOk = nodeKeys.every((k) =>
+      ['state', 'valuation', 'penetration', 'stageFocus', 'stateNote', 'observation']
+        .every((f) => s.map.nodes[k][f] !== undefined && s.map.nodes[k][f] !== ''))
+    nodeKeys.length === d.INDUSTRY_MAP.nodes.length && nodeFieldsOk
+      ? ok(`initial 快照完整：${nodeKeys.length} 节点 × 6 语义字段`)
+      : bad('initial 快照节点数或字段不完整')
+    s.now.observations.length === d.OBSERVATIONS.length &&
+    Object.keys(s.cycle.industries).length === d.CYCLE_INDUSTRIES.length &&
+    typeof s.map.era.current === 'number' && !!s.map.era.note
+      ? ok(`observations ${s.now.observations.length} 条 / industries ${Object.keys(s.cycle.industries).length} 个 / era 齐备`)
+      : bad('initial 快照 now/cycle/era 不完整')
+  }
 } catch (err) {
   bad(`数据文件无法解析：${err.message}`)
   console.error(err)
