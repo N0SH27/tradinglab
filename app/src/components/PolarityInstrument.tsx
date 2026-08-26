@@ -9,10 +9,10 @@ import React, { useState } from 'react'
 
 export type PolarityState = 'yin' | 'turn' | 'yang'
 
-const META: Record<PolarityState, { en: string; words: [string, string, string] }> = {
-  yang: { en: 'YANG', words: ['Growth', 'Adoption', 'Expansion'] },
-  turn: { en: 'TURN', words: ['Transition', 'Reversal', 'Inflection'] },
-  yin: { en: 'YIN', words: ['Constraint', 'Clearing', 'Contraction'] },
+const META: Record<PolarityState, { en: string; zh: string; words: { en: string; zh: string }[] }> = {
+  yang: { en: 'YANG', zh: '阳', words: [{ en: 'Growth', zh: '增长' }, { en: 'Adoption', zh: '采纳' }, { en: 'Expansion', zh: '扩张' }] },
+  turn: { en: 'TURN', zh: '转换', words: [{ en: 'Transition', zh: '过渡' }, { en: 'Reversal', zh: '反转' }, { en: 'Inflection', zh: '拐点' }] },
+  yin: { en: 'YIN', zh: '阴', words: [{ en: 'Constraint', zh: '约束' }, { en: 'Clearing', zh: '出清' }, { en: 'Contraction', zh: '收缩' }] },
 }
 
 /* 可预测的单向循环：YANG → TURN → YIN → YANG（同 Loop：YIN→TURN→YANG→TURN→YIN 的简化路径） */
@@ -48,7 +48,7 @@ export function PolarityInstrument({
   const [current, setCurrent] = useState<PolarityState>(state)
   const [flipped, setFlipped] = useState(false)
   const meta = META[current]
-  const aria = `Polarity: ${meta.en} — ${meta.words.join(', ')}`
+  const aria = `Polarity: ${meta.zh} ${meta.en} — ${meta.words.map((w) => `${w.zh} ${w.en}`).join(', ')}`
 
   const advance = () => {
     setCurrent(NEXT[current])
@@ -97,9 +97,11 @@ export function PolarityInstrument({
       {disc}
       {showLabel && (
         <span className="flex flex-col gap-1.5">
-          <span className="label-sm">{meta.en}</span>
+          <span className="label-sm">{meta.zh} · {meta.en}</span>
           {meta.words.map((w) => (
-            <span key={w} className="text-sm ink-2 tracking-wide">{w}</span>
+            <span key={w.en} className="text-sm ink-2 tracking-wide">
+              {w.zh} <span className="font-mono-num text-xs ink-3">{w.en}</span>
+            </span>
           ))}
         </span>
       )}
