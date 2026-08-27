@@ -81,21 +81,11 @@
     animation: taiji-spin 90s linear infinite;
   }
 
-  /* Polarity Instrument（V2-04）：默认完全静止，无自动旋转。
-     hover = 有界微转（单次过渡，非循环）；click = 翻转 180°（is-flipped）。
-     时长落在墨系区间（500–1600ms），位移极小。 */
+  /* Polarity Instrument（2026-08-27 redesign）：唯一动画 = transform 旋转过渡。
+     角度由组件内联 style 给出（STATE → CANONICAL ANGLE + 有界跟随）；
+     此处只保留过渡时长与缓动。旧的 0°↔180° flip 与 hover 30° 机制已废止。 */
   .polarity-disc {
     transition: transform 900ms cubic-bezier(0.22, 0.61, 0.36, 1);
-    transform: rotate(0deg);
-  }
-  .polarity-disc.is-flipped {
-    transform: rotate(180deg);
-  }
-  .polarity-interactive:hover .polarity-disc {
-    transform: rotate(30deg);
-  }
-  .polarity-interactive:hover .polarity-disc.is-flipped {
-    transform: rotate(210deg);
   }
 
   /* 朱砂呼吸点 */
