@@ -20,7 +20,8 @@ export const SITE = {
 
 /* 顶部导航（V2-05 T-1，Option C：NOW/WORLD/THESIS/JOURNAL/WUWEI/HSN）
    机制不变（NavLink | 分组）。组内首项为该组主页面：
-   WORLD=地图·周期·四象；THESIS=命题·系统·框架；JOURNAL=日志·文集；HSN=宣言。
+   WORLD=地图·周期·四象；THESIS=命题·方法·框架·系统；JOURNAL=日志·文集；HSN=宣言。
+   （V2-26 T3：THESIS 组吸收 METHOD 页，方案 A 锁定——三页同属「认知—行动系统」）
    过渡态：NOW 暂链首页（独立 NOW 页待 C-04）；ABOUT 待 V2-07。 */
 export interface NavLink { path: string; label: string; en: string }
 export type NavEntry = NavLink | { label: string; en: string; children: NavLink[] }
@@ -39,8 +40,9 @@ export const NAV: NavEntry[] = [
     label: '命题', en: 'THESIS',
     children: [
       { path: '/thesis', label: '命题', en: 'THESIS' },
-      { path: '/system', label: '系统', en: 'SYSTEM' },
+      { path: '/method', label: '方法', en: 'METHOD' },
       { path: '/framework', label: '框架', en: 'FRAMEWORK' },
+      { path: '/system', label: '系统', en: 'SYSTEM' },
     ],
   },
   {
@@ -62,13 +64,14 @@ export const NAV: NavEntry[] = [
 // ── 归档知识树 ────────────────────────────────
 export const ARCHIVE_TREE = [
   { name: 'Manifesto', children: ['创造与交易', '计划与应变', '概率与确定性', '价格即共识', '风险优先', '道法自然'] },
-  { name: 'System', children: ['七层金字塔', '市场状态机', '资金管理', '持续演进'] },
+  { name: 'System', children: ['状态机', '盘面信号', '触发器', '资金管理', '执行复盘'] },
   { name: 'Essays', children: ['世界观', '市场观', '系统', '研究', '心法'] },
   { name: 'Thesis', children: ['国产算力', 'AI 应用', '机器人', '新能源', '光模块', '存储周期', '稀土', '创新药'] },
   { name: 'Map', children: ['AI 算力产业链', '景气 × 估值', '佩雷斯标尺'] },
   { name: 'Cycle', children: ['七阶段', '题材生命周期', '三层共振', '四面权重'] },
   { name: 'Dimensions', children: ['量·阳', '价·阳', '时·阴', '空·阴', '逆时针曲线'] },
   { name: 'Wuwei', children: ['止损的艺术', '情绪管理', '生活即系统'] },
-  { name: 'Framework', children: ['信号分层', 'If-Then 预案', '触发器库', '好交易的标准'] },
+  { name: 'Method', children: ['研究循环', '证据标准', '证伪纪律', '修正纪律'] },
+  { name: 'Framework', children: ['操作地图', '双循环', '决策授权', '行动接口', '复盘回流'] },
   { name: 'Journal', children: ['修正记录', '错误清单', '认知迭代'] },
 ]
