@@ -64,3 +64,83 @@ export const MARKET_STATES = [
   { state: '趋势·空', condition: '年线之下 + 指数持续走弱', allowed: '仅做反弹，降到底仓', position: '30%', yang: false },
   { state: '情绪冰点', condition: '连板高度断层、炸板率 > 50%', allowed: '空仓观察', position: '0–20%', yang: false },
 ]
+
+// ── 系统三事（EXPLAIN · DECIDE · PROTECT · 自 framework.ts 01 迁入 · V2-26）
+export const SYSTEM_ESSENTIALS = {
+  title: '交易系统只做三件事',
+  en: 'EXPLAIN · DECIDE · PROTECT',
+  core: '没有系统，就是用情绪直接面对一个随机系统。',
+  steps: [
+    '解释：市场现在是什么情况。用状态机回答，不用感觉回答。',
+    '决策：什么时候该入场，什么时候该离场。触发条件必须清晰、可描述、不模棱两可。',
+    '风险：错了该怎么办。开仓之前先定逻辑失效点——"在我进入之前，我就知道该何时退出。"',
+    '你没有规则时，市场是混乱的；你有了规则，市场依旧混乱，但你不再混乱。',
+  ],
+}
+
+// ── 盘面信号分层（TAPE SIGNAL · 自 framework.ts 02 后半迁入 · V2-26）
+// 消歧：盘面信号服务交易执行；研究侧的"信号"（真、新、大的观察准入）在 #/method。
+export const TAPE_SIGNALS = {
+  title: '盘面信号的分层',
+  en: 'TAPE SIGNALS',
+  note: '盘面信号是 System 内部术语：可直接用于交易判断的盘面证据。它与研究侧的"信号"（足以改变解释的变化）是两个概念、两层职责。',
+  layers: [
+    { name: '领先信号', when: '先于价格', examples: '政策预期、龙头异动、板块资金流入加速', usage: '用作建仓与加仓。' },
+    { name: '同步信号', when: '伴随价格', examples: '分歧转一致、突破跌破、量能配合', usage: '用作加确认与减仓。' },
+    { name: '滞后信号', when: '价格已动', examples: 'MA、MACD 金叉死叉、消息确认', usage: '仅作止损与出局确认。把滞后信号当领先信号用，是散户最常见的死法。' },
+  ],
+}
+
+// ── 触发器规格（TRIGGER SPECS · 自 framework.ts 04 迁入 · V2-26）
+// Trigger = 经 Decision 确认、被 System 消费的可执行条件——接口在框架页，规格库在这里。
+export const TRIGGER_SPECS = {
+  title: '触发器库',
+  en: 'TRIGGER SPECS',
+  rule: '每条触发器必须三要素齐全：入场条件、失效条件、历史胜率。',
+  types: [
+    { name: '形态触发', examples: '分歧转一致、突破平台、缩量加速。' },
+    { name: '数量触发', examples: '均线交叉、MACD 大红柱、倍量上穿前高。' },
+    { name: '事件触发', examples: '超预期财报、政策落地、边际事件。' },
+    { name: '反向触发（出局）', examples: '缩量加速板、跌破 10 日线、量价背离。' },
+  ],
+}
+
+// ── If-Then 预案（交易侧 · 自 framework.ts 03 迁入 · V2-26）
+export const IF_THEN = {
+  title: 'If-Then 预案表',
+  en: 'IF-THEN PROTOCOL',
+  core: '预案先于操作——让自己的下一个选择，变得不再左右为难。',
+  items: [
+    'IF 当日炸板率突破 50% → THEN 持仓降到 30%，停止打板。',
+    'IF 个股跌破 10 日线且量能不缩 → THEN 卖出一半。',
+    'IF 大盘跳空高开 1.5% 以上 → THEN 取消晨间所有低吸计划，转为跟随。',
+    'IF 连续 3 笔止损 → THEN 第二天空仓，写复盘。',
+  ],
+}
+
+// ── 执行：周期三层共振（自 framework.ts 05 迁入 · V2-26）
+export const EXECUTION_RESONANCE = {
+  title: '周期三层共振',
+  en: 'TRIPLE RESONANCE',
+  rule: '必须 ≥2 层共振，禁止 3 层逆向操作。',
+  layers: [
+    { level: '大盘周期', role: '战略', desc: '决定要不要重仓。' },
+    { level: '板块周期', role: '战术', desc: '决定打哪个赛道。' },
+    { level: '个股周期', role: '执行', desc: '决定具体哪一只。' },
+  ],
+  note: '交易周期不是越大越稳、越小越刺激——必须匹配你的心态、本金性质、资金体量和生活节奏。',
+}
+
+// ── 执行复盘：什么算一笔好的交易（自 framework.ts 06 迁入 · V2-26）
+export const TRADING_REVIEW = {
+  title: '什么算一笔好的交易',
+  en: 'A GOOD TRADE',
+  core: '好的交易一定是可以复制的。同一把尺，进场前量一次，复盘时量一次。',
+  points: [
+    '明确的进入逻辑：进场前就知道，自己在交易什么。',
+    '风险清楚且可控：进场前问自己，如果错了，能不能接受。',
+    '盈亏比值得做，且只做符合自己系统的单子——先分析自己的亏损模式。',
+    '执行是干净的，计划和执行尽量一致；当下的市场环境要匹配——同样的形态放在不同的环境下，质量会差很多。',
+    '人的状态是对的：状态不好时，最好的交易是不交易。',
+  ],
+}

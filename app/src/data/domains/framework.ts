@@ -1,64 +1,73 @@
-// ── 框架 ─────────────────────────────────────
-export const FRAMEWORKS = [
+// ── 框架 · Operating Architecture ─────────────
+// Framework = How I Move From Reality To Action（V2-26 契约 · LOCKED）。
+// Framework 是把 Research、Decision、Trading、Review 连接起来的操作架构——
+// 本文件只是 Framework 页的静态文本源（静态框架层，非演化状态，同 C1 契约定性）：
+// 不持有任何研究事实——信念 / 命题 / 证据的唯一事实源在各自 domain。
+// 交易执行规则（盘面信号 / 触发器 / 预案 / 共振 / 好交易标准）已迁至 domains/system.ts。
+
+export const FRAMEWORK_CHAIN = [
+  { key: 'WORLD', zh: '世界', desc: '现实本身。它不负责被理解。' },
+  { key: 'INFORMATION', zh: '信息', desc: '未筛选的资讯流。信息不是信号。' },
+  { key: 'OBSERVATION', zh: '观察', desc: '人工选择正在发生、值得观察的变化——真、新、大。', href: '#/', hrefLabel: '当下' },
+  { key: 'RESEARCH', zh: '研究循环', desc: '定位、框定矛盾、立题、对照现实、刻度化信念、入账修正。', href: '#/method', hrefLabel: '方法' },
+  { key: 'BELIEF', zh: '信念', desc: '0–100 的诚实刻度。唯一更新入口是账本，不是感觉。', href: '#/journal', hrefLabel: '日志' },
+  { key: 'DECISION', zh: '决策', desc: '「我认为是真的」≠「我决定行动」。信到什么程度、等什么条件、动不动。' },
+  { key: 'ACTION / INACTION', zh: '行动 · 不行动', desc: '不行动是一等输出。空仓是持仓，等待是工作。', href: '#/wuwei', hrefLabel: '无为' },
+  { key: 'REVIEW', zh: '复盘', desc: '执行是否正确、理解是否正确——两个问题，分开回答。' },
+  { key: 'REVISION', zh: '修正', desc: '只有经过研究与判断，才允许修改信念与方法。然后，更好地观察。', href: '#/journal', hrefLabel: '修正记录' },
+]
+
+export const FRAMEWORK_LOOPS = [
   {
-    id: '01', title: '交易系统只做三件事', en: 'EXPLAIN · DECIDE · PROTECT',
-    core: '没有系统，就是用情绪直接面对一个随机系统。',
-    steps: [
-      '解释：市场现在是什么情况。用状态机回答，不用感觉回答。',
-      '决策：什么时候该入场，什么时候该离场。触发条件必须清晰、可描述、不模棱两可。',
-      '风险：错了该怎么办。开仓之前先定逻辑失效点——"在我进入之前，我就知道该何时退出。"',
-      '你没有规则时，市场是混乱的；你有了规则，市场依旧混乱，但你不再混乱。',
-    ],
+    name: '研究循环', en: 'RESEARCH LOOP v1.0', tempo: '慢回路 · 信念如何形成与修正',
+    steps: ['OBSERVE 观察', 'CONTEXT 定位', 'FRAME 框定', 'THESIS 立题', 'TEST 对照', 'BELIEVE 信念', 'REVISE 修正', 'REFLECT 反思'],
+    note: '它是框架内部一个完整的认知循环，不是地图上的一个步骤。',
+    href: '#/method', hrefLabel: '方法页承载这个循环',
   },
   {
-    id: '02', title: '信号的分层与识别', en: 'SIGNAL HIERARCHY',
-    core: '信号最重要的三个特征：真、新、大。',
-    steps: [
-      '信号必须是特别的，区别于绝大部分常规信号——本质是识别异常值。你的生活习惯，决定了你能观察到什么样的信号。',
-      '领先信号（先于价格）：政策预期、龙头异动、板块资金流入加速 → 用作建仓与加仓。',
-      '同步信号（伴随价格）：分歧转一致、突破跌破、量能配合 → 用作加确认与减仓。',
-      '滞后信号（价格已动）：MA、MACD 金叉死叉、消息确认 → 仅作止损与出局确认。把滞后信号当领先信号用，是散户最常见的死法。',
-    ],
-  },
-  {
-    id: '03', title: 'If-Then 预案表', en: 'IF-THEN PROTOCOL',
-    core: '让自己的下一个选择，变得不再左右为难。',
-    steps: [
-      'IF 当日炸板率突破 50% → THEN 持仓降到 30%，停止打板。',
-      'IF 个股跌破 10 日线且量能不缩 → THEN 卖出一半。',
-      'IF 大盘跳空高开 1.5% 以上 → THEN 取消晨间所有低吸计划，转为跟随。',
-      'IF 连续 3 笔止损 → THEN 第二天空仓，写复盘。',
-    ],
-  },
-  {
-    id: '04', title: '触发器库', en: 'TRIGGER LIBRARY',
-    core: '每条触发器必须三要素齐全：入场条件、失效条件、历史胜率。',
-    steps: [
-      '形态触发：分歧转一致、突破平台、缩量加速。',
-      '数量触发：均线交叉、MACD 大红柱、倍量上穿前高。',
-      '事件触发：超预期财报、政策落地、边际事件。',
-      '反向触发（出局）：缩量加速板、跌破 10 日线、量价背离。',
-    ],
-  },
-  {
-    id: '05', title: '周期三层共振', en: 'TRIPLE RESONANCE',
-    core: '必须 ≥2 层共振，禁止 3 层逆向操作。',
-    steps: [
-      '大盘周期 = 战略：决定要不要重仓。',
-      '板块周期 = 战术：决定打哪个赛道。',
-      '个股周期 = 执行：决定具体哪一只。',
-      '交易周期不是越大越稳、越小越刺激——必须匹配你的心态、本金性质、资金体量和生活节奏。',
-    ],
-  },
-  {
-    id: '06', title: '什么算一笔好的交易', en: 'A GOOD TRADE',
-    core: '好的交易一定是可以复制的。',
-    steps: [
-      '明确的进入逻辑：进场前就知道，自己在交易什么。',
-      '风险清楚且可控：进场前问自己，如果错了，能不能接受。',
-      '盈亏比值得做，且只做符合自己系统的单子——先分析自己的亏损模式。',
-      '执行是干净的，计划和执行尽量一致；当下的市场环境要匹配——同样的形态放在不同的环境下，质量会差很多。',
-      '人的状态是对的：状态不好时，最好的交易是不交易。',
-    ],
+    name: '交易循环', en: 'TRADING LOOP', tempo: '快回路 · 授权之后如何执行',
+    steps: ['DECISION 授权', 'TRIGGER 触发', 'ENTRY 入场', 'POSITION 持仓', 'MANAGEMENT 管理', 'EXIT 退出', 'REVIEW 复盘'],
+    note: '系统是规则容器——循环穿过它，但循环不等于它。',
+    href: '#/system', hrefLabel: '系统页承载这些规则',
   },
 ]
+
+export const FRAMEWORK_CONSTRAINT = {
+  name: '行为约束层', en: 'BEHAVIORAL CONSTRAINTS',
+  desc: '无为不是任何循环里的一个步骤——它永远可以在任一步介入，回答同一个问题：是否需要行动？',
+  href: '#/wuwei', hrefLabel: '无为',
+}
+
+export const FRAMEWORK_DECISION = {
+  title: '决策：信念与行动之间',
+  en: 'DECISION',
+  lead: '「我认为某件事情是真的」 ≠ 「我决定因此采取行动」。',
+  points: [
+    '信念是刻度，行动是授权——中间隔着决策。高度相信不等于允许行动：估值、风险收益比、市场状态，都有一票。',
+    'BELIEF = YES，ACTION = NO 是合法且常见的状态。',
+    '认知侧的 If-Then 早已写进每个命题：证伪条件预先登记——IF 事实出现，THEN 重新检验命题。',
+    '不行动是一等输出：系统是阳，不操作是阴。',
+  ],
+}
+
+export const FRAMEWORK_INTERFACE = {
+  title: '行动接口',
+  en: 'THE ACTION INTERFACE',
+  chain: ['DECISION 决策授权', 'TRIGGER 条件确认', 'SYSTEM 规则执行', 'TRADE 交易行为'],
+  points: [
+    'Trigger 是经决策确认、被交易系统消费的可执行条件——它是接口，不是系统。',
+    '研究信号 ≠ 盘面信号：前者改变解释，后者服务执行。两个词，两层职责。',
+    '触发条件必须事先写明：入场条件、失效条件、历史依据。事后拼凑的条件不是触发，是叙事。',
+    '授权的反面同样重要：条件不满足时，系统负责禁止行动。',
+  ],
+}
+
+export const FRAMEWORK_REVIEW = {
+  title: '复盘与修正的边界',
+  en: 'REVIEW → REVISION',
+  reviews: [
+    { name: '执行复盘', en: 'TRADING REVIEW', q: '我执行得对吗？', desc: '入场、仓位、风险、管理、退出——对照系统逐条核。属交易循环。' },
+    { name: '认知复盘', en: 'COGNITIVE REVIEW', q: '我理解得对吗？', desc: '信号是否有效、命题是否成立、证据是否充分、概率是否要变。属研究循环。' },
+  ],
+  gate: '亏损不是修改框架的理由。交易结果的唯一合法路径：执行复盘 → 认知复盘 → 研究 → 判断 → 修正入账。',
+}

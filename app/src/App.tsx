@@ -20,6 +20,7 @@ const Cycle = lazy(() => import('./pages/Cycle'))
 const Dimensions = lazy(() => import('./pages/Dimensions'))
 const Wuwei = lazy(() => import('./pages/Wuwei'))
 const Framework = lazy(() => import('./pages/Framework'))
+const Method = lazy(() => import('./pages/Method'))
 const Journal = lazy(() => import('./pages/Journal'))
 
 function route(path: string): React.ReactNode {
@@ -35,6 +36,7 @@ function route(path: string): React.ReactNode {
     case '/dimensions': return <Dimensions />
     case '/wuwei': return <Wuwei />
     case '/framework': return <Framework />
+    case '/method': return <Method />
     case '/journal': return <Journal />
     default: return <Home />
   }
