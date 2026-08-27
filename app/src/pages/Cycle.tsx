@@ -25,15 +25,13 @@ export default function Cycle() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-7 border border-[rgb(var(--line))]">
+        <div className="grid grid-cols-2 md:grid-cols-7 gap-px bg-[rgb(var(--line))] border border-[rgb(var(--line))]">
           {CYCLE_STAGES.map((stage, i) => {
             const items = CYCLE_INDUSTRIES.filter((x) => x.stage === stage)
             return (
               <div
                 key={stage}
-                className={`min-h-[240px] md:min-h-[300px] p-4 md:p-5 flex flex-col border-[rgb(var(--line))] ${
-                  i > 0 ? 'border-l max-md:[&:nth-child(odd)]:border-l-0 max-md:border-t max-md:[&:nth-child(-n+2)]:border-t-0' : ''
-                }`}
+                className="min-h-[240px] md:min-h-[300px] p-4 md:p-5 flex flex-col bg-paper"
               >
                 <div className="hairline-b pb-3 mb-4">
                   <span className="font-mono-num tnum text-[10px] ink-3 block mb-1">
@@ -56,6 +54,8 @@ export default function Cycle() {
               </div>
             )
           })}
+          {/* 七格在窄屏两列下余出第 8 格：纸色占位，保持网格线完整 */}
+          <div className="bg-paper md:hidden" aria-hidden="true" />
         </div>
         <p className="mt-4 text-xs ink-3 tracking-widest">
           读法：从左到右是一次完整的阴阳循环。「空」意味着当前没有行业处于该阶段——这本身值得思考。

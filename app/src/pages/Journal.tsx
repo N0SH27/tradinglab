@@ -46,9 +46,13 @@ export default function Journal() {
                 </span>
                 <span className="col-span-6 md:col-span-2 font-mono-num tnum text-xl md:text-2xl font-medium md:text-right">
                   {r.previous} → {r.current}
-                  <span className="text-sm ink-3 ml-2">{delta > 0 ? '+' : ''}{delta}</span>
+                  <span className={`text-sm ml-2 ${delta > 0 ? 'cinnabar' : delta < 0 ? 'water' : 'ink-3'}`}>
+                    {delta > 0 ? '+' : ''}{delta}
+                  </span>
                 </span>
-                <span className="col-span-6 md:col-span-1 label-sm ink-3">{direction.toUpperCase()}</span>
+                <span className={`col-span-6 md:col-span-1 label-sm ${
+                  direction === 'up' ? 'cinnabar' : direction === 'down' ? 'water' : 'ink-3'
+                }`}>{direction.toUpperCase()}</span>
                 <span className="col-span-12 md:col-span-4 text-sm ink-2 leading-relaxed">{r.reason}</span>
               </a>
             )

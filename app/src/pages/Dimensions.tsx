@@ -1,7 +1,21 @@
+import { useEffect, useState } from 'react'
 import { FOUR_DIMENSIONS, COUNTERCLOCKWISE, DIMENSIONS_NOTE } from '../data/content'
 import { Label, PageHead, SectionHead, PolarityTag } from '../components/Bits'
 
+/* 反方向的钟：黑色块依 01 → 09 行进，再回到 01 从头循环。
+   钟的节拍等长——不加速、不停顿，「持有」与八个位置同拍。 */
+const CLOCK_TICK_MS = 2000
+
 export default function Dimensions() {
+  /* prefers-reduced-motion：不走针，黑块停在 05「持有」（原静态语义） */
+  const [clockPos, setClockPos] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 4 : 0,
+  )
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const t = setInterval(() => setClockPos((p) => (p + 1) % 9), CLOCK_TICK_MS)
+    return () => clearInterval(t)
+  }, [])
   return (
     <div className="max-w-[1400px] mx-auto px-5 md:px-10">
       <PageHead no="07" zh="四象" en="FOUR DIMENSIONS" intro={DIMENSIONS_NOTE} />
@@ -37,26 +51,28 @@ export default function Dimensions() {
         </p>
       </section>
 
-      {/* ── 逆时针曲线 ────────────────────── */}
+      {/* ── 反方向的钟 ────────────────────── */}
       <section className="pb-20 md:pb-28">
-        <SectionHead no="◔" zh="逆时针曲线" en="COUNTERCLOCKWISE CURVE" note="一笔完整交易的九个位置" />
+        <SectionHead no="◔" zh="反方向的钟" en="REVERSED CLOCK" note="一笔完整交易的九个位置" />
         <div className="grid grid-cols-3 gap-px bg-[rgb(var(--line))] border border-[rgb(var(--line))] max-w-3xl">
           {/* 按逆时针布局：左列自下而上，顶行自左而右 */}
           {[4, 3, 2, 5, 0, 1, 6, 7, 8].map((idx) => {
-            const isHolding = idx === 4
+            const isActive = idx === clockPos
             const isWatch = idx === 0
             return (
               <div
                 key={idx}
-                className={`bg-paper aspect-square flex flex-col items-center justify-center gap-3 ${
-                  isHolding ? 'bg-ink text-[rgb(var(--paper))]' : ''
+                className={`clock-cell bg-paper aspect-square flex flex-col items-center justify-center gap-3 ${
+                  isActive ? 'is-active' : ''
                 }`}
               >
-                <span className={`font-mono-num tnum text-xs ${isHolding ? '' : 'ink-3'}`}>
+                <span className={`relative font-mono-num tnum text-xs transition-colors duration-700 ${
+                  isActive ? 'text-[rgb(var(--paper))]' : 'ink-3'
+                }`}>
                   {String(idx + 1).padStart(2, '0')}
                 </span>
-                <span className={`font-serif-sc font-bold text-lg md:text-2xl ${
-                  isWatch ? 'water' : ''
+                <span className={`relative font-serif-sc font-bold text-lg md:text-2xl transition-colors duration-700 ${
+                  isActive ? 'text-[rgb(var(--paper))]' : isWatch ? 'water' : ''
                 }`}>
                   {COUNTERCLOCKWISE[idx]}
                 </span>
