@@ -60,7 +60,6 @@ function BeliefRow({ t }: { t: Thesis }) {
         {/* 编号 + 状态 */}
         <div className="md:col-span-2 flex md:block items-baseline gap-3">
           <span className="font-mono-num tnum text-sm ink-3">{t.no}</span>
-          <Label className="md:mt-2 md:block">ACTIVE</Label>
         </div>
         {/* 题名 + 一句核心主张（conflict.but = the claim） */}
         <div className="md:col-span-6">

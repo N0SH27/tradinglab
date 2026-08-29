@@ -94,14 +94,6 @@
 }
 .ink-card:hover::before { opacity: 1; }
 .ink-card:hover { border-color: rgb(var(--ink-3)); }
-/* 卡片内的小圆点：hover 时前移一点——活起来，而非弹起来 */
-.ink-card .ink-dot {
-  transition: transform 560ms cubic-bezier(.22,.8,.36,1), background-color 400ms ease;
-}
-.ink-card:hover .ink-dot {
-  transform: translateX(6px);
-  background: rgb(var(--cinnabar));
-}
 /* 卡片标题：极细微的色深变化 */
 .ink-card .ink-title { transition: color 400ms ease; }
 .ink-card:hover .ink-title { color: rgb(var(--ink)); }

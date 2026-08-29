@@ -1,5 +1,5 @@
 import { JOURNAL, LEDGER, THESES } from '../data/content'
-import { deltaOf, directionOf } from '../data/ledger'
+import { deltaOf } from '../data/ledger'
 import { PageHead, Label } from '../components/Bits'
 
 const TYPE_META: Record<string, { mark: string; label: string; red?: boolean }> = {
@@ -27,12 +27,10 @@ export default function Journal() {
       <section className="border-t border-[rgb(var(--line))] py-12 md:py-16">
         <div className="flex items-baseline justify-between mb-10 md:mb-14">
           <Label>REVISION · WHAT CHANGED MY MIND</Label>
-          <Label className="water">认知变化记录</Label>
         </div>
         <div>
           {LEDGER.map((r) => {
             const delta = deltaOf(r)
-            const direction = directionOf(r)
             const thesis = THESES.find((t) => t.id === r.thesisId)
             return (
               <a
@@ -50,10 +48,7 @@ export default function Journal() {
                     {delta > 0 ? '+' : ''}{delta}
                   </span>
                 </span>
-                <span className={`col-span-6 md:col-span-1 label-sm ${
-                  direction === 'up' ? 'cinnabar' : direction === 'down' ? 'water' : 'ink-3'
-                }`}>{direction.toUpperCase()}</span>
-                <span className="col-span-12 md:col-span-4 text-sm ink-2 leading-relaxed">{r.reason}</span>
+                <span className="col-span-12 md:col-span-5 text-sm ink-2 leading-relaxed">{r.reason}</span>
               </a>
             )
           })}
@@ -64,7 +59,6 @@ export default function Journal() {
       <section className="py-4 md:py-8">
         <div className="flex items-baseline justify-between mb-4 md:mb-6">
           <Label>NARRATIVE · 研究叙事</Label>
-          <Label className="water">为什么这样想</Label>
         </div>
         <div className="border-t border-[rgb(var(--line))]">
           {JOURNAL.map((entry) => (

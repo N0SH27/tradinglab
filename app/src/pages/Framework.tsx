@@ -17,13 +17,11 @@ export default function Framework() {
       {/* ── Ⅰ · 操作地图 ───────────────────── */}
       <section className="hairline-t pt-14 md:pt-20 pb-20 md:pb-28">
         <SectionHead no="Ⅰ" zh="操作地图" en="THE MAP" note="从现实到修正的完整链路" />
-        <div className="border border-[rgb(var(--line))]">
+        <div className="hairline-b">
           {FRAMEWORK_CHAIN.map((n, i) => (
             <div
               key={n.key}
-              className={`grid md:grid-cols-12 gap-2 md:gap-8 px-5 md:px-8 py-6 md:py-7 items-baseline ${
-                i > 0 ? 'hairline-t' : ''
-              }`}
+              className="grid md:grid-cols-12 gap-2 md:gap-8 px-5 md:px-8 py-6 md:py-7 items-baseline hairline-t"
             >
               <div className="md:col-span-3 flex items-baseline gap-3">
                 <span className="font-mono-num tnum text-xs ink-3">{String(i + 1).padStart(2, '0')}</span>
@@ -82,7 +80,7 @@ export default function Framework() {
       <section className="hairline-t py-20 md:py-28">
         <SectionHead no="Ⅲ" zh={FRAMEWORK_DECISION.title} en={FRAMEWORK_DECISION.en} />
         <div className="max-w-4xl">
-          <p className="font-serif-sc font-black text-2xl md:text-4xl leading-snug tracking-tight mb-10 md:mb-14">
+          <p className="font-serif-sc font-black text-2xl md:text-3xl leading-snug tracking-tight mb-10 md:mb-14">
             {FRAMEWORK_DECISION.lead}
           </p>
           <ol className="space-y-6">
@@ -99,21 +97,24 @@ export default function Framework() {
       {/* ── Ⅳ · 行动接口 ───────────────────── */}
       <section className="pb-20 md:pb-28">
         <SectionHead no="Ⅳ" zh={FRAMEWORK_INTERFACE.title} en={FRAMEWORK_INTERFACE.en} note="授权线：决策之后，才是系统" />
-        <div className="border border-[rgb(var(--line))] mb-12">
-          {FRAMEWORK_INTERFACE.chain.map((c, i) => (
-            <div
-              key={c}
-              className={`grid md:grid-cols-12 gap-2 md:gap-8 px-5 md:px-8 py-5 md:py-6 items-baseline ${
-                i > 0 ? 'hairline-t' : ''
-              }`}
-            >
-              <div className="md:col-span-2 flex items-baseline gap-3">
-                <span className="font-mono-num tnum text-xs ink-3">{String(i + 1).padStart(2, '0')}</span>
-                <span className="font-serif-sc font-bold text-lg">{c.split(' ')[0]}</span>
+        <div className="hairline-b mb-12">
+          {FRAMEWORK_INTERFACE.chain.map((c, i) => {
+            const sep = c.indexOf(' ')
+            const en = sep > 0 ? c.slice(0, sep) : c
+            const zh = sep > 0 ? c.slice(sep + 1) : ''
+            return (
+              <div
+                key={c}
+                className="grid md:grid-cols-12 gap-2 md:gap-8 px-5 md:px-8 py-5 md:py-6 items-baseline hairline-t"
+              >
+                <div className="md:col-span-2 flex items-baseline gap-3">
+                  <span className="font-mono-num tnum text-xs ink-3">{String(i + 1).padStart(2, '0')}</span>
+                  <span className="font-serif-sc font-bold text-lg">{en}</span>
+                </div>
+                <p className="md:col-span-10 text-sm md:text-base ink-2">{zh}</p>
               </div>
-              <p className="md:col-span-10 text-sm md:text-base ink-2">{c.split(' ').slice(1).join(' ')}</p>
-            </div>
-          ))}
+            )
+          })}
         </div>
         <div className="max-w-4xl">
           <ol className="space-y-6">

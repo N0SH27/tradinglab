@@ -41,8 +41,7 @@ export default function Method() {
               </div>
             </div>
           ))}
-          <div className="hairline-t px-5 md:px-8 py-5 flex items-center gap-3">
-            <span className="inline-block w-2 h-2 bg-ink" />
+          <div className="hairline-t px-5 md:px-8 py-5">
             <span className="text-sm ink-2">反思的产出回到观察——循环由此闭合，方法由此演化。</span>
           </div>
         </div>

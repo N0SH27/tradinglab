@@ -1,4 +1,4 @@
-import { THESES, INDUSTRY_MAP, LEDGER, SITE, type Thesis } from '../data/content'
+import { THESES, INDUSTRY_MAP, LEDGER, type Thesis } from '../data/content'
 import { deriveThesisPolarity, formatPolarity } from '../data/polarity'
 import {
   revisionsOf,
@@ -137,7 +137,6 @@ export default function ThesisDetail({ id }: { id: string }) {
           <span className="font-mono-num tnum text-sm ink-3">{thesis.no}</span>
           <Label className="water">{thesis.industry}</Label>
           <Label>更新 {thesis.updated}</Label>
-          <Label className="ml-auto">LIVE THESIS</Label>
         </div>
         <h1 className="font-serif-sc font-black text-3xl md:text-5xl leading-tight tracking-tight mb-10">
           {thesis.title}
@@ -278,7 +277,6 @@ export default function ThesisDetail({ id }: { id: string }) {
       <div className="hairline-t py-14 flex flex-wrap gap-4">
         <a href="#/map" className="btn-line">查看产业地图 →</a>
         <a href="#/journal" className="btn-line">查看修正日志 →</a>
-        <span className="label-sm self-center ml-auto">{SITE.author} / LIVE THESIS / {thesis.no}</span>
       </div>
     </article>
   )

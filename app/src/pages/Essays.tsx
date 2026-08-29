@@ -31,7 +31,6 @@ export default function Essays() {
             </div>
             <div className="md:col-span-3 md:text-right">
               <span className="label-sm block mb-2">阅读约 {e.readTime} 分钟</span>
-              <span className="text-sm water group-hover:translate-x-1 inline-block transition-transform duration-500">阅读 →</span>
             </div>
           </a>
         ))}

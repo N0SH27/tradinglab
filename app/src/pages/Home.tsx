@@ -105,7 +105,7 @@ export default function Home() {
 
       {/* ── 02 POLARITY · Change is not linear ── */}
       <section className="hairline-t">
-        <div className="max-w-[1400px] mx-auto px-5 md:px-10 py-16 md:py-24">
+        <div className="max-w-[1400px] mx-auto px-5 md:px-10 py-24 md:py-36">
           <ChapterMark no="POLARITY" note="YIN / TURN / YANG" />
           <div className="mt-12 md:mt-16 flex flex-col md:flex-row items-center gap-10 md:gap-20" data-reveal>
             <PolarityInstrument state="yang" size={150} interactive showLabel />
@@ -113,10 +113,8 @@ export default function Home() {
               <p className="font-serif-sc text-xl md:text-2xl font-bold leading-relaxed tracking-tight">
                 变化，不是线性的。
               </p>
-              <p className="mt-3 label-sm">CHANGE IS NOT LINEAR.</p>
               <p className="mt-5 text-sm md:text-base leading-loose ink-2">
                 阳是看得见的增长与叙事，阴是看不见的约束与出清——重要的不是预测拐点，而是观察消长。
-                Growth contains the conditions of contraction. Contraction creates the conditions of growth.
               </p>
             </div>
           </div>
@@ -144,17 +142,7 @@ export default function Home() {
                 ))}
               </ol>
             </div>
-            <div className="md:col-span-5 flex flex-col justify-between gap-10" data-reveal>
-              <div>
-                <p className="font-serif-sc text-xl md:text-2xl font-bold leading-relaxed tracking-tight">
-                  我不预测未来。
-                  <br />
-                  现实变化时，我更新信念。
-                </p>
-                <p className="mt-4 label-sm leading-relaxed">
-                  I DON'T PREDICT THE FUTURE. I UPDATE MY BELIEFS AS REALITY CHANGES.
-                </p>
-              </div>
+            <div className="md:col-span-5 flex flex-col justify-end gap-10" data-reveal>
               <div>
                 <a href="#/system" className="btn-line">EXPLORE SYSTEM →</a>
               </div>
@@ -174,9 +162,8 @@ export default function Home() {
               const belief = deriveCurrentBelief(t, LEDGER)
               return (
                 <a key={t.id} href={`#/thesis/${t.id}`} className="ink-card group bg-paper p-6 md:p-8 flex flex-col">
-                  <div className="flex items-center justify-between mb-6">
+                  <div className="mb-6">
                     <Label>{t.no}</Label>
-                    <span className="ink-dot inline-block w-1.5 h-1.5 rounded-full bg-[rgb(var(--ink-3))]" />
                   </div>
                   <span className="label-sm water block mb-3">{t.industry}</span>
                   <span className="ink-title font-serif-sc font-bold text-xl md:text-2xl leading-snug tracking-tight block mb-6">
@@ -196,7 +183,6 @@ export default function Home() {
                         修正 {lastRevised}
                       </span>
                     </span>
-                    <span className="block mt-5 text-xs tracking-[0.2em] ink-2">READ THESIS →</span>
                   </span>
                 </a>
               )
@@ -247,14 +233,13 @@ export default function Home() {
 
       {/* ── 06 WUWEI ── */}
       <section className="hairline-t">
-        <div className="max-w-[1400px] mx-auto px-5 md:px-10 py-16 md:py-24">
+        <div className="max-w-[1400px] mx-auto px-5 md:px-10 py-24 md:py-36">
           <ChapterMark no="WUWEI" note="When not to act" />
           <div className="mt-10 md:mt-14 flex flex-col md:flex-row md:items-end justify-between gap-10" data-reveal>
             <div className="max-w-xl">
               <p className="font-serif-sc text-xl md:text-2xl font-bold leading-relaxed tracking-tight">
                 有时，正确的仓位是空仓。
               </p>
-              <p className="mt-3 label-sm">SOMETIMES THE CORRECT POSITION IS NO POSITION.</p>
             </div>
             <a href="#/wuwei" className="btn-line shrink-0">EXPLORE WUWEI →</a>
           </div>
