@@ -1,5 +1,5 @@
 import {
-  METHOD_LOOP, METHOD_GATE, METHOD_EVIDENCE, METHOD_REVISION, METHOD_CONSTRAINT,
+  METHOD_LOOP, METHOD_GATE, METHOD_TIMING, METHOD_EVIDENCE, METHOD_REVISION, METHOD_CONSTRAINT,
 } from '../data/content'
 import { Label, PageHead, SectionHead } from '../components/Bits'
 
@@ -66,9 +66,43 @@ export default function Method() {
         <p className="max-w-4xl text-base leading-loose ink-2">{METHOD_GATE.discipline}</p>
       </section>
 
-      {/* ── Ⅲ · 证据与证伪 ─────────────────── */}
+      {/* ── Ⅲ · 信号的时序 ─────────────────── */}
       <section className="pb-20 md:pb-28">
-        <SectionHead no="Ⅲ" zh={METHOD_EVIDENCE.title} en={METHOD_EVIDENCE.en} />
+        <SectionHead no="Ⅲ" zh={METHOD_TIMING.title} en={METHOD_TIMING.en} note={METHOD_TIMING.note} />
+        <div className="border border-[rgb(var(--line))] mb-10">
+          <div className="hidden md:grid grid-cols-12 gap-4 px-5 md:px-8 py-4 hairline-b">
+            <Label className="col-span-2">阶段</Label>
+            <Label className="col-span-3">市场态度</Label>
+            <Label className="col-span-7">研究含义</Label>
+          </div>
+          {METHOD_TIMING.stages.map((s, i) => (
+            <div
+              key={s.name}
+              className={`grid md:grid-cols-12 gap-2 md:gap-4 px-5 md:px-8 py-5 md:py-6 items-baseline ${
+                i > 0 ? 'hairline-t' : ''
+              }`}
+            >
+              <div className="md:col-span-2 font-serif-sc font-bold text-lg">{s.name}</div>
+              <div className="md:col-span-3 text-sm ink-3">{s.attitude}</div>
+              <div className="md:col-span-7 text-sm ink-2 leading-relaxed">{s.value}</div>
+            </div>
+          ))}
+        </div>
+        <div className="max-w-4xl">
+          <ol className="space-y-6">
+            {METHOD_TIMING.freshness.map((p, i) => (
+              <li key={i} className="flex gap-5 items-baseline hairline-b pb-6 last:border-0 last:pb-0">
+                <span className="font-mono-num tnum text-sm ink-3 shrink-0">{String(i + 1).padStart(2, '0')}</span>
+                <span className="text-base leading-loose ink-2">{p}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      {/* ── Ⅳ · 证据与证伪 ─────────────────── */}
+      <section className="pb-20 md:pb-28">
+        <SectionHead no="Ⅳ" zh={METHOD_EVIDENCE.title} en={METHOD_EVIDENCE.en} />
         <div className="max-w-4xl">
           <ol className="space-y-6">
             {METHOD_EVIDENCE.points.map((p, i) => (
@@ -81,9 +115,9 @@ export default function Method() {
         </div>
       </section>
 
-      {/* ── Ⅳ · 修正纪律 ───────────────────── */}
+      {/* ── Ⅴ · 修正纪律 ───────────────────── */}
       <section className="pb-20 md:pb-28">
-        <SectionHead no="Ⅳ" zh={METHOD_REVISION.title} en={METHOD_REVISION.en} />
+        <SectionHead no="Ⅴ" zh={METHOD_REVISION.title} en={METHOD_REVISION.en} />
         <div className="max-w-4xl">
           <ol className="space-y-6 mb-10">
             {METHOD_REVISION.points.map((p, i) => (
@@ -99,10 +133,10 @@ export default function Method() {
         </div>
       </section>
 
-      {/* ── Ⅴ · 行为约束层 ─────────────────── */}
+      {/* ── Ⅵ · 行为约束层 ─────────────────── */}
       <section className="hairline-t py-20 md:py-28">
         <div className="max-w-4xl">
-          <SectionHead no="Ⅴ" zh={METHOD_CONSTRAINT.title} en={METHOD_CONSTRAINT.en} />
+          <SectionHead no="Ⅵ" zh={METHOD_CONSTRAINT.title} en={METHOD_CONSTRAINT.en} />
           <p className="text-base md:text-lg leading-loose ink-2">{METHOD_CONSTRAINT.desc}</p>
           <a href={METHOD_CONSTRAINT.href} className="inline-block mt-8 text-sm tracking-widest water hover:opacity-70 transition-opacity">
             {METHOD_CONSTRAINT.hrefLabel} →

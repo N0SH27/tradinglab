@@ -1,8 +1,8 @@
 import {
   SYSTEM_PYRAMID, SYSTEM_THREE, SYSTEM_CASINO, SYSTEM_EVOLUTION,
   SYSTEM_PRINCIPLES, MARKET_STATES, SITE,
-  SYSTEM_ESSENTIALS, TAPE_SIGNALS, TRIGGER_SPECS, IF_THEN,
-  EXECUTION_RESONANCE, TRADING_REVIEW,
+  SYSTEM_ESSENTIALS, TREND_LIFECYCLE, TAPE_SIGNALS, TRIGGER_SPECS, IF_THEN,
+  EXECUTION_RESONANCE, POSITION_DISCIPLINE, TRADING_REVIEW,
 } from '../data/content'
 import { Label, PageHead, SectionHead } from '../components/Bits'
 
@@ -115,9 +115,34 @@ export default function System() {
         </div>
       </section>
 
-      {/* ── Ⅳ · 盘面信号分层 ───────────────── */}
+      {/* ── Ⅳ · 趋势生命周期 ───────────────── */}
       <section className="pb-20 md:pb-28">
-        <SectionHead no="Ⅳ" zh={TAPE_SIGNALS.title} en={TAPE_SIGNALS.en} />
+        <SectionHead no="Ⅳ" zh={TREND_LIFECYCLE.title} en={TREND_LIFECYCLE.en} note={TREND_LIFECYCLE.rule} />
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-px bg-[rgb(var(--line))] border border-[rgb(var(--line))] mb-10">
+          {TREND_LIFECYCLE.stages.map((s, i) => (
+            <div key={s.name} className="bg-paper p-6 md:p-8">
+              <span className="font-mono-num tnum text-sm ink-3 block mb-4">{String(i + 1).padStart(2, '0')}</span>
+              <h3 className="font-serif-sc font-bold text-xl mb-4">{s.name}</h3>
+              <p className="text-sm leading-loose ink-3 mb-4">{s.feature}</p>
+              <p className="text-sm leading-loose ink-2">{s.tactic}</p>
+            </div>
+          ))}
+        </div>
+        <div className="max-w-4xl">
+          <ol className="space-y-6">
+            {TREND_LIFECYCLE.decay.map((p, i) => (
+              <li key={i} className="flex gap-5 items-baseline hairline-b pb-6 last:border-0 last:pb-0">
+                <span className="font-mono-num tnum text-sm ink-3 shrink-0">{String(i + 1).padStart(2, '0')}</span>
+                <span className="text-base leading-loose ink-2">{p}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      {/* ── Ⅴ · 盘面信号分层 ───────────────── */}
+      <section className="pb-20 md:pb-28">
+        <SectionHead no="Ⅴ" zh={TAPE_SIGNALS.title} en={TAPE_SIGNALS.en} />
         <p className="max-w-4xl text-base leading-loose ink-2 mb-12">{TAPE_SIGNALS.note}</p>
         <div className="border border-[rgb(var(--line))]">
           <div className="hidden md:grid grid-cols-12 gap-4 px-5 md:px-8 py-4 hairline-b">
@@ -142,9 +167,9 @@ export default function System() {
         </div>
       </section>
 
-      {/* ── Ⅴ · 触发器规格与预案 ────────────── */}
+      {/* ── Ⅵ · 触发器规格与预案 ────────────── */}
       <section className="pb-20 md:pb-28">
-        <SectionHead no="Ⅴ" zh={TRIGGER_SPECS.title} en={TRIGGER_SPECS.en} note="规格在系统，确认在决策" />
+        <SectionHead no="Ⅵ" zh={TRIGGER_SPECS.title} en={TRIGGER_SPECS.en} note="规格在系统，确认在决策" />
         <p className="font-serif-sc text-lg md:text-xl font-bold leading-relaxed mb-10 max-w-4xl">
           {TRIGGER_SPECS.rule}
         </p>
@@ -171,9 +196,9 @@ export default function System() {
         </div>
       </section>
 
-      {/* ── Ⅵ · 执行：三层共振 ─────────────── */}
+      {/* ── Ⅶ · 执行：三层共振 + 仓位与级别 ── */}
       <section className="pb-20 md:pb-28">
-        <SectionHead no="Ⅵ" zh={EXECUTION_RESONANCE.title} en={EXECUTION_RESONANCE.en} note={EXECUTION_RESONANCE.rule} />
+        <SectionHead no="Ⅶ" zh={EXECUTION_RESONANCE.title} en={EXECUTION_RESONANCE.en} note={EXECUTION_RESONANCE.rule} />
         <div className="grid md:grid-cols-3 gap-px bg-[rgb(var(--line))] border border-[rgb(var(--line))] mb-10">
           {EXECUTION_RESONANCE.layers.map((l) => (
             <div key={l.level} className="bg-paper p-6 md:p-10">
@@ -183,12 +208,24 @@ export default function System() {
             </div>
           ))}
         </div>
-        <p className="max-w-4xl text-base leading-loose ink-2">{EXECUTION_RESONANCE.note}</p>
+        <p className="max-w-4xl text-base leading-loose ink-2 mb-16">{EXECUTION_RESONANCE.note}</p>
+        <div className="max-w-4xl">
+          <Label className="block mb-2">{POSITION_DISCIPLINE.en}</Label>
+          <h3 className="font-serif-sc font-bold text-2xl mb-8">{POSITION_DISCIPLINE.title}</h3>
+          <ol className="space-y-6">
+            {POSITION_DISCIPLINE.points.map((p, i) => (
+              <li key={i} className="flex gap-5 items-baseline hairline-b pb-6 last:border-0 last:pb-0">
+                <span className="font-mono-num tnum text-sm ink-3 shrink-0">{String(i + 1).padStart(2, '0')}</span>
+                <span className="text-base leading-loose ink-2">{p}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
       </section>
 
-      {/* ── Ⅶ · 执行复盘 ───────────────────── */}
+      {/* ── Ⅷ · 执行复盘 ───────────────────── */}
       <section className="pb-20 md:pb-28">
-        <SectionHead no="Ⅶ" zh="执行复盘" en="TRADING REVIEW" note="我执行得对吗" />
+        <SectionHead no="Ⅷ" zh="执行复盘" en="TRADING REVIEW" note="我执行得对吗" />
         <div className="max-w-4xl">
           <Label className="block mb-2">{TRADING_REVIEW.en}</Label>
           <h3 className="font-serif-sc font-bold text-2xl mb-3">{TRADING_REVIEW.title}</h3>
@@ -204,9 +241,9 @@ export default function System() {
         </div>
       </section>
 
-      {/* ── Ⅷ · 系统演进 ───────────────────── */}
+      {/* ── Ⅸ · 系统演进 ───────────────────── */}
       <section className="pb-20 md:pb-28">
-        <SectionHead no="Ⅷ" zh="演进" en="EVOLUTION" note="同一套系统，数次重生——且仍在继续" />
+        <SectionHead no="Ⅸ" zh="演进" en="EVOLUTION" note="同一套系统，数次重生——且仍在继续" />
         <div className="grid md:grid-cols-3 gap-px bg-[rgb(var(--line))] border border-[rgb(var(--line))]">
           {SYSTEM_EVOLUTION.map((e, ei) => (
             <div key={ei} className="bg-paper p-6 md:p-10">

@@ -114,7 +114,7 @@ try {
 
   // ── 8. 站内相关链接 ──
   console.log('\n[8] 文集延伸链接')
-  const validPaths = new Set(['/manifesto', '/system', '/thesis', '/essays', '/map', '/cycle', '/dimensions', '/wuwei', '/framework', '/journal'])
+  const validPaths = new Set(['/manifesto', '/system', '/thesis', '/essays', '/map', '/cycle', '/dimensions', '/wuwei', '/framework', '/journal', '/method'])
   for (const e of d.ESSAYS) {
     for (const r of e.related ?? []) {
       validPaths.has(r.path) ? ok(`${e.id} → ${r.path}`) : bad(`${e.id} 延伸链接无效: ${r.path}`)
@@ -528,11 +528,13 @@ try {
   }
 
   console.log('\n[31] Migration 诚信与排序确定性')
-  const v1s = (evs ?? []).filter((v) => v.version === 1)
-  const v1Dates = new Set(v1s.map((v) => v.date))
-  v1Dates.size === 1
-    ? ok(`六篇 v1 同日迁移（${[...v1Dates][0]}）`)
-    : bad(`v1 迁移日不一致: ${[...v1Dates].join(', ')}`)
+  // 同日迁移断言只约束 C4 迁移批次（reason 以「C4 迁移」开头的 v1）；
+  // 迁移之后的新作 v1 = 首次登记，日期独立，仅受下方「不倒填首次发布日」约束。
+  const migV1s = (evs ?? []).filter((v) => v.version === 1 && v.reason.startsWith('C4 迁移'))
+  const migV1Dates = new Set(migV1s.map((v) => v.date))
+  migV1Dates.size === 1
+    ? ok(`C4 迁移批次 ${migV1s.length} 篇 v1 同日迁移（${[...migV1Dates][0]}）`)
+    : bad(`C4 迁移批次 v1 日期不一致: ${[...migV1Dates].join(', ')}`)
   ;(evs ?? []).every((v) => {
     const e = d.ESSAYS.find((x) => x.id === v.essayId)
     return e && v.date >= e.date
