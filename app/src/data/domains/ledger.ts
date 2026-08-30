@@ -25,6 +25,20 @@ export interface Revision {
 // 序号大者 = 当日更晚事件；check [18] 断言序号连续无缺。
 export const LEDGER: Revision[] = [
   {
+    id: 'rev-memory-cycle-20260830',
+    date: '2026.08.30',
+    thesisId: 'memory-cycle',
+    previous: 65,
+    current: 68,
+    reason: '"上涨失效"从股价蔓延到产品配置：Rubin Ultra 的 HBM 从 12 层降配至 8 层、存储约占整机 BoM 70%、买方自 7 月起抵制涨价；英伟达以存储极端定价为由把下季度毛利率指引降至 71–72%。同时长鑫进入全球第四大 DRAM 厂商行列，四玩家结构改变下行周期的供给纪律。',
+    evidence: [
+      'Rubin Ultra HBM 配置从 12-high 降配至 8-high，存储约占整机 BoM 70%（2026.08）',
+      '英伟达 FY27Q2 电话会：下季度毛利率指引 71–72%，明确归因存储极端定价环境（2026.08）',
+      '长鑫 DRAM 月产能路径 18→50 万片（2025→2028），DRAM 回到四玩家结构（2026.08）',
+    ],
+    note: '上调概率 65% → 68%。涨价的终结者不是低价，而是买方的配置降级。反证并存：降配提高封装良率，HBM 总供给反增——周期判据未被证伪，但被拉长。',
+  },
+  {
     id: 'rev-compute-20260731',
     date: '2026.07.31',
     thesisId: 'compute',

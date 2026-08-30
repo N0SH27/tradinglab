@@ -24,7 +24,7 @@ export const OBSERVATIONS: Observation[] = [
   {
     id: 'china-semiconductor-localization',
     title: '国产半导体本地化',
-    summary: '从"可用"到"必须用"的切换正在发生，智算项目推进速度快于预期。',
+    summary: '从"可用"到"必须用"的切换正在发生：英伟达前瞻指引已不计入中国数据中心收入，海外管制未见放松；智算项目推进速度快于预期。',
     date: '2026.08',
     mapNodeId: 'equip',
     thesisId: 'compute',
@@ -32,17 +32,18 @@ export const OBSERVATIONS: Observation[] = [
   {
     id: 'memory-price-divergence',
     title: '存储价格与股价背离',
-    summary: '价格上涨而股价不再跟随——周期股的顶部信号从来不是价格下跌，而是上涨失效。',
+    summary: '价格上涨开始遭遇买方抵制：Rubin Ultra 的 HBM 从 12 层降配至 8 层，存储约占整机 BoM 70%；英伟达以存储极端定价为由下调毛利率指引。顶部信号不是价格下跌，而是上涨失效。',
     date: '2026.08',
     mapNodeId: 'dram',
     thesisId: 'memory-cycle',
   },
   {
-    id: 'robotics-crowding',
-    title: '机器人交易拥挤',
-    summary: '成交拥挤度创年内新高，估值透支速度超过产业兑现速度。',
-    date: '2026.06',
-    thesisId: 'robot',
+    id: 'supply-bottleneck-migration',
+    title: '瓶颈向设备与厂房迁移',
+    summary: '最紧的环节从算力芯片延伸到洁净室、先进封装设备与载板——CoW 设备交期长达 12 个月，亚洲封测厂资本开支创历史高位。订单之后，交付能力开始决定收入。',
+    date: '2026.08',
+    mapNodeId: 'cowos',
+    thesisId: 'compute',
   },
   {
     id: 'power-as-constraint',
