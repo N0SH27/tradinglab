@@ -12,7 +12,7 @@ export const CYCLE_INDUSTRIES: { name: string; stage: (typeof CYCLE_STAGES)[numb
 ]
 
 export const CYCLE_NOTE =
-  '周期不是看多看空的投票，而是阴阳消长的位置判断。任何行业都在萌芽、成长、狂热、分化、泡沫、出清、重构之间循环。盛极而衰，否极泰来——重要的不是预测拐点，而是知道自己站在圆环的哪一段。'
+  '周期不是看多看空的投票，而是阴阳消长的位置判断。任何行业都在萌芽、成长、狂热、分化、泡沫、出清、重构之间循环。盛极而衰，否极泰来——重要的不是预测拐点，而是知道自己站在圆环的哪一段。常——在变化中寻找稳定结构。'
 
 // 周期三层共振
 export const CYCLE_RESONANCE = [

@@ -8,7 +8,7 @@
 export const METHOD_LOOP = {
   title: '研究循环',
   en: 'RESEARCH LOOP v1.0',
-  note: '信念如何形成与修正的完整认知循环——它不是一个流程图，是一套纪律。',
+  note: '信念如何形成与修正的完整认知循环——先观，后判；它不是一个流程图，是一套纪律。',
   steps: [
     { key: 'OBSERVE', zh: '观察', desc: '观察变化：正在发生、值得观察的变化——不是新闻，不是行情。', href: '#/', hrefLabel: '当下' },
     { key: 'CONTEXT', zh: '定位', desc: '地图、渗透率、周期、时代——四把尺子量完，一个观察才算有了上下文。', href: '#/map', hrefLabel: '地图' },

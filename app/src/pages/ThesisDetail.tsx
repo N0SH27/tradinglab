@@ -201,7 +201,7 @@ export default function ThesisDetail({ id }: { id: string }) {
           )}
           {thesis.invalidation && thesis.invalidation.length > 0 && (
             <div>
-              <Label className="block mb-4">INVALIDATION · What would make this thesis wrong</Label>
+              <Label className="block mb-4">止 · INVALIDATION · What makes it wrong</Label>
               <ul className="space-y-3">
                 {thesis.invalidation.map((v, i) => (
                   <li key={i} className="flex gap-4 text-sm ink-2 leading-relaxed">

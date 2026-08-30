@@ -101,7 +101,7 @@ export default function Method() {
 
       {/* ── Ⅳ · 证据与证伪 ─────────────────── */}
       <section className="pb-20 md:pb-28">
-        <SectionHead no="Ⅳ" zh={METHOD_EVIDENCE.title} en={METHOD_EVIDENCE.en} />
+        <SectionHead no="Ⅳ" zh={METHOD_EVIDENCE.title} en={METHOD_EVIDENCE.en} note="损 · 删除无法增加认知价值的东西" />
         <div className="max-w-4xl">
           <ol className="space-y-6">
             {METHOD_EVIDENCE.points.map((p, i) => (

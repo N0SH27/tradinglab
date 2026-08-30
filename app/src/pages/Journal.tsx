@@ -26,7 +26,7 @@ export default function Journal() {
       {/* ── 01 REVISION · WHAT CHANGED MY MIND ── */}
       <section className="border-t border-[rgb(var(--line))] py-12 md:py-16">
         <div className="flex items-baseline justify-between mb-10 md:mb-14">
-          <Label>REVISION · WHAT CHANGED MY MIND</Label>
+          <Label>反 · REVISION · WHAT CHANGED MY MIND</Label>
         </div>
         <div>
           {LEDGER.map((r) => {

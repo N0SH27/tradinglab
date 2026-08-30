@@ -75,7 +75,7 @@ export default function Home() {
       {OBSERVATIONS.length > 0 && (
         <section className="hairline-t">
           <div className="max-w-[1400px] mx-auto px-5 md:px-10 py-16 md:py-24">
-            <ChapterMark no="NOW" note="What is changing?" />
+            <ChapterMark no="NOW" note="观 · What is changing?" />
             <div className="mt-10 md:mt-14">
               {OBSERVATIONS.slice(0, 5).map((o, i) => (
                 <a
@@ -195,7 +195,7 @@ export default function Home() {
       {revisions.length > 0 && (
         <section className="hairline-t">
           <div className="max-w-[1400px] mx-auto px-5 md:px-10 py-16 md:py-24">
-            <ChapterMark no="WHAT CHANGED MY MIND" note="Revision, not news" />
+            <ChapterMark no="WHAT CHANGED MY MIND" note="反 · Revision, not news" />
             <div className="mt-10 md:mt-14 max-w-4xl">
               {revisions.map((r) => {
                 const delta = deltaOf(r)
@@ -234,7 +234,7 @@ export default function Home() {
       {/* ── 06 WUWEI ── */}
       <section className="hairline-t">
         <div className="max-w-[1400px] mx-auto px-5 md:px-10 py-24 md:py-36">
-          <ChapterMark no="WUWEI" note="When not to act" />
+          <ChapterMark no="WUWEI" note="虚 · When not to act" />
           <div className="mt-10 md:mt-14 flex flex-col md:flex-row md:items-end justify-between gap-10" data-reveal>
             <div className="max-w-xl">
               <p className="font-serif-sc text-xl md:text-2xl font-bold leading-relaxed tracking-tight">
