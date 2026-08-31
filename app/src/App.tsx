@@ -22,6 +22,10 @@ const Wuwei = lazy(() => import('./pages/Wuwei'))
 const Framework = lazy(() => import('./pages/Framework'))
 const Method = lazy(() => import('./pages/Method'))
 const Journal = lazy(() => import('./pages/Journal'))
+const Research = lazy(() => import('./pages/research/Research'))
+const Report1 = lazy(() => import('./pages/research/Report1'))
+const Report2 = lazy(() => import('./pages/research/Report2'))
+const Report3 = lazy(() => import('./pages/research/Report3'))
 
 function route(path: string): React.ReactNode {
   if (path.startsWith('/essays/')) return <Essay id={path.replace('/essays/', '')} />
@@ -38,6 +42,10 @@ function route(path: string): React.ReactNode {
     case '/framework': return <Framework />
     case '/method': return <Method />
     case '/journal': return <Journal />
+    case '/research': return <Research />
+    case '/research/report-1': return <Report1 />
+    case '/research/report-2': return <Report2 />
+    case '/research/report-3': return <Report3 />
     default: return <Home />
   }
 }

@@ -4,14 +4,15 @@ import { deltaOf, lastRevisedOf, deriveCurrentBelief } from '../data/ledger'
 import { Label } from '../components/Bits'
 import { HSNSeal, HSNSymbol } from '../components/Brand'
 import { PolarityInstrument } from '../components/PolarityInstrument'
+import { ResearchProductCard, type FocusSymbol } from '../components/ResearchProductCard'
 import { useRevealRoot } from '../hooks/useReveal'
 
-/* ── V2 Homepage（V2-05 T-6）────────────────────
- * 七章：NOW → POLARITY → HOW I THINK → LIVE THESIS
- *      → WHAT CHANGED MY MIND → WUWEI → END
- * Brand + Orientation + Research Entry Point——不是 Dashboard。
- * 业务数据全部来自 data layer（observations/theses/journal/map），
- * 极性统一经 deriveThesisPolarity 推导；组件内只有固定产品文案。 */
+/* ── V2 Homepage · PRODUCT RE-CENTERING（2026-08-31 裁决）────────────────
+ * 章序：FOCUS → LIVE THESIS → WHAT CHANGED MY MIND → RESEARCH → NOW（含
+ * POLARITY 读法块）→ WUWEI → END。WHAT 优先，HOW 融进它服务的对象：
+ * POLARITY 从独立章节嵌入 NOW 成为事实层的读法框架；Research Loop 退出
+ * 首页（Method/System 页保留）。业务数据全部来自 data layer，组件内只有
+ * 固定产品文案。 */
 
 /* 章节标记：沿用 V1 ActMark 视觉（编号 + 注记） */
 function ChapterMark({ no, note }: { no: string; note: string }) {
@@ -23,17 +24,64 @@ function ChapterMark({ no, note }: { no: string; note: string }) {
   )
 }
 
-/* Research Loop v1.0（13 号文 LOCKED）：OBSERVE→CONTEXT→FRAME→THESIS→TEST→BELIEVE→REVISE→REFLECT。
-   ACT 不进 Research Loop（属 Trading Loop）；WUWEI 是约束层，不是节点。 */
-const LOOP_STEPS = [
-  { en: 'OBSERVE', zh: '观察' },
-  { en: 'CONTEXT', zh: '语境' },
-  { en: 'FRAME', zh: '框架' },
-  { en: 'THESIS', zh: '命题' },
-  { en: 'TEST', zh: '检验' },
-  { en: 'BELIEVE', zh: '信念' },
-  { en: 'REVISE', zh: '修正' },
-  { en: 'REFLECT', zh: '复盘' },
+/* FOCUS = HSN 当前研究注意力的声明式视图（V2-28 §4.2），以 ResearchProductCard
+   呈现（Presentation Layer 任务 · 2026-08-31）：Default = 识别（符号+名称+类型），
+   Hover = 定向（反转显示一句研究问题 + 状态 + 入口）。内容映射既有 Canonical
+   Objects（Thesis / Report），零新增数据结构。 */
+const FOCUS: {
+  no: string
+  symbol: FocusSymbol
+  name: string
+  type: string
+  q: string
+  href: string
+}[] = [
+  {
+    no: '01',
+    symbol: 'compute',
+    name: '国产算力链',
+    type: 'THESIS · ACTIVE',
+    q: '政策意志与产业能力的剪刀差，如何在出货数据里显形？',
+    href: '#/thesis/compute',
+  },
+  {
+    no: '02',
+    symbol: 'cycle',
+    name: '存储周期',
+    type: 'THESIS · REVISED 2026.08',
+    q: '价格与基本面的背离，这一次走到哪里了？',
+    href: '#/thesis/memory-cycle',
+  },
+  {
+    no: '03',
+    symbol: 'power',
+    name: '电力约束',
+    type: 'REPORT · ACTIVE',
+    q: '这个约束的硬度，用什么尺子量？',
+    href: '#/research/report-3',
+  },
+]
+
+/* RESEARCH 章：三份固定内容报告页（RC-4 选项 b），元信息用研究机构语言 */
+const REPORTS = [
+  {
+    href: '#/research/report-1',
+    no: 'REPORT #1',
+    title: '中国 AI 算力基础设施产业链研究',
+    meta: 'INDUSTRY · 2026.08 · CANONICAL RESEARCH',
+  },
+  {
+    href: '#/research/report-2',
+    no: 'REPORT #2',
+    title: '存储周期：价格上涨失效的周期解剖',
+    meta: 'INDUSTRY · 2026.08 · CANONICAL RESEARCH',
+  },
+  {
+    href: '#/research/report-3',
+    no: 'REPORT #3',
+    title: '电力约束：从判断到可跟踪结构',
+    meta: 'INDUSTRY · 2026.08 · CANONICAL RESEARCH',
+  },
 ]
 
 export default function Home() {
@@ -71,87 +119,26 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── 01 NOW · What is changing? ── */}
-      {OBSERVATIONS.length > 0 && (
-        <section className="hairline-t">
-          <div className="max-w-[1400px] mx-auto px-5 md:px-10 py-16 md:py-24">
-            <ChapterMark no="NOW" note="观 · What is changing?" />
-            <div className="mt-10 md:mt-14">
-              {OBSERVATIONS.slice(0, 5).map((o, i) => (
-                <a
-                  key={o.id}
-                  href={o.thesisId ? `#/thesis/${o.thesisId}` : o.mapNodeId ? '#/map' : '#/'}
-                  className="ink-row group grid grid-cols-12 items-baseline gap-3 md:gap-6 py-6 md:py-7 hairline-b first:border-t first:border-[rgb(var(--line))] px-2 md:px-4 -mx-2 md:-mx-4"
-                  data-reveal
-                >
-                  <span className="row-no col-span-2 md:col-span-1 font-mono-num tnum text-sm ink-3">
-                    {String(i + 1).padStart(2, '0')}
-                  </span>
-                  <span className="row-zh col-span-10 md:col-span-3 font-serif-sc font-bold text-xl md:text-2xl tracking-tight">
-                    {o.title}
-                  </span>
-                  <span className="col-span-10 col-start-3 md:col-span-6 md:col-start-auto text-sm ink-2 leading-relaxed">
-                    {o.summary}
-                  </span>
-                  <span className="col-span-10 col-start-3 md:col-span-2 md:col-start-auto font-mono-num tnum text-xs ink-3 md:text-right">
-                    {o.date}
-                  </span>
-                </a>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ── 02 POLARITY · Change is not linear ── */}
-      <section className="hairline-t">
-        <div className="max-w-[1400px] mx-auto px-5 md:px-10 py-24 md:py-36">
-          <ChapterMark no="POLARITY" note="YIN / TURN / YANG" />
-          <div className="mt-12 md:mt-16 flex flex-col md:flex-row items-center gap-10 md:gap-20" data-reveal>
-            <PolarityInstrument state="yang" size={150} interactive showLabel />
-            <div className="max-w-xl text-center md:text-left">
-              <p className="font-serif-sc text-xl md:text-2xl font-bold leading-relaxed tracking-tight">
-                变化，不是线性的。
-              </p>
-              <p className="mt-5 text-sm md:text-base leading-loose ink-2">
-                阳是看得见的增长与叙事，阴是看不见的约束与出清——重要的不是预测拐点，而是观察消长。
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 03 HOW I THINK · Research Loop ── */}
+      {/* ── 01 FOCUS · 我正在研究什么（ResearchProductCard 网格） ── */}
       <section className="hairline-t">
         <div className="max-w-[1400px] mx-auto px-5 md:px-10 py-16 md:py-24">
-          <ChapterMark no="HOW I THINK" note="Research Loop" />
-          <div className="mt-12 md:mt-16 grid md:grid-cols-12 gap-10">
-            <div className="md:col-span-7" data-reveal>
-              <ol className="border border-[rgb(var(--line))]">
-                {LOOP_STEPS.map((step, i) => (
-                  <li
-                    key={step.en}
-                    className="flex items-baseline gap-5 px-5 md:px-7 py-4 hairline-b last:border-b-0"
-                  >
-                    <span className="font-mono-num tnum text-xs ink-3 shrink-0">
-                      {String(i + 1).padStart(2, '0')}
-                    </span>
-                    <span className="font-mono-num text-sm md:text-base tracking-[0.18em]">{step.en}</span>
-                    <span className="font-serif-sc text-sm md:text-base ink-2">{step.zh}</span>
-                  </li>
-                ))}
-              </ol>
-            </div>
-            <div className="md:col-span-5 flex flex-col justify-end gap-10" data-reveal>
-              <div>
-                <a href="#/system" className="btn-line">EXPLORE SYSTEM →</a>
-              </div>
-            </div>
+          <ChapterMark no="FOCUS" note="观 · What am I researching?" />
+          <div className="mt-10 md:mt-14 grid md:grid-cols-3 gap-4 md:gap-5" data-reveal>
+            {FOCUS.map((f) => (
+              <ResearchProductCard
+                key={f.no}
+                symbol={f.symbol}
+                name={f.name}
+                type={f.type}
+                question={f.q}
+                href={f.href}
+              />
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ── 04 LIVE THESIS ── */}
+      {/* ── 02 LIVE THESIS ── */}
       <section className="hairline-t">
         <div className="max-w-[1400px] mx-auto px-5 md:px-10 py-16 md:py-24">
           <ChapterMark no="LIVE THESIS" note="What do I believe?" />
@@ -191,7 +178,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── 05 WHAT CHANGED MY MIND ── */}
+      {/* ── 03 WHAT CHANGED MY MIND ── */}
       {revisions.length > 0 && (
         <section className="hairline-t">
           <div className="max-w-[1400px] mx-auto px-5 md:px-10 py-16 md:py-24">
@@ -226,6 +213,85 @@ export default function Home() {
             </div>
             <div className="mt-10 flex justify-end" data-reveal>
               <a href="#/journal" className="btn-line">READ JOURNAL →</a>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── POLARITY · 节奏间断（完整保留：可点击旋转仪器 + 文字注解） ── */}
+      <section className="hairline-t">
+        <div className="max-w-[1400px] mx-auto px-5 md:px-10 py-24 md:py-36">
+          <ChapterMark no="POLARITY" note="YIN / TURN / YANG" />
+          <div className="mt-12 md:mt-16 flex flex-col md:flex-row items-center gap-10 md:gap-20" data-reveal>
+            <PolarityInstrument state="yang" size={150} interactive showLabel />
+            <div className="max-w-xl text-center md:text-left">
+              <p className="font-serif-sc text-xl md:text-2xl font-bold leading-relaxed tracking-tight">
+                变化，不是线性的。
+              </p>
+              <p className="mt-5 text-sm md:text-base leading-loose ink-2">
+                阳是看得见的增长与叙事，阴是看不见的约束与出清——重要的不是预测拐点，而是观察消长。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 04 RESEARCH · 完整研究作品 ── */}
+      <section className="hairline-t">
+        <div className="max-w-[1400px] mx-auto px-5 md:px-10 py-16 md:py-24">
+          <ChapterMark no="RESEARCH" note="常 · What did the research produce?" />
+          <div className="mt-10 md:mt-14">
+            {REPORTS.map((r) => (
+              <a
+                key={r.no}
+                href={r.href}
+                className="ink-row group grid grid-cols-12 items-baseline gap-3 md:gap-6 py-6 md:py-7 hairline-b first:border-t first:border-[rgb(var(--line))] px-2 md:px-4 -mx-2 md:-mx-4"
+                data-reveal
+              >
+                <span className="row-no col-span-4 md:col-span-2 font-mono-num tnum text-sm ink-3">{r.no}</span>
+                <span className="row-zh col-span-8 md:col-span-5 font-serif-sc font-bold text-xl md:text-2xl tracking-tight leading-snug">
+                  {r.title}
+                </span>
+                <span className="col-span-10 col-start-3 md:col-span-5 md:col-start-auto font-mono-num text-xs ink-3 tracking-widest md:text-right">
+                  {r.meta}
+                </span>
+              </a>
+            ))}
+          </div>
+          <div className="mt-10 flex justify-end" data-reveal>
+            <a href="#/research" className="btn-line">ALL RESEARCH →</a>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 05 NOW · 观 ── */}
+      {OBSERVATIONS.length > 0 && (
+        <section className="hairline-t">
+          <div className="max-w-[1400px] mx-auto px-5 md:px-10 py-16 md:py-24">
+            <ChapterMark no="NOW" note="观 · What is changing?" />
+
+            <div className="mt-10 md:mt-14">
+              {OBSERVATIONS.slice(0, 5).map((o, i) => (
+                <a
+                  key={o.id}
+                  href={o.thesisId ? `#/thesis/${o.thesisId}` : o.mapNodeId ? '#/map' : '#/'}
+                  className="ink-row group grid grid-cols-12 items-baseline gap-3 md:gap-6 py-6 md:py-7 hairline-b first:border-t first:border-[rgb(var(--line))] px-2 md:px-4 -mx-2 md:-mx-4"
+                  data-reveal
+                >
+                  <span className="row-no col-span-2 md:col-span-1 font-mono-num tnum text-sm ink-3">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span className="row-zh col-span-10 md:col-span-3 font-serif-sc font-bold text-xl md:text-2xl tracking-tight">
+                    {o.title}
+                  </span>
+                  <span className="col-span-10 col-start-3 md:col-span-6 md:col-start-auto text-sm ink-2 leading-relaxed">
+                    {o.summary}
+                  </span>
+                  <span className="col-span-10 col-start-3 md:col-span-2 md:col-start-auto font-mono-num tnum text-xs ink-3 md:text-right">
+                    {o.date}
+                  </span>
+                </a>
+              ))}
             </div>
           </div>
         </section>

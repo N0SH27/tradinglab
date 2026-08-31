@@ -52,6 +52,7 @@ export const NAV: NavEntry[] = [
     children: [
       { path: '/journal', label: '日志', en: 'JOURNAL' },
       { path: '/essays', label: '文集', en: 'ESSAYS' },
+      { path: '/research', label: '研报', en: 'RESEARCH' },
     ],
   },
   { path: '/wuwei', label: '无为', en: 'WUWEI' },
