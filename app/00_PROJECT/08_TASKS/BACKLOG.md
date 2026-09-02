@@ -24,3 +24,8 @@
 - 文章小节锚点进 URL（当前 preventDefault 绕行）；
 - check-data 接入构建前置（当前手动）；
 - 地图节点坐标自动布局的探索（当前手写是有意的，若探索须先过 Design Constitution）。
+
+## 观察中的问题（Observed · No Immediate Action）
+
+- **ISSUE · C1 Existing Validation Drift**（2026-09-01 登记）：check-data 既有 2 项失败——[24] fold 结果与生产当前态漂移、[26] initial 快照 now/cycle/era 不完整；经 stash 复跑确认为 HEAD（81f20ce）既有问题，与 TASK-003 无关。属 C1 数据域完整性，不开任务、不阻断，持续观察。
+- **候选 · TASK-004 Observation Language Audit**（2026-09-01 登记，未开工）：TASK-003 实施中发现 `now.ts` 两条 summary 末句带判断色彩（`ai-inference-economics` 注意力导向语、`memory-price-divergence` 与 memory-cycle 命题框架重叠）——Observation 层混入 Belief 层，正对 V2-29 Semantic Layering Rule。若启动，目标是语言层审计而非观点修改；未经点名不动工。

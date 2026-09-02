@@ -1,12 +1,11 @@
-# CURRENT_TASK — TASK-003（IMPLEMENTED · 待 Human Review 与 Commit 授权）
+# CURRENT_TASK — 无活动任务（TASK-003 已闭环）
 
-> **Status: IMPLEMENTED（2026-09-01）· Implementation Report 已提交（TASK-003_IMPLEMENTATION_REPORT.md）· Awaiting Human Review & Commit Approval**
-> **Contract: V2-29 · HOMEPAGE DEDUP & CONTENT ROUTING CONTRACT · v1.0 · LOCKED**
-> **Implementation Authorization: GRANTED（2026-09-01，含授权附录 Rule 1–7）**
-> **Commit Authorization: NOT YET GRANTED**
->
-> 三道闸门分离：**V2-29 LOCKED ≠ TASK-003 AUTHORIZED ≠ COMMIT AUTHORIZED。**
-> 实施已完成且未 Commit；在 Human Review 通过并明确授予 Commit Authorization 之前，不得创建任何 Commit。
+> **Status: IDLE（2026-09-02）**
+> TASK-003 全链路闭环：V2-29 LOCKED → TASK-003 READY → Implementation Authorization GRANTED →
+> 实施 + Implementation Report → Implementation Review **PASS** → Commit `57f992c`（2026-09-02）。
+> 遗留观察项已登记 BACKLOG「观察中的问题」：C1 Existing Validation Drift（Observed）/
+> 候选 TASK-004 Observation Language Audit（未开工）。
+> 下一阶段 = 真实使用观察期（首次访问路径 / 日常研究路径 / 周更维护成本），不预开 V2-30。
 
 ---
 
@@ -226,9 +225,9 @@ Topic Entity / Focus Entity / ResearchObject Entity / Content Registry / 语义�
 
 ```text
 Contract:                    V2-29 · v1.0 · LOCKED
-Implementation Task:         TASK-003 · IMPLEMENTED（Report 已提交）
-Implementation Authorization: GRANTED（2026-09-01）
-Commit Authorization:         NOT GRANTED
+Implementation Task:         TASK-003 · COMPLETED（Review PASS 2026-09-02）
+Implementation Authorization: EXECUTED
+Commit:                       57f992c（2026-09-02）
 ```
 
 ---
@@ -237,5 +236,6 @@ Commit Authorization:         NOT GRANTED
 
 - TASK-001 导航分层（2026-08-22）：顶栏 11 项 → 6 项两组 + 三轮实测修正
 - TASK-002 接入 GA4（2026-08-22）：G-CFRXCQLQMF，hash 路由手动上报 page_view
+- TASK-003 首页去重与内容路由（2026-09-01 实施 / 2026-09-02 Review PASS + Commit `57f992c`）：V2-29 呈现层压缩——FOCUS 路由 Report 优先、LIVE THESIS 状态化、RESEARCH 章 Featured 化、NOW 语义保持；实施报告见 TASK-003_IMPLEMENTATION_REPORT.md
 
 执行规则见 01_PROJECT_SPEC.md 的「AI 工作原则」。
