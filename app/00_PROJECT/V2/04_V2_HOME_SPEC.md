@@ -5,6 +5,33 @@
 
 ---
 
+## 修订登记 · V2-29 / TASK-003（2026-09-01）
+
+> 本登记只覆盖 V2-29（HOMEPAGE DEDUP & CONTENT ROUTING CONTRACT · v1.0 · LOCKED）
+> 与 TASK-003 实施影响到的首页行为；其余章节维持原文。
+
+1. **章序**：本文「章节总览（七章）」已被 2026-08-31 产品重排裁决取代，当前章序为
+   `FOCUS → LIVE THESIS → WHAT CHANGED MY MIND → POLARITY → RESEARCH → NOW → WUWEI → END`；
+   章数/章序纪律（不得新增）不变，见 V2-29 §5 / F-7。
+2. **首页定位**：补充 V2-29 总规则——首页只承担 **Orientation + Preview + Routing**，
+   不成为第二内容库；任何首页模块不得比其目标页面说得更多。
+3. **FOCUS（新增章节行为）**：FOCUS = HSN 当前研究注意力的声明式视图（Derived View，
+   永不实体化，V2-28 §4.1 LOCK）。路由（V2-29 §3.3）：直接回应该 Focus 问题的
+   Research Report 优先 → 最相关 Thesis 兜底 → 两者皆无则不上首页。
+4. **SECTION 04 — LIVE THESIS 修正**：首页卡片压缩为**纯信念状态**——
+   保留 title / CONVICTION % / polarity / time horizon / Last revised；
+   **移除 industry 描述与 conflict.but 摘要**（解释归 Thesis Detail 页，V2-29 OD-4）。
+   命题内容结构（虽然但是/证据/反证/证伪/revisions）不改，本章只做投影——投影深度下调。
+5. **RESEARCH（新增章节行为）**：首页只展示 **1 份 Featured Research + ALL RESEARCH 出口**，
+   不承担 Research Index 职责；Featured 由现有 Canonical Content 状态中人工选择，
+   不建字段 / 数据结构 / 算法（V2-29 OD-3 / TASK-003 Rule 5）。
+6. **SECTION 01 — NOW 补充约束**：`thesisId` 直链保留（合法的 Observation → Judgment
+   导航捷径），但 NOW 文案不得复述、总结或预判 Thesis 结论（V2-29 OD-5 / F-5）。
+7. **Semantic Layering Rule**（V2-29 §4，项目级）：首页各章文案分属
+   OBSERVATION / QUESTION / EVIDENCE / BELIEF / REVISION 语义层，禁止跨层代写。
+
+---
+
 ## 〇、首页定位
 
 **Brand + Orientation + Research Entry Point。** 不是 Dashboard，不是媒体首页，不是机构门面。
