@@ -5,6 +5,19 @@
 
 ---
 
+## 2026-09-03 · W36 证据入账：消化笔记全量入站（1783362）
+
+**Decision**：`now.ts` +16 Observation（算力半导体 4 / 电力新能源 4 / 医药 3 / AI 应用消费 3 / 市场结构 2，口径 2025.01–2026.09）+ 头注释更新；`theses.ts` 6 命题 evidence 注记 +8（compute / ai-app / robot / newenergy / memory-cycle / innovative-drug×2）。灵魂条目：存储"周期被 AI 加长"裁决（2026.09.02，需求侧四论据 + 反方并置值守）。
+**Why**：HSN 指令"根据消化的笔记将这些笔记消化吸收整理进入网站"——17 份消化笔记（O-cand 1–152）经筛选标准（有挂载点 / 事实结构型 / 不重复 / 口径明确）入账 24 条；任务单留档 `research/W36_入账任务单.md`（仓库外）。
+**Impact**：Observation 12 → 28 条。check 264/266（2 项失败为预存在的 context-history 快照断言，改动前后一致）；build ✓。Commit 1783362，未 push。
+**Not Changed**：map.ts / ledger.ts（存储裁决的概率含义留 Ledger 流程）/ journal.ts / essays.ts / framework.ts·method.ts（LOCKED）/ system.ts / 全部组件与页面；28 项待裁决项未入账。
+
+## 2026-08-31 · W35 证据入账（补记，e785f94 → c37eac0）
+
+**Decision**：`now.ts` +7 Observation + 1 条证据注记（ai-inference-economics）+ 头注释更新；补正 commit 确立 NOW 层文案纪律：只标口径时间，作者侧来源永不入正文。
+**Why**：N3 Review → W35 Admission Review（12/12 采纳）→ HSN 批准执行。当时漏记 CHANGELOG，本轮补记。
+**Not Changed**：theses.ts / map.ts / ledger.ts / essays.ts / 组件与页面。
+
 ## 2026-08-23 · 品牌 Canonicalization（V2-06-00，裁决 A）
 
 **Decision**：
