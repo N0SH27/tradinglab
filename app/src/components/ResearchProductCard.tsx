@@ -7,7 +7,7 @@
  * · 状态语言只用 Research Active / Thesis Revised 等研究状态，禁用买卖评级语言
  * · 可及性：keyboard focus-visible / focus-within 同效，motion-reduce 降级 */
 
-export type FocusSymbol = 'compute' | 'cycle' | 'power'
+export type FocusSymbol = 'compute' | 'cycle' | 'power' | 'gate'
 
 /* Flat Symbol System — 48 viewBox，stroke = currentColor，随反转自动换色 */
 function Symbol({ kind, className = '' }: { kind: FocusSymbol; className?: string }) {
@@ -34,6 +34,15 @@ function Symbol({ kind, className = '' }: { kind: FocusSymbol; className?: strin
       <svg {...common}>
         <circle cx="24" cy="24" r="15" />
         <path d="M9 24q3.75-6 7.5 0t7.5 0t7.5 0t7.5 0" />
+      </svg>
+    )
+  if (kind === 'gate')
+    /* 支付端：水流过闸——资源经由一道窄门抵达创新（不画药丸/钱币） */
+    return (
+      <svg {...common}>
+        <path d="M6 24h10M32 24h10" />
+        <path d="M20 12v24M28 12v24" />
+        <circle cx="24" cy="24" r="2.5" fill="currentColor" stroke="none" />
       </svg>
     )
   /* 电力约束：闪电落于基线——能量与它的边界（不画电线杆） */

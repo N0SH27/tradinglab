@@ -70,6 +70,14 @@ const FOCUS: {
     q: '这个约束的硬度，用什么尺子量？',
     href: '#/research/report-3',
   },
+  {
+    no: '04',
+    symbol: 'gate',
+    name: '商保支付端',
+    type: 'REPORT · 2026.09',
+    q: '医保之外的钱，从哪条管道流进创新药？',
+    href: '#/research/report-4',
+  },
 ]
 
 /* RESEARCH 章（V2-29 §5 · OD-3 / TASK-003 Rule 5）：首页只展示 1 份 Featured
@@ -123,7 +131,7 @@ export default function Home() {
       <section className="hairline-t">
         <div className="max-w-[1400px] mx-auto px-5 md:px-10 py-16 md:py-24">
           <ChapterMark no="FOCUS" note="观 · What am I researching?" />
-          <div className="mt-10 md:mt-14 grid md:grid-cols-3 gap-4 md:gap-5" data-reveal>
+          <div className="mt-10 md:mt-14 grid md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5" data-reveal>
             {FOCUS.map((f) => (
               <ResearchProductCard
                 key={f.no}
