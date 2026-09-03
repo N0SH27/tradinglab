@@ -26,6 +26,7 @@ const Research = lazy(() => import('./pages/research/Research'))
 const Report1 = lazy(() => import('./pages/research/Report1'))
 const Report2 = lazy(() => import('./pages/research/Report2'))
 const Report3 = lazy(() => import('./pages/research/Report3'))
+const Report4 = lazy(() => import('./pages/research/Report4'))
 
 function route(path: string): React.ReactNode {
   if (path.startsWith('/essays/')) return <Essay id={path.replace('/essays/', '')} />
@@ -46,6 +47,7 @@ function route(path: string): React.ReactNode {
     case '/research/report-1': return <Report1 />
     case '/research/report-2': return <Report2 />
     case '/research/report-3': return <Report3 />
+    case '/research/report-4': return <Report4 />
     default: return <Home />
   }
 }

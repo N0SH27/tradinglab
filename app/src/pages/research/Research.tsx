@@ -26,6 +26,13 @@ const REPORTS = [
     meta: 'INDUSTRY · 2026.08 · RESEARCH',
     review: 'PASS · v1.1.1',
   },
+  {
+    href: '#/research/report-4',
+    no: 'REPORT #4',
+    title: '商保支付端：从政策推演到目录落地',
+    meta: 'INDUSTRY · 2026.09 · RESEARCH',
+    review: 'PASS WITH NOTES · v0.2',
+  },
 ]
 
 export default function Research() {
