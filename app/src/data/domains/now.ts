@@ -182,6 +182,13 @@ export const OBSERVATIONS: Observation[] = [
     thesisId: 'innovative-drug',
   },
   {
+    id: 'commercial-insurance-catalog-volume-gap',
+    title: '商保目录：通道已建立，放量证据缺席',
+    summary: '商保创新药目录 2026.01.01 执行已满半年，目录品种（CAR-T 等）的公开放量案例仍缺席；同期标志性放量案例（英克司兰）走的是医保乙类通道而非商保目录——"通道已建立"不等于"通道已通水"。第一个年度分辨率检验点：2026 年底目录执行满一年的报销与销售数据。（证据截面 2026.01–06）',
+    date: '2026.09.03',
+    thesisId: 'innovative-drug',
+  },
+  {
     id: 'cell-therapy-zero-to-one',
     title: '细胞治疗 0→1：中美同月批首款',
     summary: '中美相隔半月各批首款 MSC 药物=商业化元年。产业链价值排序：上游存储（牌照稀缺但受出生率压制）→中游研发（三期管线）→下游渠道（医美无壁垒）。大行业 0→1 只有一次。（2025.01.19）',
