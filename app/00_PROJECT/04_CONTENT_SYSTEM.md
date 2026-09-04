@@ -11,7 +11,7 @@
 | site.ts | 站点信息、导航、首页目录、归档树、ACTS 幕次 | 低 |
 | manifesto.ts | 宣言 | 低 |
 | system.ts | 系统四层/三要素/赌场论 | 低 |
-| theses.ts | 8 个命题（含 revisions） | **高**——概率随证据修正 |
+| thesis.ts | 9 个命题（含 revisions） | **高**——概率随证据修正 |
 | map.ts | 15 节点 + 连线 + MAP_ERA 时代标尺 | 中 |
 | cycle.ts | 七阶段 + 行业分布 + 四面权重 | 中 |
 | dimensions.ts | 四象/九宫格 | 低 |

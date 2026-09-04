@@ -162,7 +162,7 @@ export default function Home() {
                   </div>
                   {/* 首页卡片 = 纯信念状态面板（V2-29 §5 · OD-4 / TASK-003 Rule 4）：
                       移除 industry 与 conflict.but——「为什么这样判断」归 Thesis Detail，
-                      首页只回答「现在这个判断处于什么状态」。theses.ts 数据源零改动。 */}
+                      首页只回答「现在这个判断处于什么状态」。thesis.ts 数据源零改动。 */}
                   <span className="ink-title font-serif-sc font-bold text-xl md:text-2xl leading-snug tracking-tight block mb-6">
                     {t.title}
                   </span>

@@ -11,7 +11,7 @@
  *   含 turn 且其余一致  → to-turn（YANG → TURN / YIN → TURN）
  *   阴阳混合            → mixed（阴·阳并陈，不强行收敛）
  * ───────────────────────────────────────────── */
-import type { Thesis } from './domains/theses'
+import type { Thesis } from './domains/thesis'
 import type { MapNode } from './domains/map'
 
 export type PolarityState = 'yin' | 'turn' | 'yang'

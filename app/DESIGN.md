@@ -117,7 +117,7 @@
 | `domains/site.ts` | 站点信息、导航、首页目录 INDEX_ITEMS、归档树 | 全局 |
 | `domains/manifesto.ts` | 六条公理 + 结语 | `/manifesto` |
 | `domains/system.ts` | 七层金字塔、状态机、赌场论、演进史 | `/system` |
-| `domains/theses.ts` | 八个产业大命题（阴阳两面结构，nodes 字段反链地图） | `/thesis` |
+| `domains/thesis.ts` | 九个产业大命题（阴阳两面结构，nodes 字段反链地图） | `/thesis` |
 | `domains/map.ts` | AI 算力产业链节点（双层阴阳）、佩雷斯时代标尺 MAP_ERA | `/map` |
 | `domains/cycle.ts` | 七阶段、题材生命周期、三层共振、四面权重 | `/cycle` |
 | `domains/dimensions.ts` | 量价时空四象、逆时针曲线 | `/dimensions` |
@@ -140,7 +140,7 @@
 首段自动作衬线引子）、`{type:'h'}` 小节标题（自动编号 §01…、自动进文首锚点目录）、
 `{type:'quote'}` 引文块（朱砂竖线+衬线，属「品牌与落款」类朱砂用法）。
 
-**新增/更新一个命题**：编辑 `domains/theses.ts` 的 `THESES` 数组；
+**新增/更新一个命题**：编辑 `domains/thesis.ts` 的 `THESES` 数组；
 若有概率修正，同时在该命题的 `revisions` 里加一条，并在
 `domains/journal.ts` 补一条日志。命题与地图节点互链：命题加 `nodes` 字段，
 节点加 `theses` 字段。
