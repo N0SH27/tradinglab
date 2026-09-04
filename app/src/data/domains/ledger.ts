@@ -25,6 +25,24 @@ export interface Revision {
 // 序号大者 = 当日更晚事件；check [18] 断言序号连续无缺。
 export const LEDGER: Revision[] = [
   {
+    id: 'rev-innovative-drug-value-capture-20260904',
+    date: '2026.09.04',
+    thesisId: 'innovative-drug-value-capture',
+    previous: 55,
+    current: 55,
+    reason: '命题九首次入账，初始值 55% 经本人校准确认为正式值。',
+    note: '确认 55%。产业趋势层与资本市场映射层拆层后，价值捕获路径分化期的中性起点。',
+  },
+  {
+    id: 'rev-robot-20260904-2',
+    date: '2026.09.04',
+    thesisId: 'robot',
+    previous: 46,
+    current: 46,
+    reason: '本人校准：确认 46% 为正式值，解除暂置标记。',
+    note: '确认 46%。',
+  },
+  {
     id: 'rev-robot-20260904',
     date: '2026.09.04',
     thesisId: 'robot',

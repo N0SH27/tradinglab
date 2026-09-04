@@ -5,7 +5,7 @@
 //   import { THESES } from '../data/content'
 //
 // 新增/修改内容时，只改对应的领域文件：
-//   文章 → domains/essays.ts      命题 → domains/theses.ts
+//   文章 → domains/essays.ts      命题 → domains/thesis.ts
 //   日志 → domains/journal.ts     其他 → 同名栏目文件
 // ─────────────────────────────────────────────
 
@@ -13,7 +13,7 @@ export * from './domains/site'
 export * from './domains/now'
 export * from './domains/manifesto'
 export * from './domains/system'
-export * from './domains/theses'
+export * from './domains/thesis'
 export * from './domains/map'
 export * from './domains/cycle'
 export * from './domains/dimensions'
