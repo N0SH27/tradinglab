@@ -11,6 +11,18 @@ export default function Manifesto() {
         intro="这不是自我介绍，而是回答一个问题：我是如何理解技术、资本、周期与人性。"
       />
 
+      {/* 首页封面 description 五行 MOVE 落点（V2-B B-6 · 2026-09-05）：
+          「我是谁」归 HSN 域 Primary Home，不属于第一屏。site.ts 字段不动，仅迁移引用。 */}
+      <div className="border-t border-[rgb(var(--line))] py-14 md:py-20">
+        <div className="max-w-xl space-y-2">
+          {SITE.description.map((line, i) => (
+            <p key={i} className="text-base md:text-lg leading-relaxed ink-2">
+              {line}
+            </p>
+          ))}
+        </div>
+      </div>
+
       <div>
         {MANIFESTO.map((m, i) => (
           <section

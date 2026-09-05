@@ -1,0 +1,466 @@
+{
+  "summary": {
+    "total": 65,
+    "pass": 65,
+    "fail": 0,
+    "consoleErrors": []
+  },
+  "results": [
+    {
+      "area": "Home",
+      "test": "首页加载（ENTRY 宣言可读）",
+      "result": "PASS",
+      "evidence": "宣言文案在首屏",
+      "severity": ""
+    },
+    {
+      "area": "Home",
+      "test": "Scene ≠ Section（无场景标题/分幕标签）",
+      "result": "PASS",
+      "evidence": "渲染层零场景标签",
+      "severity": ""
+    },
+    {
+      "area": "Flip",
+      "test": "Flip 卡数量（NOW×3 + Featured×1）",
+      "result": "PASS",
+      "evidence": "实际 4",
+      "severity": ""
+    },
+    {
+      "area": "Flip",
+      "test": "点击正面 → 背面可见",
+      "result": "PASS",
+      "evidence": "crossfade 后背面 visibility/opacity=1",
+      "severity": ""
+    },
+    {
+      "area": "Flip",
+      "test": "翻回 → 正面恢复",
+      "result": "PASS",
+      "evidence": "正面 visibility/opacity=1",
+      "severity": ""
+    },
+    {
+      "area": "Polarity",
+      "test": "Filter 点击「阴」激活（aria-pressed）",
+      "result": "PASS",
+      "evidence": "aria-pressed=true",
+      "severity": ""
+    },
+    {
+      "area": "Polarity",
+      "test": "Lens 生效：非阴节点退淡",
+      "result": "PASS",
+      "evidence": "7 节点中 6 个退淡",
+      "severity": ""
+    },
+    {
+      "area": "Polarity",
+      "test": "再点取消：恢复完整切片",
+      "result": "PASS",
+      "evidence": "退淡节点=0",
+      "severity": ""
+    },
+    {
+      "area": "Map",
+      "test": "MapPreview 7 节点 / 6 真边",
+      "result": "PASS",
+      "evidence": "节点=7 边=6",
+      "severity": ""
+    },
+    {
+      "area": "Map",
+      "test": "Node Detail = Name + State + EXPLORE WORLD（DELTA-01）",
+      "result": "PASS",
+      "evidence": "trading-lab / BY HSN / 当下 / 世界 / 命题 / 日志 / 无为 / HSN / 观察变化， / 而非预测未来。 / ENTER ↓ / REPORT · 2026.08 / 存储价格还在涨。 / DDR4 每月涨约两成，Q4 合约价再涨五成——但股价已经不跟了。 / FLIP → / REPORT · 2026.08 / AI 算力的瓶颈正在搬家。 / 最紧的环节从芯片，搬到了封装设备与厂房。 / FLIP → / REPORT · 2026.09 / 商保创新药目录执行已满半年。 / 通道建好了——水还没有来。 / FLIP → /  / 变化，不是线性的。 / ",
+      "severity": ""
+    },
+    {
+      "area": "Research",
+      "test": "Featured CTA = @five-min / @deep-dive",
+      "result": "PASS",
+      "evidence": "#/research/report-1@five-min , #/research/report-1@deep-dive",
+      "severity": ""
+    },
+    {
+      "area": "Belief",
+      "test": "CHANGE 对比卡 65 → 68（Ledger 只读）",
+      "result": "PASS",
+      "evidence": "WHAT CHANGED / 存储周期 / THEN → NOW / 65 → 68 /  / 买方开始降级硬件方案（HBM 12 层 → 8 层）——涨价的失效从股价蔓延到了产品层。 /  / SEE REVISION →",
+      "severity": ""
+    },
+    {
+      "area": "Belief",
+      "test": "Judgment > 数字（判断在前，CONVICTION 为辅助小字）",
+      "result": "PASS",
+      "evidence": "SPAN:WHAT I BELIEVE NOW|P:国产算力正在从「可用」变成「必须用」|DIV:WHY →WHAT COULD CH|P:CONVICTION 72 · 修正",
+      "severity": ""
+    },
+    {
+      "area": "Home",
+      "test": "WUWEI 静默尾章：零 CTA / 零营销",
+      "result": "PASS",
+      "evidence": "交互元素=0",
+      "severity": ""
+    },
+    {
+      "area": "Flip",
+      "test": "真实鼠标事件点击第二卡翻面",
+      "result": "PASS",
+      "evidence": "(720,450)",
+      "severity": ""
+    },
+    {
+      "area": "Research",
+      "test": "R1 · 30 SEC 四格（问题/发现/意义/触发）",
+      "result": "PASS",
+      "evidence": "四格标签与副题",
+      "severity": ""
+    },
+    {
+      "area": "Research",
+      "test": "R1 · 5 MIN 节存在且 KF 数=4",
+      "result": "PASS",
+      "evidence": "p=4 标题=5MIN · 核心论证",
+      "severity": ""
+    },
+    {
+      "area": "Research",
+      "test": "R1 · 5 MIN 保留「但」转折 / 无审稿注记",
+      "result": "PASS",
+      "evidence": "但=true 溯源=false",
+      "severity": ""
+    },
+    {
+      "area": "Research",
+      "test": "R1 · B-9 标题逐份核对",
+      "result": "PASS",
+      "evidence": "全部命中",
+      "severity": ""
+    },
+    {
+      "area": "Research",
+      "test": "R1 · 顶栏=最近修订+版本，无审核语",
+      "result": "PASS",
+      "evidence": "最近修订 2026.08 · v1.1.1",
+      "severity": ""
+    },
+    {
+      "area": "Research",
+      "test": "R1 · 首屏无 REPORT #n 主标识",
+      "result": "PASS",
+      "evidence": "弱化方案：标题为唯一主标识",
+      "severity": ""
+    },
+    {
+      "area": "Research",
+      "test": "R1 · deep-dive 锚点存在",
+      "result": "PASS",
+      "evidence": "id=deep-dive",
+      "severity": ""
+    },
+    {
+      "area": "Research",
+      "test": "R2 · 30 SEC 四格（问题/发现/意义/触发）",
+      "result": "PASS",
+      "evidence": "四格标签与副题",
+      "severity": ""
+    },
+    {
+      "area": "Research",
+      "test": "R2 · 5 MIN 节存在且 KF 数=4",
+      "result": "PASS",
+      "evidence": "p=4 标题=5MIN · 核心论证",
+      "severity": ""
+    },
+    {
+      "area": "Research",
+      "test": "R2 · 5 MIN 保留「但」转折 / 无审稿注记",
+      "result": "PASS",
+      "evidence": "但=true 溯源=false",
+      "severity": ""
+    },
+    {
+      "area": "Research",
+      "test": "R2 · B-9 标题逐份核对",
+      "result": "PASS",
+      "evidence": "全部命中",
+      "severity": ""
+    },
+    {
+      "area": "Research",
+      "test": "R2 · 顶栏=最近修订+版本，无审核语",
+      "result": "PASS",
+      "evidence": "最近修订 2026.08 · v1.1.1",
+      "severity": ""
+    },
+    {
+      "area": "Research",
+      "test": "R2 · 首屏无 REPORT #n 主标识",
+      "result": "PASS",
+      "evidence": "弱化方案：标题为唯一主标识",
+      "severity": ""
+    },
+    {
+      "area": "Research",
+      "test": "R2 · deep-dive 锚点存在",
+      "result": "PASS",
+      "evidence": "id=deep-dive",
+      "severity": ""
+    },
+    {
+      "area": "Research",
+      "test": "R3 · 30 SEC 四格（问题/发现/意义/触发）",
+      "result": "PASS",
+      "evidence": "四格标签与副题",
+      "severity": ""
+    },
+    {
+      "area": "Research",
+      "test": "R3 · 5 MIN 节存在且 KF 数=3",
+      "result": "PASS",
+      "evidence": "p=3 标题=5MIN · 核心论证",
+      "severity": ""
+    },
+    {
+      "area": "Research",
+      "test": "R3 · 5 MIN 保留「但」转折 / 无审稿注记",
+      "result": "PASS",
+      "evidence": "但=true 溯源=false",
+      "severity": ""
+    },
+    {
+      "area": "Research",
+      "test": "R3 · B-9 标题逐份核对",
+      "result": "PASS",
+      "evidence": "全部命中",
+      "severity": ""
+    },
+    {
+      "area": "Research",
+      "test": "R3 · 顶栏=最近修订+版本，无审核语",
+      "result": "PASS",
+      "evidence": "最近修订 2026.08 · v1.1.1",
+      "severity": ""
+    },
+    {
+      "area": "Research",
+      "test": "R3 · 首屏无 REPORT #n 主标识",
+      "result": "PASS",
+      "evidence": "弱化方案：标题为唯一主标识",
+      "severity": ""
+    },
+    {
+      "area": "Research",
+      "test": "R3 · deep-dive 锚点存在",
+      "result": "PASS",
+      "evidence": "id=deep-dive",
+      "severity": ""
+    },
+    {
+      "area": "Research",
+      "test": "R4 · 30 SEC 四格（问题/发现/意义/触发）",
+      "result": "PASS",
+      "evidence": "四格标签与副题",
+      "severity": ""
+    },
+    {
+      "area": "Research",
+      "test": "R4 · 5 MIN 节存在且 KF 数=4",
+      "result": "PASS",
+      "evidence": "p=4 标题=5MIN · 核心论证",
+      "severity": ""
+    },
+    {
+      "area": "Research",
+      "test": "R4 · 5 MIN 保留「但」转折 / 无审稿注记",
+      "result": "PASS",
+      "evidence": "但=true 溯源=false",
+      "severity": ""
+    },
+    {
+      "area": "Research",
+      "test": "R4 · B-9 标题逐份核对",
+      "result": "PASS",
+      "evidence": "全部命中",
+      "severity": ""
+    },
+    {
+      "area": "Research",
+      "test": "R4 · 顶栏=最近修订+版本，无审核语",
+      "result": "PASS",
+      "evidence": "最近修订 2026.09 · v0.2",
+      "severity": ""
+    },
+    {
+      "area": "Research",
+      "test": "R4 · 首屏无 REPORT #n 主标识",
+      "result": "PASS",
+      "evidence": "弱化方案：标题为唯一主标识",
+      "severity": ""
+    },
+    {
+      "area": "Research",
+      "test": "R4 · deep-dive 锚点存在",
+      "result": "PASS",
+      "evidence": "id=deep-dive",
+      "severity": ""
+    },
+    {
+      "area": "Research",
+      "test": "@five-min 锚点落位",
+      "result": "PASS",
+      "evidence": "{\"top\":-10,\"scroll\":1224}",
+      "severity": ""
+    },
+    {
+      "area": "Research",
+      "test": "@deep-dive 锚点落位",
+      "result": "PASS",
+      "evidence": "{\"top\":-10,\"scroll\":1981}",
+      "severity": ""
+    },
+    {
+      "area": "Keyboard",
+      "test": "Tab 走查：≥18 个不同停靠点（实际 37）",
+      "result": "PASS",
+      "evidence": "A:trading-labby HSN → A:当下 → SPAN:世界栏目 → A:地图MAP → A:周期CYCLE → A:四象DIMENSIONS → SPAN:命题栏目 → A:命题THESIS → A:方法METHOD → A:框架FRAMEWORK → A:系统SYSTEM → SPAN:日志栏目 → A:日志JOURNAL → A:文集ESSAYS → A:研报RESEARCH → A:无为 → SPAN:HSN栏目 → A:宣言MANIFESTO → BUTTON:ENTER ↓ → BUTTON:存储：翻面，查看隐藏变量 → BUTTON:算力链：翻面，查看隐藏变量 → B",
+      "severity": ""
+    },
+    {
+      "area": "Keyboard",
+      "test": "无焦点陷阱",
+      "result": "PASS",
+      "evidence": "焦点链持续推进",
+      "severity": ""
+    },
+    {
+      "area": "Keyboard",
+      "test": "所有停靠点 focus 可见",
+      "result": "PASS",
+      "evidence": "全部 outline 可见",
+      "severity": ""
+    },
+    {
+      "area": "Keyboard",
+      "test": "Enter 触发 Flip（键盘可达可操作）",
+      "result": "PASS",
+      "evidence": "翻面后面焦点落在 BODY:trading-labby HSN当下世",
+      "severity": ""
+    },
+    {
+      "area": "Reduced Motion",
+      "test": "[data-reveal] 瞬时呈现（opacity=1, 无过渡）",
+      "result": "PASS",
+      "evidence": "{\"revealOpacity\":\"1\",\"revealTransition\":\"none\",\"discTransition\":\"none\",\"htmlScroll\":\"auto\"}",
+      "severity": ""
+    },
+    {
+      "area": "Reduced Motion",
+      "test": "Polarity 圆盘零过渡 / html 滚动 auto",
+      "result": "PASS",
+      "evidence": "disc=none scroll=auto",
+      "severity": ""
+    },
+    {
+      "area": "Reduced Motion",
+      "test": "reduced-motion 下 Flip 功能保留（瞬时切换）",
+      "result": "PASS",
+      "evidence": "瞬时且功能完整",
+      "severity": ""
+    },
+    {
+      "area": "Mobile",
+      "test": "首页无横向溢出",
+      "result": "PASS",
+      "evidence": "scrollWidth=390 innerWidth=390",
+      "severity": ""
+    },
+    {
+      "area": "Mobile",
+      "test": "MapPreview 节点全部在视口内（可触摸）",
+      "result": "PASS",
+      "evidence": "越界节点=0",
+      "severity": ""
+    },
+    {
+      "area": "Mobile",
+      "test": "触摸（touch 事件）点开 Node Detail",
+      "result": "PASS",
+      "evidence": "(195,414) 命中=SPAN:算力芯片 aria-pressed=[true,false,false,false,false,false,false]",
+      "severity": ""
+    },
+    {
+      "area": "Mobile",
+      "test": "报告页无横向溢出",
+      "result": "PASS",
+      "evidence": "scrollWidth=390",
+      "severity": ""
+    },
+    {
+      "area": "Cross-page",
+      "test": "Research 索引（#/research）可达且渲染",
+      "result": "PASS",
+      "evidence": "文本量=823 标识=true",
+      "severity": ""
+    },
+    {
+      "area": "Cross-page",
+      "test": "Map 完整页（#/map）可达且渲染",
+      "result": "PASS",
+      "evidence": "文本量=1603",
+      "severity": ""
+    },
+    {
+      "area": "Cross-page",
+      "test": "Thesis 域（#/thesis）可达且渲染",
+      "result": "PASS",
+      "evidence": "文本量=2322",
+      "severity": ""
+    },
+    {
+      "area": "Cross-page",
+      "test": "Journal（#/journal）可达且渲染",
+      "result": "PASS",
+      "evidence": "文本量=3195 标识=true",
+      "severity": ""
+    },
+    {
+      "area": "Cross-page",
+      "test": "报告页 ← ALL RESEARCH 返回路径",
+      "result": "PASS",
+      "evidence": "#/research",
+      "severity": ""
+    },
+    {
+      "area": "Cross-page",
+      "test": "Home Featured ↔ Research 索引语义一致",
+      "result": "PASS",
+      "evidence": "索引含报告一标题",
+      "severity": ""
+    },
+    {
+      "area": "Cross-page",
+      "test": "完整 Map 信息密度 > Preview（含图例/明细）",
+      "result": "PASS",
+      "evidence": "文本量=1603",
+      "severity": ""
+    },
+    {
+      "area": "Cross-page",
+      "test": "Thesis compute ↔ Current Belief 同源（72% 一致）",
+      "result": "PASS",
+      "evidence": "命题页含国产算力与 72",
+      "severity": ""
+    },
+    {
+      "area": "Home",
+      "test": "全程零 JS 异常 / 零 console.error",
+      "result": "PASS",
+      "evidence": "干净",
+      "severity": ""
+    }
+  ],
+  "allConsoleNotes": []
+}

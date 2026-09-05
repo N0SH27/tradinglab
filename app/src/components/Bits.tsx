@@ -65,14 +65,14 @@ export function PolarityTag({ polarity }: { polarity: 'yang' | 'yin' | 'turn' })
   )
 }
 
-/* 页头：大标题区 */
+/* 页头：大标题区（no 可选——V2-C · B-10：报告页首屏以标题为唯一主标识，不再传 no） */
 export function PageHead({
   no, zh, en, intro,
-}: { no: string; zh: string; en: string; intro?: string }) {
+}: { no?: string; zh: string; en: string; intro?: string }) {
   return (
     <header className="pt-28 md:pt-40 pb-16 md:pb-24">
       <div className="flex items-baseline gap-4 mb-8">
-        <span className="font-mono-num text-sm ink-3 tnum">{no}</span>
+        {no && <span className="font-mono-num text-sm ink-3 tnum">{no}</span>}
         <Label>{en}</Label>
       </div>
       <h1 className="font-serif-sc font-black leading-none tracking-tight text-[clamp(3rem,10vw,7.5rem)]">

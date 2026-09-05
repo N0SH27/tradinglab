@@ -32,6 +32,61 @@
 
 ---
 
+## 修订登记 · V2-30 / C-1（2026-09-05）
+
+> 本登记覆盖 V2-30（COGNITIVE EXPERIENCE DESIGN SPEC · v1.0 · LOCKED）与
+> V2-B（HUMAN DECISION PACK · FINAL）对首页结构的裁决；授权链：
+> V2-B B-11 PASS → DELTA READINESS REPORT v1.1 §08 → C-1 Documentation Update。
+> 其余章节维持原文（V2-29 版结构为现行实施态；本节为 V2-C 目标结构，未实施）。
+> **LOCKED ≠ Implementation Authorized：本节落盘不授权任何代码改动。**
+
+1. **首页定位重申**：首页 = A Guided Entry Into HSN's Way of Seeing。
+   职责维持 Orientation + Preview + Routing（V2-29 原则不变），不是第二内容库。
+
+2. **五场景目标结构（V2-C 实施对象）**：
+
+   ```text
+   SCENE 01 · ENTRY   —— 品牌 + 一句宣言 + ENTER。整屏静态，零开场动效。
+   SCENE 02 · NOW     —— ≤3 张 Reading Cards（Flip：表面 → 隐藏变量）。
+                         Observation Language；背面 = Editorial Judgment（Human 定稿）。
+   SCENE 03 · SEE     —— Polarity（Rotate，作为 Map View Filter）
+                         + World at a Glance（≤7 节点 Preview，Explore）。
+   SCENE 04 · THINK   —— 1 个 Current Belief（WHY / WHAT COULD CHANGE IT / HISTORY 三入口）
+                         + 1 份 Featured Research（Flip 阅读卡，READ 5 MIN / DEEP DIVE 出口）。
+                         FOCUS 撤出首页（转为 Research / World 的 Derived View 入口）。
+   SCENE 05 · CHANGE  —— 1 张 Revision 对比卡（THEN / NOW / WHY + SEE REVISION）。
+                         无真实修正时整场景隐藏。
+   尾章 · WUWEI       —— 静默尾章（OQ-1），不再形成完整内容 Section。
+   END                —— 终幕（保留）。
+   ```
+
+3. **形态纪律（V2-B 修正① · LOCK）**：Scene ≠ Section。五场景是设计师与 AI 的
+   认知骨架，不是用户可见目录——**界面不得出现 ENTRY / NOW / SEE / THINK / CHANGE
+   场景标签或幕间分隔标题**；场景靠阅读行为的切换区分。五场景的阅读行为、垂直节奏、
+   留白与网格宽度必须不同；禁止实现为五个等宽等距矩形块（F-30-1）。
+   验收硬条件：**用户不需要知道首页存在五个场景，但应能感受到阅读行为正在变化。**
+
+4. **DELTA-01 · Map Preview Node Detail（Human Approved · Implementation Constraint）**：
+   Home Map Preview 点击节点后只显示 **名称 + State + EXPLORE WORLD →**。
+   禁止 Related Research count / Related Thesis count / Current State 明细 /
+   Observation / StateNote / StageFocus。本条正式取代 V2-30 §8.3 点击卡的
+   Related 计数字段；仅适用 Home Map Preview，不影响完整 IndustryMap 页、
+   `map.ts`、MapNode schema、MAP_EDGES、Research、Thesis、路由与数据层。
+
+5. **Polarity 不是解释器（V2-B 修正③ · LOCK）**：SEE 场景默认 = 完整切片；
+   点击 YANG / YIN / TURN = 节点发生真实视觉变化；不写长段解释「什么是阳、什么是阴」
+   ——Polarity 的语义由 Map 的变化来教，不由段落来讲。现有注解段落压缩至至多一句或删除。
+
+6. **Current Belief 视觉层级（V2-B 修正④ · LOCK）**：判断 > 数字——
+   视觉层级为 当前判断 → WHY / Evidence / Counter-evidence / History → conviction 数字
+   （仅辅助信息）；72% 等数字不得做大字号 / 居中聚焦 / 仪表盘式视觉主角。
+
+7. **场景信息量上限（V2-B §3.2 · LOCK）**：ENTRY = 1 品牌 + 1 句 + 1 入口；
+   NOW = 3 卡 ×（正面 2 行 + 背面 3 行）；SEE ≤ 7 节点 + 3 态；
+   THINK = 1 信念 + 1 研究卡；CHANGE = 1 张对比卡；WUWEI + END = 现状压缩保留。
+
+---
+
 ## 〇、首页定位
 
 **Brand + Orientation + Research Entry Point。** 不是 Dashboard，不是媒体首页，不是机构门面。

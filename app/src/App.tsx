@@ -31,6 +31,13 @@ const Report4 = lazy(() => import('./pages/research/Report4'))
 function route(path: string): React.ReactNode {
   if (path.startsWith('/essays/')) return <Essay id={path.replace('/essays/', '')} />
   if (path.startsWith('/thesis/')) return <ThesisDetail id={path.replace('/thesis/', '')} />
+  /* 报告页页内锚点支持（V2-C · IM-13）：hash 可带 `@锚点` 后缀（如
+     `#/research/report-1@five-min`），路由仍指向同一报告页，滚动由 ReportPage 承担。
+     前缀匹配 ≠ 新增路由——路由表不变，只是容忍锚点后缀。 */
+  if (path.startsWith('/research/report-1')) return <Report1 />
+  if (path.startsWith('/research/report-2')) return <Report2 />
+  if (path.startsWith('/research/report-3')) return <Report3 />
+  if (path.startsWith('/research/report-4')) return <Report4 />
   switch (path) {
     case '/manifesto': return <Manifesto />
     case '/system': return <System />
@@ -44,10 +51,6 @@ function route(path: string): React.ReactNode {
     case '/method': return <Method />
     case '/journal': return <Journal />
     case '/research': return <Research />
-    case '/research/report-1': return <Report1 />
-    case '/research/report-2': return <Report2 />
-    case '/research/report-3': return <Report3 />
-    case '/research/report-4': return <Report4 />
     default: return <Home />
   }
 }

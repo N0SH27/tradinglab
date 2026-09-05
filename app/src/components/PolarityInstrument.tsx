@@ -47,23 +47,31 @@ const SWIPE_MIN = 40
 
 export function PolarityInstrument({
   state = 'yang',
+  value,
   interactive = true,
   size = 160,
   showLabel = true,
   className = '',
 }: {
   state?: PolarityState
+  /* V2-C · Rotate 受控模式（HDG-2 / DESIGN.md §4 增补）：外部传入 value 时仪器为受控
+     展示态——角度由外部状态推导，内部不再自行推进；原有点击推进模式在不传 value 时
+     完全保留（既有展位行为不变）。作为 Map View Filter 时配 interactive={false} 使用，
+     三选互斥/再点取消的交互由外部 Filter 控件承担。 */
+  value?: PolarityState
   interactive?: boolean
   size?: number
   showLabel?: boolean
   className?: string
 }) {
-  const [current, setCurrent] = useState<PolarityState>(state)
+  const [internal, setInternal] = useState<PolarityState>(state)
   const [turns, setTurns] = useState(0)
   const [tilt, setTilt] = useState(0)
   const discRef = useRef<HTMLSpanElement>(null)
   const dragStartX = useRef<number | null>(null)
   const swiped = useRef(false)
+
+  const current = value ?? internal
 
   const meta = META[current]
   const baseAngle = STATE_ANGLE[current] + turns * 360
@@ -73,10 +81,12 @@ export function PolarityInstrument({
   const prefersReduced = () =>
     typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-  /* 状态推进：单向 +120°；YIN→YANG 跨界时累积一整圈，方向不变 */
+  /* 状态推进：单向 +120°；YIN→YANG 跨界时累积一整圈，方向不变。
+     仅未受控（无 value）时生效；受控展示态下角度完全由外部 value 推导。 */
   const advance = () => {
+    if (value !== undefined) return
     if (current === 'yin') setTurns((t) => t + 1)
-    setCurrent(NEXT[current])
+    setInternal(NEXT[current])
   }
 
   /* 桌面有界跟随：指针相对圆心的方位角 → 与当前基准角的最短偏差 → ±15° 饱和倾斜 */
@@ -181,7 +191,7 @@ export function PolarityInstrument({
       onPointerLeave={onPointerLeave}
       onPointerDown={onPointerDown}
       onPointerUp={onPointerUp}
-      className={`inline-flex items-center gap-6 cursor-pointer select-none ${className}`}
+      className={`inline-flex items-center gap-6 cursor-pointer select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-[rgb(var(--cinnabar))] ${className}`}
     >
       {body}
     </span>

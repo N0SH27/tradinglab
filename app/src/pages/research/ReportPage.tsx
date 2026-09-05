@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { PageHead } from '../../components/Bits'
 import { useRevealRoot } from '../../hooks/useReveal'
 
@@ -273,22 +273,37 @@ export default function ReportPage({
   sections: ReportSection[]
 }) {
   const rootRef = useRevealRoot<HTMLDivElement>()
+
+  /* 锚点定位：#/research/report-N@锚点 → 滚动到对应 section（U-01 / IM-13）。
+   * reduced-motion 用户用 auto 瞬时定位，不做平滑滚动。 */
+  useEffect(() => {
+    const anchor = window.location.hash.split('@')[1]
+    if (!anchor) return
+    const raf = requestAnimationFrame(() => {
+      const el = document.getElementById(anchor)
+      if (!el) return
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' })
+    })
+    return () => cancelAnimationFrame(raf)
+  }, [])
+
   return (
     <div ref={rootRef} className="max-w-[1400px] mx-auto px-5 md:px-10 pb-24">
       <PageHead
-        no={meta.no}
         zh={meta.title}
         en={`${meta.kind ?? 'INDUSTRY'} · ${meta.date} · RESEARCH`}
         intro=""
       />
       <div className="flex flex-wrap items-center gap-x-6 gap-y-2 -mt-6 mb-4 hairline-b pb-8" data-reveal>
         <span className="font-mono-num tnum text-xs ink-3 tracking-widest">HSN · TRADINGLABB</span>
-        <span className="font-mono-num tnum text-xs ink-3 tracking-widest">HUMAN REVIEW · {meta.review}</span>
+        <span className="font-mono-num tnum text-xs ink-3 tracking-widest">最近修订 {meta.date} · {meta.review}</span>
       </div>
 
       {sections.map((s, si) => (
         <section
           key={s.id}
+          id={s.id}
           className={`grid md:grid-cols-12 gap-6 md:gap-10 py-14 md:py-20 ${
             si > 0 ? 'hairline-t' : ''
           }`}

@@ -113,3 +113,21 @@
 - 动画缓慢克制（900ms 过渡区间内），`prefers-reduced-motion` 下零运动；
 - 禁止粒子、辉光、3D、纹理、复杂背景、WebGL；
 - 状态色沿用 PolarityTag 既有语义：阳=墨、阴=深水蓝、转换中=朱砂（风险语义豁免，不新增强调色）。
+
+---
+
+## C-30 V2-30 · Cognitive Experience 增补（2026-09-04 Human Review PASS · 2026-09-05 C-1 落盘）
+
+> 授权链：V2-30（COGNITIVE EXPERIENCE DESIGN SPEC · v1.0 · LOCKED）→
+> V2-B Human Decision Pack（FINAL · B-11 PASS）→ DELTA READINESS REPORT v1.1 §08 → C-1。
+> 本节为认知体验层的宪法级原则，与 01–17 节同级约束全站。
+
+- **C-30-1**  Deep Architecture, Simple Surface, Rich Exploration.
+  底层架构可以深，表层表达必须简单，探索方式可以丰富。
+- **C-30-2**  极简不是减少内容，而是减少不必要的认知负担。
+- **C-30-3**  丰富不是增加元素，而是增加有意义的探索路径。
+- **C-30-4**  One Object → One Primary Home → Multiple Meaningful Entry Points.
+  一个对象可以有多个有意义的入口，但每个入口必须提供不同的阅读动作。
+- **C-30-5**  结构标准化，表达个性化。
+- **C-30-6**  内容应该被体验，而不是被讲解。首页不解释 Framework / System /
+  Research Loop / Data Architecture——它们被深入的过程自然理解。

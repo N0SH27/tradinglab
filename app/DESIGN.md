@@ -106,6 +106,28 @@
 
 已删除（勿恢复）：`DaoSymbol.tsx`（首屏阴阳生命体）、`WaterField.tsx`（水面波纹场）。
 
+### 阅读动作动效（V2-30 HDG-2 增补 · 2026-09-04 Human Review PASS · 2026-09-05 C-1 落盘）
+
+全站阅读层交互动作为封闭集合：Read / Flip / Reveal / Rotate / Explore / Compare。
+新增第七种动作须先修订本节。
+
+- Flip（点击翻面）：仅用于「表面现象 → 隐藏变量」语义（NOW 阅读卡、Featured Research 卡）。
+  点击翻面，非 hover 依赖；两面内容键盘与读屏均可达；prefers-reduced-motion 下瞬时切换、
+  两面顺序呈现。禁止缩放/弹跳/3D 翻转炫技——翻面是语义，不是表演。
+- Reveal（渐进展开）：仅用于「摘要 → 论证」语义（Research 30 SEC → 5 MIN、入口 → 详情）。
+  就地展开，不跳新页；展开内容键盘与读屏均可达；prefers-reduced-motion 下瞬时呈现、
+  无高度动画。禁止「阅读更多」式营销截断——展开是层级，不是钩子。
+- Rotate（受控三选）：Polarity Instrument 新增受控模式——作为 Map View Filter 时，
+  点击某一态 = 激活该态滤镜，再点取消；三态互斥。仪器原有「点击推进」模式在既有展位保留。
+- Compare（前后对照）：用于 Revision 对比卡（THEN / NOW / WHY）；数值不以颜色单独表意。
+
+既有禁令全部保留：首屏零开场动效；「川·标点」符号彻底静止；禁粒子/辉光/3D/玻璃拟态/
+炫技 WebGL。阴阳图形全站至多 2 个的限制不变。
+
+门控状态：本节落盘即 V2-30 HDG-2 文档门控 Closure 完成（此前「未修订前不得实现
+Flip / Reveal / Rotate 新动效」的前提已解除）。**但 LOCKED ≠ Implementation
+Authorized——任何代码实现仍须等待 Human Implementation Authorization。**
+
 ---
 
 ## 5. 内容架构（内容与代码分离）
@@ -161,6 +183,7 @@ type 只能是 `up` / `down` / `risk` / `new`。
 
 | 日期 | 决策 | 原因 |
 |---|---|---|
+| 2026-09-05 | C-1 Documentation Update：§4 增补「阅读动作动效」节——交互封闭集合 Read/Flip/Reveal/Rotate/Explore/Compare 成文，Flip（表面→隐藏变量）、Reveal（摘要→论证）、Rotate（Polarity 受控三选 Filter）、Compare（Revision 对照）四动作语义与门控（点击非 hover、键盘/读屏可达、reduced-motion 瞬时）落定；HDG-2 文档门控 Closure 完成，代码实现仍待 Human Implementation Authorization | V2-30 HDG-2 PASS 附条件 → V2-B FINAL（B-11 PASS）→ DELTA READINESS REPORT v1.1 §08 授权链；战略侧 C-1 指令（Reveal 一并覆盖） |
 | 2026-08-15 | 工程债清理四件套：①依赖瘦身——删 53 个零引用 shadcn 组件 + 42 个死依赖（React Router/Radix 全家桶/recharts/zod 等），lockfile 重生成；②无障碍——ink-3 2.4:1→3.4:1、`.label-sm` 改用 ink-2(4.8:1)、Thesis 手风琴补 aria-expanded/aria-controls、scroll-behavior 加 reduced-motion 守卫；③错误边界 ErrorBoundary（印章+墨染兜底页）+ 事前校验 `scripts/check-data.mjs`（`npm run check`，80 项断言）+ Home/Map 两处非空断言改防御式；④按路由 React.lazy 分包——CSS 90→29KB、首屏 JS 387→232KB(gzip 125→75KB)，页面 chunk 2–16KB 按需加载 | 用户审计：依赖超重是最大工程债；a11y 欠账；数据文件零防御；单包过重 |
 | 2026-08-15 | 新增「返回=收束」交互系统：引擎加 recede/revealBack 镜像模式、BackNav 极简返回钮（仅文章详情）、SwipeBack 移动端左缘手势（26px 触发区/横向主导判定/未达归平）、history.state 方向感知统一浏览器后退；顺手清理 Framework.tsx 的 md:py-18 死类 | 用户提供的完整返回交互规范（进入=展开，返回=收束）；规范中 Symbol 逆向动效一条与已否决方向冲突，有意不实现 |
 | 2026-08-15 | 文集长文结构化：body 升级为 p/h/quote 节点数组，小节自动编号+文首锚点目录（平滑滚动）+朱砂竖线引文块+段首 2em 缩进；六篇文章全部重排 | 用户判断：长文缺行文结构，滚过开头即失去位置感 |
