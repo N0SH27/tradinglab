@@ -10,7 +10,7 @@ export const SITE = {
   // removal requires canonical amendment and is out of scope for Track B.
   subtitle: '观察变化，而非预测未来。',
   description: [
-    'HSN 的交易研究实验室，',
+    'HSN 的交易探索实验室，',
     '一部分是对产业与世界的长期观察，',
     '一部分是多年交易沉淀下来的系统、纪律与心法。',
     '所有内容都是活着的档案，而非一次性结论。',

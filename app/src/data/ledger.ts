@@ -66,3 +66,27 @@ export function deriveCurrentBelief(
   const rs = revisionsOf(ledger, thesis.id)
   return rs.length > 0 ? rs[rs.length - 1].current : thesis.probability
 }
+
+/**
+ * WHAT CHANGED 投影（V2-C.1 · Human 裁决：Journal = A / 首页 = 3～5 条）。
+ * 展示层规则：过滤 confirm（delta = 0——「审查之后选择不更新」不投影为变化）
+ * → 按命题分组 → 每组取确定性次序末条（每类只显示最新一条有效变化）
+ * → 时间倒序 → 截取 limit。
+ * 纯派生：Ledger append-only 事实层不受投影影响，历史记录零删改。
+ */
+export function latestChanges(ledger: Revision[], limit = 5): Revision[] {
+  const byThesis = new Map<string, Revision[]>()
+  for (const r of ledger) {
+    if (deltaOf(r) === 0) continue
+    byThesis.set(r.thesisId, [...(byThesis.get(r.thesisId) ?? []), r])
+  }
+  return [...byThesis.entries()]
+    .map(([thesisId, rs]) => {
+      const sorted = revisionsOf(rs, thesisId)
+      return sorted[sorted.length - 1]
+    })
+    .sort((a, b) =>
+      a.date < b.date ? 1 : a.date > b.date ? -1 : seqOf(b.id) - seqOf(a.id),
+    )
+    .slice(0, limit)
+}

@@ -1,13 +1,16 @@
 import { useState, type ReactNode } from 'react'
 
-/* ── FlipCard（V2-C · HDG-2 Flip 动作 · DESIGN.md §4 阅读动作动效）────────────
+/* ── FlipCard（V2-C.1 · 2026-09-05 Human 裁决 · 整卡翻转）─────────────────────
  * 语义：表面 → 隐藏变量。翻面是语义，不是表演。
- * · 点击翻面（click/tap），非 hover 依赖；禁 3D 翻转/缩放/弹跳——
- *   以纸墨反转 crossfade 表达「翻」；
- * · 两面键盘与读屏均可达：正面整面为按钮，背面 CTA 为独立链接，
- *   隐藏面 visibility:hidden（不可聚焦）；focus-visible 朱砂焦点环；
+ * · 正面整面即翻面按钮；背面整面即翻回按钮——点击卡片主体负责 Flip，
+ *   不再需要「← 翻回」等专门 CTA（删除 FLIP BACK / 返回 / 翻回）；
+ * · 背面唯一行动出口 = 右下角 EXPLORE →（独立 <a>，位于整面翻回按钮之上，
+ *   结构上互不嵌套——不存在事件冒泡冲突）；
+ * · 禁 3D 翻转/缩放/弹跳——以纸墨反转 crossfade 表达「翻」；
+ * · 两面键盘与读屏均可达：Enter / Space 触发，隐藏面 visibility:hidden
+ *   （不可聚焦）；focus-visible 朱砂焦点环；
  * · prefers-reduced-motion：瞬时切换（motion-reduce:transition-none）。
- * 用于 NOW 阅读卡与 Featured Research 卡，不创造第三种状态。 */
+ * 仅用于首页 Research 阅读卡，不创造第三种状态。 */
 
 export interface FlipCta {
   href: string
@@ -18,13 +21,13 @@ export function FlipCard({
   label,
   front,
   back,
-  cta = [],
+  cta,
   className = '',
 }: {
   label: string
   front: ReactNode
   back: ReactNode
-  cta?: FlipCta[]
+  cta?: FlipCta
   className?: string
 }) {
   const [flipped, setFlipped] = useState(false)
@@ -44,40 +47,39 @@ export function FlipCard({
         }`}
       >
         {front}
-        <span className="absolute bottom-7 left-7 md:bottom-8 md:left-8 font-mono-num text-xs tracking-[0.2em] ink-3">
-          FLIP →
+        <span className="absolute bottom-7 right-7 md:bottom-8 md:right-8 font-mono-num text-sm ink-3" aria-hidden="true">
+          →
         </span>
       </button>
 
-      {/* 背面 · 隐藏变量（纸墨反转；CTA 独立可达） */}
+      {/* 背面 · 隐藏变量（纸墨反转；整面即翻回按钮，EXPLORE 为唯一 CTA） */}
       <div
-        className={`absolute inset-0 flex flex-col justify-between p-7 md:p-8 bg-[rgb(var(--ink))] text-[rgb(var(--paper))] transition-opacity duration-200 motion-reduce:transition-none ${
+        className={`absolute inset-0 bg-[rgb(var(--ink))] text-[rgb(var(--paper))] transition-opacity duration-200 motion-reduce:transition-none ${
           flipped ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
         }`}
       >
-        <div>{back}</div>
-        <div className="mt-6 flex items-end justify-between gap-4 flex-wrap">
-          <span className="flex gap-6 flex-wrap">
-            {cta.map((c) => (
+        {/* 整面翻回层：位于内容之下，点击卡片任意空白处 = 翻回正面 */}
+        <button
+          type="button"
+          onClick={() => setFlipped(false)}
+          aria-label={`${label}：翻回表面`}
+          tabIndex={flipped ? 0 : -1}
+          className="absolute inset-0 block w-full h-full cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-[rgb(var(--cinnabar))] focus-visible:-outline-offset-2"
+        />
+        {/* 内容层：默认不拦截点击（穿透到翻回层），仅 EXPLORE 恢复交互 */}
+        <div className="relative h-full flex flex-col justify-between p-7 md:p-8 pointer-events-none">
+          <div>{back}</div>
+          {cta && (
+            <div className="mt-6 flex justify-end">
               <a
-                key={c.label}
-                href={c.href}
+                href={cta.href}
                 tabIndex={flipped ? 0 : -1}
-                className="font-mono-num text-xs tracking-[0.2em] text-[rgb(var(--paper))]/80 hover:text-[rgb(var(--paper))] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[rgb(var(--cinnabar))]"
+                className="pointer-events-auto font-mono-num text-xs tracking-[0.2em] text-[rgb(var(--paper))]/80 hover:text-[rgb(var(--paper))] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[rgb(var(--cinnabar))]"
               >
-                {c.label}
+                {cta.label}
               </a>
-            ))}
-          </span>
-          <button
-            type="button"
-            onClick={() => setFlipped(false)}
-            aria-label={`${label}：翻回表面`}
-            tabIndex={flipped ? 0 : -1}
-            className="font-mono-num text-xs tracking-[0.2em] text-[rgb(var(--paper))]/50 hover:text-[rgb(var(--paper))]/80 cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-[rgb(var(--cinnabar))]"
-          >
-            ← 翻回
-          </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -1,29 +1,29 @@
 import { useState } from 'react'
-import { THESES, LEDGER } from '../data/content'
-import { deriveCurrentBelief, lastRevisedOf } from '../data/ledger'
+import { THESES, LEDGER, SITE } from '../data/content'
+import { deltaOf, deriveCurrentBelief, lastRevisedOf, latestChanges } from '../data/ledger'
 import { HSNSeal, HSNSymbol } from '../components/Brand'
 import { PolarityInstrument, type PolarityState } from '../components/PolarityInstrument'
 import { FlipCard } from '../components/FlipCard'
 import { MapPreview } from '../components/MapPreview'
 import { useRevealRoot } from '../hooks/useReveal'
 
-/* ── V2 Homepage · COGNITIVE EXPERIENCE（V2-30 v1.0 LOCKED / V2-B FINAL 施工）──
- * 首页 = A Guided Entry Into HSN's Way of Seeing：ENTRY → NOW → SEE → THINK →
- * CHANGE → WUWEI（静默尾章）→ END。五场景是内部认知骨架（Scene ≠ Section）——
- * 本文件不得出现任何场景标签 / 幕间标题；场景靠阅读行为的切换区分。
- * 硬约束（V2-B FINAL · DELTA-01 · C-1，全部 LOCK）：
- * · NOW 三卡 = 真点击 Flip（表面 → 隐藏变量），文案 = V2-B §04 Human 定稿；
- * · SEE = Polarity（受控 Filter，是镜头不是解释器）+ MapPreview
- *   （Option A · 7 节点 6 真边；Node Detail 严格 = Name + State + EXPLORE WORLD）；
- * · THINK = 1 个 Current Belief（判断 > 数字）+ 1 份 Featured Research；
- * · CHANGE = 1 张 THEN/NOW/WHY 对比卡（存储周期 65→68）；
- * · ENTRY = 1 品牌 + 1 句宣言 + 1 入口（description 五行已 MOVE → Manifesto）；
- * · FOCUS 撤出首页（转 Research/World Derived View 入口，非本轮施工）。
- * 数据纪律：全部业务数据只读自 data layer；卡文案为 V2-B 批准的 presentation copy。 */
+/* ── V2-C.1 Homepage · 2026-09-05 Human 裁决施工 ────────────────────────────
+ * 首页 = 三大内容主体 + 两个认知节拍：
+ *   首屏宣言（HSN / 交易探索实验室 / 宣言五行，无图形 Logo、无 ENTER）
+ *   → ① Research（当前值得探索的研究卡，数量由真实 Report 决定）
+ *   → 阴阳 Lens（三态滤镜 + 极简语义，无下划线）
+ *   → ② World（Map Preview：点亮节点一步直达 Primary Home）
+ *   → ③ What Changed（LEDGER 派生：每命题最新一条 delta≠0 真实变化）
+ *   → WUWEI（静默收束 + 唯一极简入口）
+ *   → END（不动）
+ * 减法（Human 裁决）：THINK 区（Current Belief / WHY / WHAT COULD CHANGE IT /
+ * Featured Research）整体撤出首页——Thesis / Research 页面不受影响。
+ * 纪律：Scene ≠ Section（界面不出现内部场景名）；业务数据只读自 data layer；
+ * What Changed 一律经 latestChanges 派生，confirm（delta=0）不投影为变化。 */
 
-/* NOW × 3 Reading Cards（V2-B B-1 · Human PASS 定稿文案）
-   类型标识按各报告真实日期落（事实纪律）：报告一/二 = 2026.08，报告四 = 2026.09。 */
-const NOW_CARDS: {
+/* Research 阅读卡（V2-C.1：卡数不再固定为 3，由真实 Report 决定；本轮 = 4。
+   类型标识按各报告真实日期落（事实纪律）：一/二/三 = 2026.08，四 = 2026.09。 */
+const RESEARCH_CARDS: {
   name: string
   type: string
   frontTitle: string
@@ -58,6 +58,19 @@ const NOW_CARDS: {
     href: '#/research/report-1',
   },
   {
+    name: '电力',
+    type: 'REPORT · 2026.08',
+    frontTitle: '算力的尽头是电力。',
+    frontBody: '当所有人盯着芯片，电力指标正成为智算中心选址的第一约束。',
+    backBody: (
+      <>
+        约束的硬度不来自叙事：电网临界点已被主要经济体普遍越过，容量电价把约束变成了钱。
+        <strong className="block mt-3 font-bold">谁先把约束变成可跟踪的指标，谁就拥有稀缺的定价锚。</strong>
+      </>
+    ),
+    href: '#/research/report-3',
+  },
+  {
     name: '商保支付端',
     type: 'REPORT · 2026.09',
     frontTitle: '商保创新药目录执行已满半年。',
@@ -75,63 +88,58 @@ const NOW_CARDS: {
   },
 ]
 
-/* Polarity Filter（HDG-2 Rotate 受控三选）：点击某一态 = 激活滤镜，再点取消；三态互斥。
-   默认 = 完整切片。语义由 Map 的变化来教，不写解释段落（V2-B 修正③ · LOCK）。 */
-const FILTER_META: Record<PolarityState, { zh: string; en: string; color: string }> = {
-  yang: { zh: '阳', en: 'YANG', color: 'rgb(var(--ink))' },
-  turn: { zh: '转换', en: 'TURN', color: 'rgb(var(--cinnabar))' },
-  yin: { zh: '阴', en: 'YIN', color: 'rgb(var(--water))' },
+/* Polarity Filter（受控三选：点击 = 激活滤镜，再点取消；三态互斥；默认 = 完整切片）。
+   V2-C.1：选中态不再用下划线（重复编码删除）；hint 取自 PolarityInstrument
+   既有批准语义词汇（META.words），三行等距排列——Lens 有最小语义，但不写解释段落。 */
+const FILTER_META: Record<PolarityState, { zh: string; en: string; hint: string; color: string }> = {
+  yang: { zh: '阳', en: 'YANG', hint: '增长 · 采纳 · 扩张', color: 'rgb(var(--ink))' },
+  turn: { zh: '转换', en: 'TURN', hint: '过渡 · 反转 · 拐点', color: 'rgb(var(--cinnabar))' },
+  yin: { zh: '阴', en: 'YIN', hint: '约束 · 出清 · 收缩', color: 'rgb(var(--water))' },
 }
 
 export default function Home() {
   const rootRef = useRevealRoot<HTMLDivElement>()
   const [polarity, setPolarity] = useState<PolarityState | null>(null)
 
-  /* Current Belief（V2-B B-3 · Human PASS WITH MODIFY：判断 > 数字） */
-  const beliefThesis = THESES.find((t) => t.id === 'compute')!
-  const belief = deriveCurrentBelief(beliefThesis, LEDGER)
-  const beliefRevised = lastRevisedOf(
-    LEDGER,
-    beliefThesis.id,
-    beliefThesis.revisions[0]?.date ?? beliefThesis.updated,
-  )
-
-  /* CHANGE（V2-B B-5 · Human PASS）：存储周期修正 65→68，数字只读自 Ledger */
-  const revision = LEDGER.find((r) => r.id === 'rev-memory-cycle-20260830')!
-
-  const enter = () => {
-    const reduced =
-      typeof window !== 'undefined' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    document.getElementById('home-now')?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth' })
-  }
+  /* WHAT CHANGED（V2-C.1 · Human 裁决：3～5 条真实变化，LEDGER 派生）：
+     每命题最新一条 delta≠0，时间倒序；confirm 不投影，底层账本不动。 */
+  const changes = latestChanges(LEDGER, 5)
 
   return (
     <div ref={rootRef}>
-      {/* ── ENTRY · 1 品牌 + 1 句宣言 + 1 入口（B-6 宣言版 · 整屏静态零开场动效） ── */}
-      <section className="max-w-[1400px] mx-auto px-5 md:px-10 min-h-[88vh] flex flex-col justify-center py-24">
-        <HSNSymbol size={110} className="opacity-90" />
-        <h1 className="mt-12 md:mt-16 font-serif-sc font-black leading-[1.08] tracking-tight text-[clamp(2.8rem,9vw,8rem)]">
-          观察变化，
-          <br />
-          而非预测未来<span className="cinnabar">。</span>
-        </h1>
-        <div className="mt-16 md:mt-24 hairline-t pt-5">
-          <button
-            type="button"
-            onClick={enter}
-            className="font-mono-num text-sm tracking-[0.3em] ink-3 hover:text-[rgb(var(--ink))] cursor-pointer transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[rgb(var(--cinnabar))]"
-          >
-            ENTER ↓
-          </button>
+      {/* ── 首屏宣言（V2-C.1 修正② · 2026-09-06 00:07 Human：三段式左对齐——
+          ① 大标题 + 黑色 Logo（位于标题右侧，不落入左上角标题栏邻近区）；
+          ② 宣言四行按现有断句左对齐；
+          ③ 「玄之又玄，众妙之门。」单独居中、字号稍大——作为总结并开启下文；
+          无 ENTER，图形 Logo 不重复于左上角） ── */}
+      <section className="max-w-[1400px] mx-auto px-5 md:px-10 min-h-[80vh] flex flex-col justify-center pt-24 pb-10 md:pb-12">
+        <div data-reveal>
+          <h1 className="font-serif-sc font-black leading-[1.08] tracking-tight text-[clamp(2.8rem,9vw,8rem)]">
+            观察变化，
+            <br />
+            而非预测未来<span className="cinnabar">。</span>
+          </h1>
+          <div className="mt-14 md:mt-20 max-w-xl space-y-2">
+            {SITE.description.slice(0, -1).map((line, i) => (
+              <p key={i} className="text-base md:text-lg leading-relaxed ink-2">
+                {line}
+              </p>
+            ))}
+          </div>
+          <p className="mt-14 md:mt-16 text-center font-serif-sc font-bold text-xl md:text-2xl leading-relaxed tracking-wide">
+            {SITE.description[SITE.description.length - 1]}
+          </p>
+          <div className="mt-10 md:mt-12 flex justify-center">
+            <HSNSymbol size={72} className="opacity-90" />
+          </div>
         </div>
       </section>
 
-      {/* ── NOW · 三张阅读卡（Flip：表面 → 隐藏变量） ── */}
-      <section id="home-now" className="hairline-t">
+      {/* ── ① Research · 当前值得探索的研究（Flip：表面 → 隐藏变量 → EXPLORE） ── */}
+      <section className="hairline-t">
         <div className="max-w-[1400px] mx-auto px-5 md:px-10 py-20 md:py-28">
-          <div className="grid md:grid-cols-3 gap-4 md:gap-5" data-reveal>
-            {NOW_CARDS.map((c) => (
+          <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-5" data-reveal>
+            {RESEARCH_CARDS.map((c) => (
               <FlipCard
                 key={c.name}
                 label={c.name}
@@ -149,14 +157,14 @@ export default function Home() {
                     {c.backBody}
                   </p>
                 }
-                cta={[{ href: c.href, label: 'EXPLORE RESEARCH →' }]}
+                cta={{ href: c.href, label: 'EXPLORE →' }}
               />
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── SEE · Polarity（Lens）+ World at a Glance（Map Preview） ── */}
+      {/* ── 阴阳 Lens + ② World · Map Preview ── */}
       <section className="hairline-t">
         <div className="max-w-[1400px] mx-auto px-5 md:px-10 py-24 md:py-36">
           <div className="grid md:grid-cols-12 gap-10 md:gap-16 items-start">
@@ -182,12 +190,13 @@ export default function Home() {
                       aria-pressed={on}
                       onClick={() => setPolarity((cur) => (cur === s ? null : s))}
                       className={`text-left cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-[rgb(var(--cinnabar))] ${
-                        on ? 'font-bold underline underline-offset-8' : 'ink-3 hover:text-[rgb(var(--ink))]'
+                        on ? 'font-bold' : 'ink-3 hover:text-[rgb(var(--ink))]'
                       } transition-colors`}
                       style={on ? { color: meta.color } : undefined}
                     >
                       <span className="font-serif-sc text-lg leading-none block">{meta.zh}</span>
-                      <span className="font-mono-num text-[10px] tracking-[0.2em]">{meta.en}</span>
+                      <span className="mt-1.5 font-mono-num text-[10px] tracking-[0.2em] block">{meta.en}</span>
+                      <span className="mt-1.5 text-xs leading-none block ink-3">{meta.hint}</span>
                     </button>
                   )
                 })}
@@ -200,96 +209,63 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── THINK · 1 个 Current Belief + 1 份 Featured Research（阅读宽度） ── */}
+      {/* ── ③ What Changed · 每命题最新一条真实变化（判断 > 数字，数字只读自 Ledger） ── */}
       <section className="hairline-t">
         <div className="max-w-[1400px] mx-auto px-5 md:px-10 py-20 md:py-28">
-          {/* Current Belief：判断 > 数字（B-3 · PASS WITH MODIFY · LOCK）。
-              视觉层级 = 当前判断 → WHY / WHAT COULD CHANGE IT / HISTORY → conviction（辅助）。 */}
-          <div className="max-w-3xl" data-reveal>
-            <span className="label-sm ink-3 block mb-8">WHAT I BELIEVE NOW</span>
-            <p className="font-serif-sc font-bold text-2xl md:text-4xl leading-snug tracking-tight">
-              国产算力正在从「可用」变成「必须用」：推理时代的需求是分散的、对成本敏感的——这恰好是追赶者的主场。但天花板在供给端，不在需求端。
-            </p>
-            <div className="mt-10 flex gap-x-8 gap-y-3 flex-wrap">
-              <a href="#/thesis/compute" className="btn-line">
-                WHY →
-              </a>
-              <a href="#/thesis/compute" className="btn-line">
-                WHAT COULD CHANGE IT →
-              </a>
-              <a href="#/journal" className="btn-line">
-                HISTORY →
-              </a>
-            </div>
-            {/* conviction = metadata，不是内容：小字、不居中、无仪表盘 */}
-            <p className="mt-8 font-mono-num tnum text-xs ink-3 tracking-widest">
-              CONVICTION {belief} · 修正 {beliefRevised} · {beliefThesis.window}
-            </p>
-          </div>
-
-          {/* Featured Research（B-4 · PASS：维持报告一；CANONICAL 系统语言已清除） */}
-          <div className="mt-16 md:mt-20 max-w-2xl" data-reveal>
-            <FlipCard
-              label="中国 AI 算力基础设施产业链研究"
-              front={
-                <>
-                  <span className="label-sm ink-3 block mb-6">行业研究 · 2026.08</span>
-                  <span className="font-serif-sc font-bold text-xl md:text-2xl tracking-tight leading-snug block mb-4">
-                    中国 AI 算力基础设施，正在发生什么？
-                  </span>
-                  <span className="text-sm ink-2 leading-relaxed block">
-                    从算力芯片到电力约束，一条完整链条的三年观察。
-                  </span>
-                </>
-              }
-              back={
-                <p className="text-sm md:text-base leading-loose text-[rgb(var(--paper))]/85">
-                  需求的确定性高于供给的确定性；瓶颈正沿链条迁移（制程 → 封装 → 电力），而多数环节的景气与估值已经分离。
-                </p>
-              }
-              cta={[
-                { href: '#/research/report-1@five-min', label: 'READ 5 MIN →' },
-                { href: '#/research/report-1@deep-dive', label: 'DEEP DIVE →' },
-              ]}
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* ── CHANGE · 一张 THEN / NOW / WHY 对比卡（B-5 · PASS：存储周期 65→68） ── */}
-      <section className="hairline-t">
-        <div className="max-w-[1400px] mx-auto px-5 md:px-10 py-20 md:py-28">
-          <div className="max-w-4xl mx-auto border border-[rgb(var(--line))] p-8 md:p-12" data-reveal>
+          <div className="max-w-4xl mx-auto" data-reveal>
             <span className="label-sm ink-3 block mb-10">WHAT CHANGED</span>
-            <div className="grid md:grid-cols-12 gap-6 md:gap-8 items-baseline">
-              <span className="md:col-span-3 font-serif-sc font-bold text-xl md:text-2xl tracking-tight">
-                存储周期
-              </span>
-              <span className="md:col-span-3 font-mono-num tnum">
-                <span className="block text-xs ink-3 tracking-widest mb-2">THEN → NOW</span>
-                <span className="text-2xl md:text-3xl font-medium">
-                  {revision.previous} → {revision.current}
-                </span>
-              </span>
-              <p className="md:col-span-6 text-sm md:text-base ink-2 leading-relaxed">
-                买方开始降级硬件方案（HBM 12 层 → 8 层）——涨价的失效从股价蔓延到了产品层。
-              </p>
-            </div>
-            <div className="mt-10 flex justify-end">
-              <a href="#/thesis/memory-cycle" className="btn-line">
-                SEE REVISION →
-              </a>
+            <div className="border-t border-[rgb(var(--line))]">
+              {changes.map((r) => {
+                const thesis = THESES.find((t) => t.id === r.thesisId)!
+                const belief = deriveCurrentBelief(thesis, LEDGER)
+                const delta = deltaOf(r)
+                return (
+                  <a
+                    key={r.id}
+                    href={`#/thesis/${thesis.id}`}
+                    className="group grid md:grid-cols-12 gap-x-6 gap-y-2 items-baseline py-7 md:py-8 hairline-b"
+                  >
+                    <span className="md:col-span-3">
+                      <span className="font-serif-sc font-bold text-xl md:text-2xl tracking-tight group-hover:opacity-70 transition-opacity">
+                        {thesis.industry.split(' / ')[0]}
+                      </span>
+                      <span className="block mt-2 font-mono-num tnum text-xs ink-3 tracking-widest">
+                        {lastRevisedOf(LEDGER, thesis.id, thesis.revisions[0]?.date ?? thesis.updated)}
+                      </span>
+                    </span>
+                    <span className="md:col-span-3 font-mono-num tnum">
+                      <span className="text-2xl md:text-3xl font-medium">
+                        {r.previous} → {belief}
+                      </span>
+                      <span className={`text-sm ml-2 ${delta > 0 ? 'cinnabar' : 'water'}`}>
+                        {delta > 0 ? '+' : ''}
+                        {delta}
+                      </span>
+                    </span>
+                    <span className="md:col-span-6 text-sm ink-2 leading-relaxed line-clamp-2">
+                      {r.reason}
+                    </span>
+                  </a>
+                )
+              })}
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── WUWEI · 静默尾章（OQ-1）：少、静、留白；无 CTA、无营销 ── */}
+      {/* ── WUWEI · 静默收束（V2-C.1 Option A：一句话 + 唯一极简入口，无营销） ── */}
       <section className="hairline-t">
         <div className="max-w-[1400px] mx-auto px-5 md:px-10 py-28 md:py-40 text-center">
           <p className="font-serif-sc text-lg md:text-xl ink-2 leading-relaxed" data-reveal>
             有时，正确的仓位是空仓。
           </p>
+          <a
+            href="#/wuwei"
+            className="mt-10 inline-block font-mono-num text-xs tracking-[0.3em] ink-3 hover:text-[rgb(var(--ink))] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[rgb(var(--cinnabar))]"
+            data-reveal
+          >
+            WUWEI →
+          </a>
         </div>
       </section>
 

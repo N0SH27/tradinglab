@@ -1,5 +1,5 @@
 import { JOURNAL, LEDGER, THESES } from '../data/content'
-import { deltaOf } from '../data/ledger'
+import { deltaOf, latestChanges } from '../data/ledger'
 import { PageHead, Label } from '../components/Bits'
 
 const TYPE_META: Record<string, { mark: string; label: string; red?: boolean }> = {
@@ -9,11 +9,14 @@ const TYPE_META: Record<string, { mark: string; label: string; red?: boolean }> 
   new: { mark: '＋', label: '新增记录' },
 }
 
-/* 日志页（V2-06-04）：双层结构——
-   01 REVISION = WHAT CHANGED MY MIND（Belief Ledger 事实层投影：改变了什么）
-   02 叙事流 = 既有日期分组日志（narrative record：为什么这样想）
+/* 日志页（V2-06-04 双层结构；V2-C.1 投影规则 · 2026-09-05 Human 裁决 = A）——
+   01 REVISION = WHAT CHANGED MY MIND：展示层只投影「每命题最新一条 delta≠0」
+   的真实变化（latestChanges 派生）；confirm（delta=0，如 55→55 校准记录）
+   不作为变化展示——底层 Ledger append-only，原始记录零删改。
+   02 叙事流 = 既有日期分组日志（narrative record：为什么这样想）。
    Ledger is the factual record. Journal is the narrative record. */
 export default function Journal() {
+  const changes = latestChanges(LEDGER, LEDGER.length)
   return (
     <div className="max-w-[1400px] mx-auto px-5 md:px-10">
       <PageHead
@@ -29,7 +32,7 @@ export default function Journal() {
           <Label>反 · REVISION · WHAT CHANGED MY MIND</Label>
         </div>
         <div>
-          {LEDGER.map((r) => {
+          {changes.map((r) => {
             const delta = deltaOf(r)
             const thesis = THESES.find((t) => t.id === r.thesisId)
             return (
