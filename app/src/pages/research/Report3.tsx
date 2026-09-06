@@ -341,6 +341,11 @@ const SECTIONS: ReportSection[] = [
             '2026-08-31',
             '**登记评审裁决（PASS）**：追加评审记录；三种报告形态成立，支持 / 校验 / 生成三种接口闭合。正文零改动。',
           ],
+          [
+            'v1.1.2（修订）',
+            '2026-09-06',
+            '**支持性证据登记（35 周消化批）：** AI 瓶颈从硅片转向吉瓦级交付能力（电网+冷却+厂房）——§01"瓶颈向电力迁移"获独立信源的延伸确认；选址第一约束判断方向不变。零正文改动、零新增章节。',
+          ],
         ],
       },
       {
@@ -352,5 +357,5 @@ const SECTIONS: ReportSection[] = [
 ]
 
 export default function Report3() {
-  return <ReportPage meta={{ no: 'REPORT #3', title: '电力约束：从判断到可跟踪结构', date: '2026.08', review: 'v1.1.1' }} sections={SECTIONS} />
+  return <ReportPage meta={{ no: 'REPORT #3', title: '电力约束：从判断到可跟踪结构', date: '2026.08', review: 'v1.1.2' }} sections={SECTIONS} />
 }

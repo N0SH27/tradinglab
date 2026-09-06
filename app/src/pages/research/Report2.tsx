@@ -381,6 +381,11 @@ const SECTIONS: ReportSection[] = [
             '2026-08-30',
             '**登记评审裁决（PASS WITH NOTES）**：追加评审记录；**正文零改动**（不返工、不以增字补救）。',
           ],
+          [
+            'v1.1.2（修订）',
+            '2026-09-06',
+            '**证伪条件观察区登记（35 周消化批）：** ① 三星 DRAM 价格上行 + HBM 执行改善打开盈利弹性——§08 第一条证伪条件（盈利预测不降反升）尚未触发，但距离缩短，进入重点值守；② 供给侧新证据：HBM4 翻倍至 $700+、内存占 AI 服务器 BoM 升至 50%+、2027 年 DRAM 全面紧缺预期（"存储超级周期"叙事）。命题与正文不动，仅登记。',
+          ],
         ],
       },
       {
@@ -392,5 +397,5 @@ const SECTIONS: ReportSection[] = [
 ]
 
 export default function Report2() {
-  return <ReportPage meta={{ no: 'REPORT #2', title: '存储周期：价格上涨失效的周期解剖', date: '2026.08', review: 'v1.1.1' }} sections={SECTIONS} />
+  return <ReportPage meta={{ no: 'REPORT #2', title: '存储周期：价格上涨失效的周期解剖', date: '2026.08', review: 'v1.1.2' }} sections={SECTIONS} />
 }

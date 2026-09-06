@@ -409,6 +409,11 @@ const SECTIONS: ReportSection[] = [
             '2026-08-30',
             '**首次实战修正（同日周度研究更新触发）：** ① 存储周期命题置信度快照 65%→68%，显式标注快照日期；② "瓶颈会迁移"补事后验证注记（封装设备交期 12 个月、封测资本开支创历史高位——判断在发布当日获第一次外部确认，方向一致，正文不变）。零新增外部数据、零新增章节。',
           ],
+          [
+            'v1.1.2（修订）',
+            '2026-09-06',
+            '**周度证据补记（35 周消化批）：** ① "火车头"获合同级量化锚——博通 FY27 AI 营收约 $115B / FY28 约 $230B（客户合同已签）、英伟达 Blackwell 排队至 2027、DELL 企业 AI 客户 6500+；② 瓶颈迁移律获延伸确认——AI 瓶颈从硅片转向吉瓦级交付能力（电网+冷却+厂房）。零正文改动、零新增章节、置信度不动。',
+          ],
         ],
       },
       {
@@ -420,5 +425,5 @@ const SECTIONS: ReportSection[] = [
 ]
 
 export default function Report1() {
-  return <ReportPage meta={{ no: 'REPORT #1', title: '中国 AI 算力基础设施产业链研究', date: '2026.08', review: 'v1.1.1' }} sections={SECTIONS} />
+  return <ReportPage meta={{ no: 'REPORT #1', title: '中国 AI 算力基础设施产业链研究', date: '2026.08', review: 'v1.1.2' }} sections={SECTIONS} />
 }
