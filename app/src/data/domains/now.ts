@@ -3,6 +3,7 @@
 // Observation ≠ Thesis：观察回答"什么在变"，命题回答"我因此相信什么"。
 // polarity 不持有字段——需要时经 mapNodeId 由 deriveThesisPolarity 同源推导（V2-04.5 契约）。
 // 人工维护；W35（2026-08-31，+7 +1 注记）与 W36（2026-09-03，+16）证据入账后进入 Evidence Operating Phase；SIGNALS 完整形态挂 C-04（V2-07）。
+// 35 周消化批（2026-09-06 入库，+4 新观察 +1 条目边界修正）：合同锚 / 变现基准 / API 毛利转正 / 超级周期张力；光模块条目补"设备侧线性 ≠ 器件侧线性"边界。
 // 日期纪律（2026-09-03 HSN 裁决）：只标注日期，不写"口径"等来源话语；日期精度对齐素材文件标题日期。
 export interface Observation {
   id: string
@@ -253,7 +254,7 @@ export const OBSERVATIONS: Observation[] = [
   {
     id: 'optical-crowding-break',
     title: '光模块抱团解体',
-    summary: '8.10 中报后中际旭创 / 新易盛 / 天孚闪崩（FCC 禁令 + AAOI 扩产），"季报年报公布完后解体"方向命中；订单增加≠利润率增加（毛利率 50%→16%）——海外链从"可线性推导"降级为事件驱动（2026.09.04 裁决的 L4 边界）。（2026.08.10）',
+    summary: '8.10 中报后中际旭创 / 新易盛 / 天孚闪崩（FCC 禁令 + AAOI 扩产），"季报年报公布完后解体"方向命中；订单增加≠利润率增加（毛利率 50%→16%）——海外链从"可线性推导"降级为事件驱动（2026.09.04 裁决的 L4 边界）。边界细化（2026.09.06）：器件侧事件驱动 ≠ 全链失效——设备-封装-材料侧订单可见性仍可线性推导（光器件设备"未来一年出货 >25 年累计 50%"、CCL M6→M7→M8 升级路线图不变），两侧分开盯。（2026.08.10）',
     date: '2026.08.10',
     mapNodeId: 'optical',
     thesisId: 'optical-module',
@@ -271,6 +272,37 @@ export const OBSERVATIONS: Observation[] = [
     summary: 'DDR4 8GB 每月涨约 20%、Q4 合约价 +50%+；nor flash 全年 +150%；海力士 2026/2027 订单已卖光。盯合约价不盯现货价。（2026.02–04 观察，2026.09.03 核实）',
     date: '2026.04.10',
     mapNodeId: 'dram',
+    thesisId: 'memory-cycle',
+  },
+  {
+    id: 'ai-capex-contract-anchor',
+    title: 'AI CapEx：从指引变成合同',
+    summary: '博通 FY26 Q3 电话会披露 FY2027 AI 营收约 $115B、FY2028 约 $230B，客户合同已签（2028 年：Anthropic 16GW / OpenAI 6.3GW / Meta 3GW）；英伟达 Blackwell 系列锁定至 2027 年交付，排队规模约相当于当前行业年化 CapEx 的 30 倍；DELL 企业 AI 客户超 6500、单季新增约 3300——需求从云厂单边走向企业端渗透。远端数据按"每季季报验证"打折持有，不作 100% 信念。（2026.09.06 入库）',
+    date: '2026.09.06',
+    mapNodeId: 'gpu',
+    thesisId: 'compute',
+  },
+  {
+    id: 'inference-monetization-benchmark',
+    title: '每 GW 推理变现基准',
+    summary: '微观回收期估算：每 GW 推理年变现约 600 亿（保守）–1000 亿（市场预期）——低于此基准，卖铲子与 AI 实验室估值偏乐观；高于此，或存在估值底。并存读数：高频 Token 用户或不足 1000 万、Token 占人力成本传统约 1% vs AI 原生 10%+——渗透率仍低与变现锚成立并不矛盾。兑现验证看头部模型公司 IPO 后的真实季报。（2026.09.06 入库）',
+    date: '2026.09.06',
+    mapNodeId: 'token',
+    thesisId: 'ai-app',
+  },
+  {
+    id: 'china-llm-api-margin-turn',
+    title: '国产大模型 API 毛利首次转正',
+    summary: '智谱中报：1H26 收入 9.54 亿（+399.7%），API 收入 8.25 亿（+2735.7%），云端毛利率 24.6% 转正（上年 -0.4%）——首家公开承认 API 毛利转正的中国大模型公司，"国产模型必亏"判断需修正。ARR 约 16 亿美元为管理层年化口径，估值口径需打折。（2026.09.06 入库）',
+    date: '2026.09.06',
+    thesisId: 'ai-app',
+  },
+  {
+    id: 'memory-supercycle-tension',
+    title: '"2027 存储超级周期"叙事 vs 周期判据',
+    summary: 'HBM4 价格翻倍至 $700+、内存占 AI 服务器 BoM 升至 50%+、2027 年 DRAM 全面紧缺预期走强；三星 DRAM 价格上行 + HBM 执行改善打开盈利弹性——与存储周期命题证伪条件（三星、海力士盈利预测不降反升）的距离在缩短。叙事与判据并置值守：若盈利预测转为上修，周期判据失效流程启动。（2026.09.06 入库）',
+    date: '2026.09.06',
+    mapNodeId: 'hbm',
     thesisId: 'memory-cycle',
   },
 ]
