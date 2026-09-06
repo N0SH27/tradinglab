@@ -1,18 +1,20 @@
 import { useEffect, useState } from 'react'
-import { INDUSTRY_MAP, MAP_EDGES, type MapNode } from '../data/domains/map'
+import { INDUSTRY_MAP, type MapNode } from '../data/domains/map'
 import type { PolarityState } from './PolarityInstrument'
 import {
   SLICE,
-  CHAIN,
   STATE_ZH,
   STATE_COLOR,
   primaryHomeOf,
-} from './MapPreview'
+  EDGE_OK,
+} from './seeSlice'
 import { useIsMobile } from '../hooks/use-mobile'
 
 /* ── PolarityXiao（阴阳 · 洞箫 · SEE 场景右侧 · R1 Representation Correction）──
  * 依据：00_PROJECT/V2_SEE_POLARITY_XIAO_DESIGN.md（R0 定稿）
  *     + 00_PROJECT/V2_SEE_POLARITY_XIAO_REVISION_R1.md（2026-09-06 Human 批准）
+ * 切片共享（SLICE / STATE / primaryHomeOf / EDGE_OK 真边校验）见 seeSlice.ts
+ * （原 MapPreview.tsx，Phase 5 退役迁入，2026-09-06）。
  *
  * R1 核心原则：
  *   音孔只表达「这里有一个观察点」，Polarity 才表达「当前正在观察什么」。
@@ -53,13 +55,7 @@ const GEOM: Record<'desktop' | 'mobile', XiaoGeom> = {
   mobile: { vbW: 700, vbH: 1000, cx: 300, cy: 500, span: 640, mouth: 105, tail: 95, halfW: 19, hit: 48 },
 }
 
-/* 真边校验（契约保留）：切片链必须是 MAP_EDGES 的真实边；断裂时不画洞箫 */
-const EDGE_OK = CHAIN.every(([a, b]) =>
-  MAP_EDGES.some(([x, y]) => (x === a && y === b) || (x === b && y === a)),
-)
-if (!EDGE_OK && typeof console !== 'undefined') {
-  console.error('[PolarityXiao] chain edge missing from MAP_EDGES — Contract violation, no false axis drawn')
-}
+/* 真边校验已迁入 seeSlice.ts（EDGE_OK 导入）；断裂时不画洞箫（见下方 early return） */
 
 /** 第 i 个音孔的轴线参数 s（i=0 为最右上 / 产业链源头 gpu；s>0 偏向吹口端） */
 function holeS(g: XiaoGeom, i: number): number {

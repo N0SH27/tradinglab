@@ -166,8 +166,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── 阴阳 Lens + ② World · PolarityXiao（V2 SEE 重设计 · 2026-09-06 Human 批准施工；
-              洞箫替代原 MapPreview 折线，MapPreview 保留至 Human Review PASS 后删除） ── */}
+      {/* ── 阴阳 Lens + ② World · PolarityXiao（V2 SEE 重设计 · 2026-09-06 Human 批准；
+              洞箫替代原折线，MapPreview 已于 Phase 5 退役，切片共享迁入 seeSlice.ts） ── */}
       <section className="hairline-t">
         <div className="max-w-[1400px] mx-auto px-5 md:px-10 py-24 md:py-36">
           <div className="grid md:grid-cols-12 gap-10 md:gap-16 items-start">
