@@ -4,7 +4,7 @@ import { deltaOf, deriveCurrentBelief, lastRevisedOf, latestChanges } from '../d
 import { HSNSeal, HSNSymbol } from '../components/Brand'
 import { PolarityInstrument, type PolarityState } from '../components/PolarityInstrument'
 import { FlipCard } from '../components/FlipCard'
-import { MapPreview } from '../components/MapPreview'
+import { PolarityXiao } from '../components/PolarityXiao'
 import { useRevealRoot } from '../hooks/useReveal'
 
 /* ── V2-C.1 Homepage · 2026-09-05 Human 裁决施工 ────────────────────────────
@@ -89,12 +89,14 @@ const RESEARCH_CARDS: {
 ]
 
 /* Polarity Filter（受控三选：点击 = 激活滤镜，再点取消；三态互斥；默认 = 完整切片）。
-   V2-C.1：选中态不再用下划线（重复编码删除）；hint 取自 PolarityInstrument
-   既有批准语义词汇（META.words），三行等距排列——Lens 有最小语义，但不写解释段落。 */
-const FILTER_META: Record<PolarityState, { zh: string; en: string; hint: string; color: string }> = {
-  yang: { zh: '阳', en: 'YANG', hint: '增长 · 采纳 · 扩张', color: 'rgb(var(--ink))' },
-  turn: { zh: '转换', en: 'TURN', hint: '过渡 · 反转 · 拐点', color: 'rgb(var(--cinnabar))' },
-  yin: { zh: '阴', en: 'YIN', hint: '约束 · 出清 · 收缩', color: 'rgb(var(--water))' },
+   V2-C.1：选中态不再用下划线（重复编码删除）。
+   R1（2026-09-06 Human 批准 · Representation Correction）：三态 hint 解释词删除——
+   Polarity 是认知控制器，不是信息说明卡片；语义词汇仍由 PolarityInstrument 的
+   aria-label（META.words）携带。辅助句取自宣言 §06 原句（零原创，见 R1 §B/§C）。 */
+const FILTER_META: Record<PolarityState, { zh: string; en: string; color: string }> = {
+  yang: { zh: '阳', en: 'YANG', color: 'rgb(var(--ink))' },
+  turn: { zh: '转换', en: 'TURN', color: 'rgb(var(--cinnabar))' },
+  yin: { zh: '阴', en: 'YIN', color: 'rgb(var(--water))' },
 }
 
 export default function Home() {
@@ -164,7 +166,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── 阴阳 Lens + ② World · Map Preview ── */}
+      {/* ── 阴阳 Lens + ② World · PolarityXiao（V2 SEE 重设计 · 2026-09-06 Human 批准施工；
+              洞箫替代原 MapPreview 折线，MapPreview 保留至 Human Review PASS 后删除） ── */}
       <section className="hairline-t">
         <div className="max-w-[1400px] mx-auto px-5 md:px-10 py-24 md:py-36">
           <div className="grid md:grid-cols-12 gap-10 md:gap-16 items-start">
@@ -179,6 +182,11 @@ export default function Home() {
               <p className="mt-10 font-serif-sc text-xl md:text-2xl font-bold leading-relaxed tracking-tight">
                 变化，不是线性的。
               </p>
+              {/* R1 辅助句：宣言 §06「道法自然」原句截取（零原创），独立文本区，
+                  不参与三态列布局 */}
+              <p className="mt-4 text-sm md:text-base ink-2 leading-relaxed">
+                我不预测拐点，只观察阴阳消长的速度。
+              </p>
               <div className="mt-8 flex gap-7" role="group" aria-label="Polarity view filter">
                 {(Object.keys(FILTER_META) as PolarityState[]).map((s) => {
                   const meta = FILTER_META[s]
@@ -189,21 +197,20 @@ export default function Home() {
                       type="button"
                       aria-pressed={on}
                       onClick={() => setPolarity((cur) => (cur === s ? null : s))}
-                      className={`text-left cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-[rgb(var(--cinnabar))] ${
+                      className={`w-20 text-left cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-[rgb(var(--cinnabar))] ${
                         on ? 'font-bold' : 'ink-3 hover:text-[rgb(var(--ink))]'
                       } transition-colors`}
                       style={on ? { color: meta.color } : undefined}
                     >
                       <span className="font-serif-sc text-lg leading-none block">{meta.zh}</span>
                       <span className="mt-1.5 font-mono-num text-[10px] tracking-[0.2em] block">{meta.en}</span>
-                      <span className="mt-1.5 text-xs leading-none block ink-3">{meta.hint}</span>
                     </button>
                   )
                 })}
               </div>
             </div>
             <div className="md:col-span-8" data-reveal>
-              <MapPreview active={polarity} />
+              <PolarityXiao active={polarity} />
             </div>
           </div>
         </div>

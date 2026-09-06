@@ -17,8 +17,8 @@ import type { PolarityState } from './PolarityInstrument'
  * · Primary Home 分流：node.theses[0] 存在 → #/thesis/<id>；否则 → #/map。
  * · Polarity = Lens：滤镜只改变状态表达，从不剥夺操作权限。 */
 
-const SLICE: string[] = ['gpu', 'hbm', 'cowos', 'optical', 'server', 'idc', 'power']
-const CHAIN: [string, string][] = [
+export const SLICE: string[] = ['gpu', 'hbm', 'cowos', 'optical', 'server', 'idc', 'power']
+export const CHAIN: [string, string][] = [
   ['gpu', 'hbm'],
   ['hbm', 'cowos'],
   ['cowos', 'optical'],
@@ -45,24 +45,24 @@ const POS: Record<string, { x: number; y: number }> = {
   power: { x: 54, y: 95 },
 }
 
-const STATE_ZH: Record<PolarityState, string> = { yang: '阳', turn: '转换中', yin: '阴' }
-const STATE_COLOR: Record<PolarityState, string> = {
+export const STATE_ZH: Record<PolarityState, string> = { yang: '阳', turn: '转换中', yin: '阴' }
+export const STATE_COLOR: Record<PolarityState, string> = {
   yang: 'rgb(var(--ink))',
   turn: 'rgb(var(--cinnabar))',
   yin: 'rgb(var(--water))',
 }
 /* 节点权重 → 圆点尺寸（px）（V2-C.1 增重：14/18/22 → 22/28/34） */
-const DOT: Record<number, number> = { 1: 22, 2: 28, 3: 34 }
+export const DOT: Record<number, number> = { 1: 22, 2: 28, 3: 34 }
 
 /* Primary Home 分流（V2-C.1 §12.1）：有命题 → 命题页；无命题 → 完整 /map */
-function primaryHomeOf(n: MapNode): { href: string; label: string } {
+export function primaryHomeOf(n: MapNode): { href: string; label: string } {
   const t = n.theses?.[0]
   return t
     ? { href: `#/thesis/${t}`, label: 'EXPLORE →' }
     : { href: '#/map', label: 'EXPLORE WORLD →' }
 }
 
-function nodeFill(n: MapNode): React.CSSProperties {
+export function nodeFill(n: MapNode): React.CSSProperties {
   if (n.state === 'yang') return { background: 'rgb(var(--ink))' }
   if (n.state === 'yin') return { background: 'rgb(var(--paper))', border: '1.5px solid rgb(var(--ink))' }
   /* turn：半实半空（与 IndustryMap 同语义） */
@@ -72,7 +72,7 @@ function nodeFill(n: MapNode): React.CSSProperties {
   }
 }
 
-function valuationRing(n: MapNode): string | undefined {
+export function valuationRing(n: MapNode): string | undefined {
   /* 估值位置外环（沿用地图既有编码：透支 = 朱砂，出清 = 深水蓝；合理 = 无环） */
   if (n.valuation === 'stretched') return '0 0 0 4px rgb(var(--paper)), 0 0 0 5.5px rgb(var(--cinnabar))'
   if (n.valuation === 'washed') return '0 0 0 4px rgb(var(--paper)), 0 0 0 5.5px rgb(var(--water))'
