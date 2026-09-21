@@ -86,6 +86,22 @@ const RESEARCH_CARDS: {
     ),
     href: '#/research/report-4',
   },
+  {
+    name: '存储 II',
+    type: 'REPORT · 2026.09',
+    frontTitle: '紧缺还在，斜率开始松动。',
+    frontBody: '利润率历史极值的同一周，涨价共识从 +200% 腰斩到 +100%。',
+    backBody: (
+      <>
+        铠侠第一次说「涨够了」，闪迪说「紧张到 2028」——上下游公开吵架的一周，分歧本身就是数据。
+        <strong className="block mt-3 font-bold">紧缺延续，不等于价格斜率延续。</strong>
+        <span className="block mt-2 text-sm text-[rgb(var(--paper))]/60">
+          下一个关口：Q4 合约价谈判。
+        </span>
+      </>
+    ),
+    href: '#/research/report-5',
+  },
 ]
 
 /* Polarity Filter（受控三选：点击 = 激活滤镜，再点取消；三态互斥；默认 = 完整切片）。

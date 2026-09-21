@@ -33,6 +33,13 @@ const REPORTS = [
     meta: 'INDUSTRY · 2026.09 · RESEARCH',
     review: 'v0.2',
   },
+  {
+    href: '#/research/report-5',
+    no: 'REPORT #5',
+    title: '存储：紧缺与斜率的分离',
+    meta: 'INDUSTRY · 2026.09 · RESEARCH',
+    review: 'v1.0.0',
+  },
 ]
 
 export default function Research() {
