@@ -132,7 +132,7 @@ export const THESES: Thesis[] = [
     no: '命题三',
     title: '机器人：硬件的"iPhone 时刻"尚未到来，但供应链已开始定价',
     industry: '机器人 / 智能制造',
-    updated: '2026.09.13',
+    updated: '2026.09.21',
     conflict: {
       although: '人形机器人仍处在"演示很惊艳、落地很缓慢"的阶段，真实订单稀少',
       but: '核心零部件的降本曲线真实而陡峭，供应链的产能建设领先于终端需求——这是产业爆发前的典型形态',
@@ -159,8 +159,8 @@ export const THESES: Thesis[] = [
     counter:
       '如果 2027 年真实出货量仍停留在"万台"级别而非"十万台"级别，整条供应链将面临一次残酷的估值回归。这个命题的本质是：用时间换产业成熟的空间。',
     window: '2026 — 2030，从主题到产业的跨越期',
-    probability: 46,
-    probabilityNote: '下调 · 本人已校准',
+    probability: 50,
+    probabilityNote: '回调 · 解禁与业绩期再验',
     status: 'active',
     assumptions: [
       '核心零部件降本曲线延续，量产良率不以牺牲可靠性为代价',

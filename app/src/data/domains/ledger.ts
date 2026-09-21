@@ -25,6 +25,20 @@ export interface Revision {
 // 序号大者 = 当日更晚事件；check [18] 断言序号连续无缺。
 export const LEDGER: Revision[] = [
   {
+    id: 'rev-robot-20260921',
+    date: '2026.09.21',
+    thesisId: 'robot',
+    previous: 46,
+    current: 50,
+    reason: '9.04 下调的两个前提双反向移动：估值端情绪定价已挤出（宇树较峰值腰斩、监管收紧 IPO），产业端量产斜率兑现（周产 600+、T 链数千台级订单、京东五年 300 万台）。解禁与首份季报未验，不全额回调。',
+    evidence: [
+      '特斯拉周产 7 月底 200+ → 8 月 500 → 9 月 600+ 台；9 月上旬 T 链获数千台级订单、2027 目标 10 万台（2026.09）',
+      '京东"物理 AI 加速计划"五年采购 300 万台机器人；小鹏机器人产线启用（2026.09）',
+      '宇树自峰值 4449 亿腰斩后持续阴跌，监管收紧机器人 IPO——情绪盘挤出（2026.09）',
+    ],
+    note: '回调概率 46% → 50%。下调理由消失的部分还回去，验证窗口未走完的部分（1 点）留在桌上。',
+  },
+  {
     id: 'rev-innovative-drug-value-capture-20260904',
     date: '2026.09.04',
     thesisId: 'innovative-drug-value-capture',

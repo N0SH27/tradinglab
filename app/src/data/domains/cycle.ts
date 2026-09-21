@@ -4,8 +4,9 @@ export const CYCLE_STAGES = ['萌芽', '成长', '狂热', '分化', '泡沫', '
 export const CYCLE_INDUSTRIES: { name: string; stage: (typeof CYCLE_STAGES)[number]; note: string }[] = [
   { name: 'AI 应用', stage: '成长', note: '商业模式验证期，收入开始接棒叙事' },
   { name: '国产算力', stage: '成长', note: '渗透率陡峭段，政策与需求共振' },
-  { name: '机器人', stage: '萌芽', note: '供应链先行，终端需求未证' },
+  { name: '机器人', stage: '萌芽', note: '供应链先行，订单开始兑现；终端需求初验未终验' },
   { name: '半导体设备', stage: '分化', note: '先进制程向阳，成熟制程向阴' },
+  { name: 'AI 材料', stage: '成长', note: '价值量驱动的涨价链——增量 84% 来自价值量而非数量' },
   { name: '新能源', stage: '出清', note: '产能退出的尾声，现金流先于利润见底' },
   { name: '军工', stage: '重构', note: '订单节奏重置，新一轮景气酝酿' },
   { name: '医疗科技', stage: '萌芽', note: 'AI 制药与脑机接口的早期信号' },

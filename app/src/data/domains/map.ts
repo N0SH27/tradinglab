@@ -129,7 +129,7 @@ export const INDUSTRY_MAP: { root: string; note: string; nodes: MapNode[] } = {
       penetration: '成长期 · 收入放量但格局未定',
       stageFocus: '盈利性：毛利率能否在规模效应中守住',
       stateNote: '阴：收入放大，毛利承压',
-      observation: '整机环节收入弹性最大、话语权最弱。放量的阳，藏着利润率的阴。观察毛利率能否在规模效应中守住。',
+      observation: '整机环节收入弹性最大、话语权最弱。放量的阳，藏着利润率的阴。单柜价值量快速上行（MLCC 单柜价值 +166%）反而印证整机对上游涨价的传导压力——观察毛利率能否在规模效应中守住。（2026.09.21 裁决：state 维持 yin，补证据）',
       links: ['PCB / 载板', '光模块 / CPO', '液冷散热'],
     },
     {
@@ -165,11 +165,11 @@ export const INDUSTRY_MAP: { root: string; note: string; nodes: MapNode[] } = {
     {
       id: 'operator', name: '数据中心运营', en: 'DC Operation', stage: '下游',
       x: 74, y: 79, size: 1,
-      state: 'yin', valuation: 'fair',
+      state: 'turn', valuation: 'fair',
       penetration: '成熟期 · 时间的生意',
       stageFocus: '盈利性：现金流确定性 > 成长性',
-      stateNote: '阴：重资产、长周期、慢回报',
-      observation: '运营是时间的生意。短期看是负担，长期看是壁垒——一旦上架率爬坡完成，现金流的确定性极强。适合用"收租"视角而非"成长"视角评估。',
+      stateNote: '由阴转阳：单位经济学改善，利用率假设是命门',
+      observation: '运营是时间的生意，但租金在涨：NBIS 累计提价 50%、95% 利用率下 13.1 个月回本、AI 芯片实际寿命近 10 年——"慢回报"被重新定价。命门是利用率假设：景气回落即失效。适合用"收租"视角评估，但收租的定价权正在上移。（2026.09.21 裁决：yin → turn）',
       links: ['电力', '运营商 / 云'],
     },
     {
