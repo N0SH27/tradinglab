@@ -21,8 +21,8 @@ import { useRevealRoot } from '../hooks/useReveal'
  * 纪律：Scene ≠ Section（界面不出现内部场景名）；业务数据只读自 data layer；
  * What Changed 一律经 latestChanges 派生，confirm（delta=0）不投影为变化。 */
 
-/* Research 阅读卡（V2-C.1：卡数不再固定为 3，由真实 Report 决定；本轮 = 4。
-   类型标识按各报告真实日期落（事实纪律）：一/二/三 = 2026.08，四 = 2026.09。 */
+/* Research 阅读卡（V2-C.1：卡数不再固定为 3，由真实 Report 决定；本轮 = 6。
+   类型标识按各报告真实日期落（事实纪律）：一/二/三 = 2026.08，四/五/六 = 2026.09。 */
 const RESEARCH_CARDS: {
   name: string
   type: string
@@ -101,6 +101,19 @@ const RESEARCH_CARDS: {
       </>
     ),
     href: '#/research/report-5',
+  },
+  {
+    name: '算力租赁',
+    type: 'REPORT · 2026.09',
+    frontTitle: 'GPU 租金半年涨了五成。',
+    frontBody: '13.1 个月回本——利率上升，为什么还没有杀死 AI 基建。',
+    backBody: (
+      <>
+        涨价的另一面是兜底：英伟达表外担保 5300 亿美元。单位经济学成立的命门只有一个——利用率不掉。
+        <strong className="block mt-3 font-bold">现货价掉头向下，才是真正的压力测试。</strong>
+      </>
+    ),
+    href: '#/research/report-6',
   },
 ]
 

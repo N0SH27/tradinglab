@@ -40,6 +40,13 @@ const REPORTS = [
     meta: 'INDUSTRY · 2026.09 · RESEARCH',
     review: 'v1.0.0',
   },
+  {
+    href: '#/research/report-6',
+    no: 'REPORT #6',
+    title: '算力租赁的单位经济学',
+    meta: 'INDUSTRY · 2026.09 · RESEARCH',
+    review: 'v1.0.0',
+  },
 ]
 
 export default function Research() {
