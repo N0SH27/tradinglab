@@ -6,7 +6,7 @@ export const CYCLE_INDUSTRIES: { name: string; stage: (typeof CYCLE_STAGES)[numb
   { name: '国产算力', stage: '成长', note: '渗透率陡峭段，政策与需求共振' },
   { name: '机器人', stage: '萌芽', note: '供应链先行，订单开始兑现；终端需求初验未终验' },
   { name: '半导体设备', stage: '分化', note: '先进制程向阳，成熟制程向阴' },
-  { name: 'AI 材料', stage: '成长', note: '价值量驱动的涨价链——增量 84% 来自价值量而非数量' },
+  { name: 'AI 材料', stage: '成长', note: '价值量驱动的涨价链——增量 84% 来自价值量而非数量；涨价链扩散（2026.09.27）：AMD 全系约 +10%（26Q4 起）、英特尔 PC CPU 约 +10% / 服务器 CPU 26Q4 再涨 15%+（当前只能满足约 50% 客户订单）、硅片 10/1 第二波、安森美 10/10 起' },
   { name: '新能源', stage: '出清', note: '产能退出的尾声，现金流先于利润见底' },
   { name: '军工', stage: '重构', note: '订单节奏重置，新一轮景气酝酿' },
   { name: '医疗科技', stage: '萌芽', note: 'AI 制药与脑机接口的早期信号' },
