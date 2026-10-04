@@ -5,6 +5,13 @@
 
 ---
 
+## 2026-10-04 · W39 证据入账：消化批 + 地图 5 节点 + 7 项裁决落账
+
+**Decision**：`now.ts` +3 Observation（美光 FQ4 裁决周 / AI 算力债务化 / 互联网第二类受众）+ 1 条目注记（非农反转 + 美债四锚并入股债背离条目）+ 头注释更新；`map.ts` 5 节点 observation 补证据（hbm / dram / gpu / operator / optical，valuation 全部维持不动）；`thesis.ts` 3 命题 evidence +4（memory-cycle ×1 / compute ×2 / ai-app ×1），probability 全部不动；`journal.ts` W39 入库批 + 裁决 + 存储/宏观条目；`cycle.ts`「AI 应用」note 补流量换物种（stage 不动、非 C1 字段不入账）；context-history 新增 `ctx-20261004` + initial 快照 re-baseline（53 → 56 条）。
+**Why**：39 周消化批经网站更新裁决清单逐项裁决——研究层 7 项（L4-10 终裁 + 跨环节边界 / L4-C14 升正式 + 下行期限定 / M-03 适用边界改写 / "承诺≠合同"口径补丁 + M-08 候选 / World Labs 路线之争入 L3 / 传闻打折升 L4 / Brent 三元组口径规则）+ 网站层清单全部按建议采纳，Ledger 零变更（验证不是变化）。
+**Impact**：Observation 53 → 56 条；check 通过；build ✓。Commit 见 git log。
+**Not Changed**：ledger.ts（本周无 conviction 变更）/ map 节点 valuation 与 state（财报结构信号不改节点层判断）/ essays.ts / Report 页 / framework.ts·method.ts（LOCKED）/ 全部组件与页面。
+
 ## 2026-09-27 · W38 证据入账：消化批 + 地图 4 节点 + 7 项裁决落账
 
 **Decision**：`now.ts` +2 Observation（股债背离 / Agent 沙箱 CPU）+ 4 条目注记（HBM 毛利率倒挂 / AI 治理三连闭环 / 算力单位经济学双源闭合 / 光模块参议员提案边界）+ 头注释更新；`map.ts` 4 节点 observation 补证据（hbm / dram / operator / power，valuation 全部维持不动）；`thesis.ts` 3 命题 evidence +6（memory-cycle ×3 / compute ×1 / ai-app ×2），probability 全部不动；`journal.ts` W38 入库批 + 裁决 + 风险条目；`cycle.ts`「AI 材料」note 补涨价链扩散（stage 不动、非 C1 字段不入账）；context-history 新增 `ctx-20260927`。

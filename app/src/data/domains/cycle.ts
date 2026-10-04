@@ -2,7 +2,7 @@
 export const CYCLE_STAGES = ['萌芽', '成长', '狂热', '分化', '泡沫', '出清', '重构'] as const
 
 export const CYCLE_INDUSTRIES: { name: string; stage: (typeof CYCLE_STAGES)[number]; note: string }[] = [
-  { name: 'AI 应用', stage: '成长', note: '商业模式验证期，收入开始接棒叙事' },
+  { name: 'AI 应用', stage: '成长', note: '商业模式验证期，收入开始接棒叙事；流量主体换物种——非人类请求首次过半（2026.10.04）' },
   { name: '国产算力', stage: '成长', note: '渗透率陡峭段，政策与需求共振' },
   { name: '机器人', stage: '萌芽', note: '供应链先行，订单开始兑现；终端需求初验未终验' },
   { name: '半导体设备', stage: '分化', note: '先进制程向阳，成熟制程向阴' },
