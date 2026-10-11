@@ -5,6 +5,13 @@
 
 ---
 
+## 2026-10-11 · W40 证据入账：消化批 + 地图 5 节点 + 7 项裁决落账
+
+**Decision**：`now.ts` +1 Observation（迈威尔投资者日「上调目标价不动评级」）+ 5 条目注记（OpenAI 口径事件并减速论条目 / HBM 降配三尺度并 HBM 范式条目 / 纪要反转 + 数据-表态规则并股债背离条目 / Nadella 三原则并 Agent 沙箱条目 / 订阅算力账 + Instinct C16b 并第二类受众条目）+ 头注释更新；`map.ts` 5 节点 observation 补证据（gpu / hbm / optical / operator / app，valuation 全部维持不动）；`thesis.ts` 3 命题 evidence +6（compute ×3 / ai-app ×2 / memory-cycle ×1），probability 全部不动；`journal.ts` W40 入库批 + 裁决 + 宏观/算力条目；`cycle.ts`「AI 应用」note 补订阅算力账（stage 不动、非 C1 字段不入账）；context-history 新增 `ctx-20261011` + initial 快照 re-baseline（56 → 57 条）。
+**Why**：40 周消化批经网站更新裁决清单逐项裁决——研究层 7 项（L4-10 终裁 + 跨环节边界扩写 / 传闻打折升正式 L4 / M-08 扩展为口径纪律 / 迈威尔时间标尺登记 / L4-C16 拆二 / A视野双强框架入 L2 / 本土不可替代叙事归 FCC 跟踪）+ 网站层清单全部按建议采纳，Ledger 零变更（验证不是变化）。
+**Impact**：Observation 56 → 57 条；check 通过；build ✓。Commit 见 git log。
+**Not Changed**：ledger.ts（本周无 conviction 变更）/ map 节点 valuation 与 state（口径与结构信号不改节点层判断）/ essays.ts / Report 页 / framework.ts·method.ts（LOCKED）/ 全部组件与页面。
+
 ## 2026-10-04 · W39 证据入账：消化批 + 地图 5 节点 + 7 项裁决落账
 
 **Decision**：`now.ts` +3 Observation（美光 FQ4 裁决周 / AI 算力债务化 / 互联网第二类受众）+ 1 条目注记（非农反转 + 美债四锚并入股债背离条目）+ 头注释更新；`map.ts` 5 节点 observation 补证据（hbm / dram / gpu / operator / optical，valuation 全部维持不动）；`thesis.ts` 3 命题 evidence +4（memory-cycle ×1 / compute ×2 / ai-app ×1），probability 全部不动；`journal.ts` W39 入库批 + 裁决 + 存储/宏观条目；`cycle.ts`「AI 应用」note 补流量换物种（stage 不动、非 C1 字段不入账）；context-history 新增 `ctx-20261004` + initial 快照 re-baseline（53 → 56 条）。
