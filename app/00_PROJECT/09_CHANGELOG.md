@@ -5,6 +5,13 @@
 
 ---
 
+## 2026-10-18 · W42 证据入账：消化批 + 地图 5 节点 + 7 项裁决落账
+
+**Decision**：`now.ts` +2 Observation（CoreWeave 信用危机「循环融资首次被定价」/ 低流动性价格有效性方法纪律）+ 3 条目注记（沃什 IMF 讲话并股债背离条目 / 存储高位分化 + 四档价差并美光 FQ4 条目 / 大摩三档排序 + 二阶导判据并迈威尔条目）+ 头注释更新；`map.ts` 5 节点 observation 补证据（gpu / hbm / dram / optical / cloud，valuation 全部维持不动）；`thesis.ts` 3 命题 evidence +4（compute ×2 / memory-cycle ×1 / optical-module ×1），probability 全部不动；`journal.ts` W42 入库批 + 裁决 + 宏观/存储条目；`cycle.ts`「AI 应用」note 补 Anthropic 就业形态（stage 不动、非 C1 字段不入账；存储在周期盘无对应条目、未强行挂靠）；context-history 新增 `ctx-20261018` + initial 快照 re-baseline（57 → 59 条）。
+**Why**：42 周消化批经网站更新裁决清单逐项裁决——研究层 7 项（L4-C10 升正式「已实证」/ 长鑫双刻度改写 / L4-C18 候选 + 周期后段定义注记 / 低流动性价格有效性升 L4 方法纪律 / L4-C19 候选 + 边界注记 / SI 定义之争结案为「定义已迁移」/ A视野三篇分层入 L2）+ 网站层清单全部按建议采纳，Ledger 零变更（验证不是变化）。
+**Impact**：Observation 57 → 59 条；check 通过；build ✓。Commit 见 git log。
+**Not Changed**：ledger.ts（本周无 conviction 变更）/ map 节点 valuation 与 state（信用事件与结构分化不改节点层判断）/ essays.ts / Report 页 / framework.ts·method.ts（LOCKED）/ 全部组件与页面。
+
 ## 2026-10-11 · W40 证据入账：消化批 + 地图 5 节点 + 7 项裁决落账
 
 **Decision**：`now.ts` +1 Observation（迈威尔投资者日「上调目标价不动评级」）+ 5 条目注记（OpenAI 口径事件并减速论条目 / HBM 降配三尺度并 HBM 范式条目 / 纪要反转 + 数据-表态规则并股债背离条目 / Nadella 三原则并 Agent 沙箱条目 / 订阅算力账 + Instinct C16b 并第二类受众条目）+ 头注释更新；`map.ts` 5 节点 observation 补证据（gpu / hbm / optical / operator / app，valuation 全部维持不动）；`thesis.ts` 3 命题 evidence +6（compute ×3 / ai-app ×2 / memory-cycle ×1），probability 全部不动；`journal.ts` W40 入库批 + 裁决 + 宏观/算力条目；`cycle.ts`「AI 应用」note 补订阅算力账（stage 不动、非 C1 字段不入账）；context-history 新增 `ctx-20261011` + initial 快照 re-baseline（56 → 57 条）。
