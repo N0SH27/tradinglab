@@ -1,0 +1,1178 @@
+# TradingLabb 全量竞品研究与产品审计
+
+## 0. 任务身份
+
+你现在不是普通网页开发助手，而是：
+
+> **TradingLabb 产品战略顾问 + Competitive Intelligence Analyst + Product Auditor**
+
+你的任务不是评价网站“好不好看”，也不是简单寻找几个类似网站。
+
+你的任务是：
+
+> **以 TradingLabb 当前真实实现为基准，研究全球具有代表性的作者型研究、投资研究、认知系统、数据观察和个人 IP 产品，建立可验证的 Benchmark，并反向审计 TradingLabb 当前产品的竞争位置、差异化资产、真实缺口与下一阶段应该做什么。**
+
+最终目标：
+
+> **回答 TradingLabb 在当前市场环境中到底是什么、与谁形成竞争、真正优势是什么、真正短板是什么，以及下一阶段哪些事情值得做、哪些事情不应该做。**
+
+---
+
+# 1. 第一原则：先审 TradingLabb，再研究竞品
+
+严禁一上来就搜索竞品。
+
+必须按照以下顺序：
+
+```text
+PHASE 1
+TradingLabb Reality Audit
+        ↓
+PHASE 2
+Competitive Landscape Definition
+        ↓
+PHASE 3
+Competitor Research
+        ↓
+PHASE 4
+Benchmark Matrix
+        ↓
+PHASE 5
+Gap Analysis
+        ↓
+PHASE 6
+Strategic Opportunity Analysis
+        ↓
+PHASE 7
+Actionable Recommendations
+        ↓
+PHASE 8
+Human Review
+```
+
+---
+
+# 2. PHASE 1 — TradingLabb Reality Audit
+
+首先完整读取当前仓库。
+
+至少检查：
+
+```text
+app/
+├── 00_PROJECT/
+├── 页面
+├── components
+├── data
+├── research
+├── framework
+├── system
+├── thesis
+├── world / map
+├── journal / revision
+└── 其他实际存在的产品资产
+```
+
+不要只看 README。
+
+必须同时检查：
+
+### A. Information Architecture
+
+回答：
+
+* 当前有哪些页面？
+* 页面之间如何连接？
+* 首页承担什么任务？
+* Research 如何进入？
+* Thesis 如何进入？
+* Framework 如何进入？
+* System 如何进入？
+* Journal / Revision 如何进入？
+* World / Map 如何进入？
+* About / Author 如何进入？
+* 是否存在重复内容？
+* 是否存在孤立页面？
+* 是否存在设计文档中规定、但实际没有实现的内容？
+
+---
+
+### B. Actual Product Surface
+
+必须以**用户实际看到的内容**为准，而不是设计文档。
+
+逐页记录：
+
+```text
+Page
+Purpose
+Primary User Question
+Primary Content
+Secondary Content
+CTA / Navigation
+Interaction
+Depth
+出口
+```
+
+特别检查：
+
+> 用户第一次访问时，到底能否理解 TradingLabb 是什么？
+
+分别测试：
+
+```text
+3 seconds
+15 seconds
+30 seconds
+60 seconds
+5 minutes
+```
+
+不要用主观感受直接下结论。
+
+记录：
+
+```text
+用户可能理解到什么
+用户可能误解什么
+用户还不知道什么
+下一步自然会点哪里
+```
+
+---
+
+# 3. 必须区分三个 Truth
+
+整个审计过程中严格区分：
+
+## Code Truth
+
+代码实际实现了什么。
+
+## Product Truth
+
+真实用户实际看到什么。
+
+## Documentation Truth
+
+项目设计文档声称应该实现什么。
+
+建立：
+
+| Area | Code Truth | Product Truth | Documentation Truth | Gap |
+| ---- | ---------- | ------------- | ------------------- | --- |
+
+禁止把：
+
+> “设计文档写了”
+
+当成：
+
+> “产品已经实现”。
+
+---
+
+# 4. PHASE 1.5 — 建立 TradingLabb 产品 DNA
+
+在研究竞品之前，必须先总结 TradingLabb 当前真实产品。
+
+不要重新定义项目。
+
+基于实际仓库和既有文档，提炼：
+
+### Identity
+
+TradingLabb / HSN 是什么？
+
+### World Model
+
+如何理解世界？
+
+### Observation Model
+
+如何观察变化？
+
+### Research Model
+
+如何研究？
+
+### Thesis Model
+
+如何形成判断？
+
+### Decision Model
+
+如何从判断进入行动？
+
+### System
+
+如何执行？
+
+### Review
+
+如何复盘？
+
+### Revision
+
+如何改变？
+
+### Body of Work
+
+长期沉淀什么？
+
+形成一张：
+
+```text
+WORLD
+↓
+OBSERVE
+↓
+RESEARCH
+↓
+THESIS
+↓
+DECISION
+↓
+SYSTEM
+↓
+REVIEW
+↓
+REVISION
+↓
+BODY OF WORK
+```
+
+但注意：
+
+> 如果当前实际产品并没有完整实现某个环节，必须标记为“Architecture / Documentation / Product Surface”中的具体状态。
+
+不能替 TradingLabb 补齐不存在的东西。
+
+---
+
+# 5. PHASE 2 — 定义真正的竞品，而不是随便找网站
+
+不要把所有投资网站都叫竞品。
+
+建立 Competitive Landscape。
+
+至少分成以下类别：
+
+## Category A — Investment Research Institution
+
+重点研究：
+
+* ARK
+* GMO
+* Oaktree / Howard Marks
+
+研究：
+
+* Research Product
+* Investment Philosophy
+* Thesis
+* Research Archive
+* Long-term Memory
+* Public Author / Institution Identity
+
+---
+
+## Category B — Author-led Research
+
+至少研究：
+
+* Stratechery
+* The Diff
+
+研究：
+
+* Author as Brand
+* Content as Product
+* Research Archive
+* Subscription / Return Reason
+* Long-term Intellectual Capital
+* Editorial Judgment
+
+---
+
+## Category C — Thinking / Cognitive IP
+
+至少研究：
+
+* Farnam Street
+
+研究：
+
+* How complex ideas become accessible
+* Mental Models
+* Learning Journey
+* Author Authority
+* Knowledge Architecture
+* Entry Experience
+
+---
+
+## Category D — Data / World Observation
+
+至少研究：
+
+* MacroMicro
+* 其他具有代表性的全球宏观 / 数据观察产品
+
+研究：
+
+* World Model
+* Visualization
+* Data → Context
+* Dynamic State
+* Exploration
+* Research linkage
+
+---
+
+## Category E — Trading / Financial Information
+
+选择少量真正具有代表性的产品：
+
+例如：
+
+* TradingView
+* Koyfin
+* Seeking Alpha
+
+但是不要把它们作为 TradingLabb 的直接产品模板。
+
+研究它们主要为了回答：
+
+> TradingLabb 哪些东西绝对不要变成它们？
+
+---
+
+# 6. 竞品筛选标准
+
+每个竞品必须回答：
+
+```text
+为什么选它？
+它与 TradingLabb 的竞争关系是什么？
+它代表哪个产品能力？
+TradingLabb 应该学习什么？
+TradingLabb 明确不应该学习什么？
+```
+
+不要为了凑数量添加竞品。
+
+最终控制在：
+
+> **8–12 个核心 Benchmark**
+
+而不是几十个网站。
+
+---
+
+# 7. PHASE 3 — 竞品深度研究
+
+必须实际访问竞品官网。
+
+不要只看搜索结果摘要。
+
+至少研究：
+
+```text
+Homepage
+About
+Research
+Archive
+Core Product
+Method / Philosophy
+Author
+Navigation
+Key Interaction
+Representative Content
+```
+
+如果有：
+
+* Newsletter
+* Research Report
+* Interactive Data
+* Archive
+* Membership
+* Community
+
+也需要研究。
+
+---
+
+# 8. 对每个竞品建立统一 Audit Card
+
+每一个竞品使用同一套模板：
+
+```text
+Competitor:
+Category:
+URL:
+Core Audience:
+Core Promise:
+
+1. Positioning
+2. Homepage
+3. Author Identity
+4. Research Product
+5. Methodology
+6. Information Architecture
+7. Content Architecture
+8. Interaction
+9. Visualization
+10. Memory / Archive
+11. Revision / History
+12. Return Loop
+13. Monetization / Distribution
+14. Brand Language
+15. Unique Asset
+
+What they do exceptionally well:
+
+What TradingLabb should learn:
+
+What TradingLabb should NOT copy:
+
+Potential strategic threat:
+
+Potential strategic opportunity:
+```
+
+---
+
+# 9. 不允许只做“优点 / 缺点”
+
+不要写：
+
+> ARK 很专业
+> Stratechery 很简洁
+> The Diff 内容很好
+
+这种结论没有分析价值。
+
+必须解释：
+
+> **为什么它有效？**
+
+例如：
+
+不要写：
+
+> Stratechery 内容结构很好。
+
+应该拆成：
+
+```text
+Author Identity
+↓
+Stable Editorial POV
+↓
+Consistent Research Grammar
+↓
+Archive
+↓
+Repeated Exposure
+↓
+Author becomes the product
+```
+
+最终分析的是：
+
+> **Product Mechanism**
+
+而不是表面特征。
+
+---
+
+# 10. PHASE 4 — 建立 Benchmark Matrix
+
+至少建立以下维度：
+
+| Dimension          | TradingLabb | ARK | Stratechery | The Diff | Oaktree | GMO | Farnam Street | MacroMicro |
+| ------------------ | ----------- | --- | ----------- | -------- | ------- | --- | ------------- | ---------- |
+| Positioning        |             |     |             |          |         |     |               |            |
+| Author IP          |             |     |             |          |         |     |               |            |
+| World Model        |             |     |             |          |         |     |               |            |
+| Research Product   |             |     |             |          |         |     |               |            |
+| Thesis             |             |     |             |          |         |     |               |            |
+| Method             |             |     |             |          |         |     |               |            |
+| Framework          |             |     |             |          |         |     |               |            |
+| Decision           |             |     |             |          |         |     |               |            |
+| System             |             |     |             |          |         |     |               |            |
+| Revision           |             |     |             |          |         |     |               |            |
+| Archive            |             |     |             |          |         |     |               |            |
+| Body of Work       |             |     |             |          |         |     |               |            |
+| Visualization      |             |     |             |          |         |     |               |            |
+| Interaction        |             |     |             |          |         |     |               |            |
+| Accessibility      |             |     |             |          |         |     |               |            |
+| Depth              |             |     |             |          |         |     |               |            |
+| Editorial Judgment |             |     |             |          |         |     |               |            |
+| Return Loop        |             |     |             |          |         |     |               |            |
+| Trust              |             |     |             |          |         |     |               |            |
+| Distribution       |             |     |             |          |         |     |               |            |
+| Monetization       |             |     |             |          |         |     |               |            |
+| Unique Asset       |             |     |             |          |         |     |               |            |
+
+但：
+
+> **禁止打分。**
+
+不要使用：
+
+* 8.5/10
+* 第一名
+* 最强
+* 最差
+* Tier 1 / Tier 2
+
+政治之外虽然可以打分，但本项目不应该这么做，因为这种评分会产生虚假的精确性。
+
+使用：
+
+```text
+Strong
+Established
+Partial
+Weak
+Absent
+Different Model
+```
+
+或者：
+
+```text
+领先
+成熟
+部分具备
+明显缺口
+不适用
+```
+
+同时必须说明判断依据。
+
+---
+
+# 11. 特别增加一个维度：
+
+# “What is their moat?”
+
+对每个竞品回答：
+
+```text
+What compounds over time?
+```
+
+例如：
+
+ARK：
+
+> Research Brand + Historical Research Archive + Investment Identity
+
+Stratechery：
+
+> Author + Consistent POV + Archive + Time
+
+Oaktree：
+
+> Author + Memos + Investment Philosophy + Time
+
+The Diff：
+
+> Author + Research Product + Subscriber Relationship + Archive
+
+Farnam Street：
+
+> Cognitive Framework + Educational Library + Author Brand
+
+MacroMicro：
+
+> Data + Visualization + Historical Series + User Habit
+
+然后回答：
+
+> **TradingLabb 的复利资产是什么？**
+
+---
+
+# 12. PHASE 5 — TradingLabb Gap Analysis
+
+这一部分最重要。
+
+不要简单写：
+
+> TradingLabb 不如 ARK。
+
+必须建立：
+
+```text
+Competitor Capability
+        ↓
+Why It Works
+        ↓
+TradingLabb Current State
+        ↓
+Real Gap
+        ↓
+Is This Gap Strategic?
+        ↓
+Should TradingLabb Close It?
+```
+
+因为：
+
+> **不是所有竞品优势都值得 TradingLabb 补。**
+
+例如：
+
+ARK 有庞大的研究团队。
+
+这不是 TradingLabb 的 Gap。
+
+TradingLabb 不应该试图补：
+
+> “研究团队规模”。
+
+---
+
+# 13. GAP 分类
+
+每一个 Gap 必须进入以下五类之一：
+
+### KEEP
+
+TradingLabb 已经具备，并且应该继续强化。
+
+### FIX
+
+现有资产有价值，但表达 / 产品化存在问题。
+
+### REDUCE
+
+现有内容过重，应该降低公开表达复杂度。
+
+### BUILD
+
+确实存在战略性能力缺口，需要建设。
+
+### DEFER
+
+理论上有价值，但当前阶段不应该建设。
+
+---
+
+# 14. 特别检查以下 TradingLabb 核心资产
+
+必须逐项回答：
+
+## A. WORLD
+
+用户能不能理解：
+
+> HSN 如何看这个世界？
+
+---
+
+## B. POLARITY
+
+Polarity 是：
+
+> Decoration
+
+还是：
+
+> Filter
+
+还是：
+
+> Cognitive Tool？
+
+必须用真实交互判断。
+
+---
+
+## C. MAP
+
+Map 是：
+
+> 页面？
+
+还是：
+
+> World Model？
+
+---
+
+## D. THESIS
+
+Thesis 是：
+
+> Article？
+
+> Database Record？
+
+还是：
+
+> Flagship Research Asset？
+
+必须给出证据。
+
+---
+
+## E. RESEARCH
+
+检查：
+
+```text
+30 SEC
+↓
+5 MIN
+↓
+DEEP DIVE
+```
+
+是否真的形成 progressive disclosure。
+
+---
+
+## F. FRAMEWORK
+
+检查是否仍然：
+
+> 像内部系统说明书。
+
+---
+
+## G. SYSTEM
+
+检查：
+
+> 是否过度暴露内部交易系统细节？
+
+---
+
+## H. REVISION
+
+检查：
+
+> “我如何改变观点”
+
+是否已经成为真正的 Author IP。
+
+---
+
+## I. BODY OF WORK
+
+检查：
+
+> 网站是否正在形成长期思想资产？
+
+---
+
+# 15. 特别进行一次“陌生用户测试”
+
+假设用户完全不知道 HSN。
+
+模拟以下访问路径：
+
+```text
+Homepage
+↓
+15 sec
+↓
+30 sec
+↓
+60 sec
+↓
+Research
+↓
+Thesis
+↓
+Framework
+↓
+Revision
+```
+
+回答：
+
+### Q1
+
+这个人能否知道 TradingLabb 是什么？
+
+### Q2
+
+能否知道 HSN 是谁？
+
+### Q3
+
+能否知道 HSN 为什么值得被持续阅读？
+
+### Q4
+
+能否知道这里和普通投资网站有什么不同？
+
+### Q5
+
+能否找到一个值得深入阅读的东西？
+
+### Q6
+
+能否形成第二次访问的理由？
+
+---
+
+# 16. 特别进行一次“竞品反向定位测试”
+
+假设用户同时打开：
+
+```text
+ARK
+Stratechery
+The Diff
+Oaktree
+GMO
+Farnam Street
+MacroMicro
+TradingLabb
+```
+
+回答：
+
+> **TradingLabb 最容易被误解成什么？**
+
+以及：
+
+> **用户为什么可能把 TradingLabb 当成另一个普通投资研究网站？**
+
+然后回答：
+
+> **TradingLabb 最应该让用户记住的一件事是什么？**
+
+注意：
+
+这不是品牌 slogan 创作。
+
+而是产品认知测试。
+
+---
+
+# 17. 特别审计“不可复制资产”
+
+建立：
+
+| Asset         | TradingLabb 当前状态 | 是否真正独特 | 是否值得强化 |
+| ------------- | ---------------- | ------ | ------ |
+| Polarity      |                  |        |        |
+| Revision      |                  |        |        |
+| HSN Author    |                  |        |        |
+| Research Loop |                  |        |        |
+| World Model   |                  |        |        |
+| Thesis        |                  |        |        |
+| Wuwei         |                  |        |        |
+| Framework     |                  |        |        |
+| System        |                  |        |        |
+| Body of Work  |                  |        |        |
+
+尤其回答：
+
+> **哪些东西是 TradingLabb 真正拥有，而竞品没有？**
+
+以及：
+
+> **哪些东西看起来独特，但实际上只是包装？**
+
+这部分必须诚实。
+
+---
+
+# 18. 最终不要输出“十大建议”就结束
+
+最终必须给出四层结论。
+
+## Layer 1 — Strategic Position
+
+TradingLabb 当前到底处于什么位置？
+
+---
+
+## Layer 2 — Competitive Advantage
+
+真正已经存在的优势是什么？
+
+---
+
+## Layer 3 — Strategic Gap
+
+真正影响产品竞争力的缺口是什么？
+
+---
+
+## Layer 4 — Next Move
+
+下一阶段最应该做什么？
+
+---
+
+# 19. 最终建议必须进入 Roadmap
+
+按照：
+
+```text
+P0
+P1
+P2
+DEFER
+```
+
+排序。
+
+每一项必须说明：
+
+```text
+Problem
+Evidence
+Why it matters
+Recommended action
+Affected pages
+Affected architecture
+Expected outcome
+Risk
+```
+
+特别禁止：
+
+> 为了竞品而增加功能。
+
+---
+
+# 20. 必须做一次“反向审计”
+
+最后问：
+
+> 如果完全不做这些竞品建议，TradingLabb 是否仍然成立？
+
+如果答案是：
+
+> YES
+
+那么说明这个建议不是战略必要项。
+
+如果：
+
+> NO
+
+说明它可能是真正的基础能力缺口。
+
+---
+
+# 21. 最终输出文档
+
+在项目中生成：
+
+```text
+00_PROJECT/
+└── COMPETITIVE_AUDIT/
+    ├── 01_TRADINGLABB_REALITY_AUDIT.md
+    ├── 02_COMPETITIVE_LANDSCAPE.md
+    ├── 03_COMPETITOR_DEEP_DIVES.md
+    ├── 04_BENCHMARK_MATRIX.md
+    ├── 05_GAP_ANALYSIS.md
+    ├── 06_STRATEGIC_OPPORTUNITIES.md
+    ├── 07_RECOMMENDATIONS.md
+    └── 08_EXECUTIVE_SUMMARY.md
+```
+
+如果当前项目已经存在相似目录或文档：
+
+> 不要新建重复体系。
+
+先识别已有结构，并在现有体系中建立对应文档。
+
+---
+
+# 22. Evidence Discipline
+
+所有外部竞品事实必须记录：
+
+```text
+Source
+URL
+Access Date
+Relevant Page
+Observed Fact
+Interpretation
+```
+
+严格区分：
+
+### FACT
+
+网站明确展示。
+
+### OBSERVATION
+
+你实际观察到的产品行为。
+
+### INTERPRETATION
+
+基于事实做出的产品判断。
+
+### RECOMMENDATION
+
+对 TradingLabb 的建议。
+
+禁止把四者混在一起。
+
+---
+
+# 23. Web Research 要求
+
+必须实际浏览竞品官网。
+
+搜索引擎只能用于：
+
+> Discover
+
+不能作为最终证据。
+
+优先：
+
+1. Official Website
+2. Official Product Page
+3. Official Research
+4. Official About / Methodology
+5. 官方公开材料
+
+如引用第三方评价：
+
+> 必须明确标注为第三方观点。
+
+---
+
+# 24. 禁止事项
+
+### 禁止：
+
+* 因为竞品有某功能就建议 TradingLabb 增加。
+* 把“功能数量”当成竞争力。
+* 把视觉风格当成产品差异化。
+* 为了竞品新增 Entity。
+* 为了竞品新增 Schema。
+* 为了竞品新增 Page。
+* 为了竞品新增 Navigation。
+* 修改现有 Architecture。
+* 修改 Data Layer。
+* 修改路线图。
+* 直接进入代码实现。
+
+本任务是：
+
+> **AUDIT ONLY**
+
+不是：
+
+> IMPLEMENTATION。
+
+---
+
+# 25. 强制 Human Review Gate
+
+完成：
+
+```text
+PHASE 1
+TradingLabb Reality Audit
+
+PHASE 2
+Competitive Landscape
+
+PHASE 3
+Competitor Research
+
+PHASE 4
+Benchmark Matrix
+
+PHASE 5
+Gap Analysis
+```
+
+之后：
+
+> **STOP**
+
+不要自行进入：
+
+```text
+Design
+Implementation
+Refactor
+Code Change
+Data Change
+Schema Change
+```
+
+等待 Human Review。
+
+---
+
+# 26. 最终 Executive Summary 必须回答 10 个问题
+
+最终 `08_EXECUTIVE_SUMMARY.md` 必须用非常简洁的方式回答：
+
+1. TradingLabb 当前真正是什么？
+2. 它真正面对的竞争是什么？
+3. 最值得对标的 5 个 Benchmark 是谁？
+4. TradingLabb 已经具备哪些真正优势？
+5. 哪些优势只是“看起来独特”？
+6. 最大的 5 个产品缺口是什么？
+7. 哪些竞品能力 TradingLabb 不应该复制？
+8. 哪些能力值得吸收？
+9. 下一阶段 P0 / P1 应该做什么？
+10. **如果只能做一件事，应该继续强化哪个核心资产？**
+
+最后不要给：
+
+> “TradingLabb 是第一名。”
+
+也不要给：
+
+> “TradingLabb 比 ARK 好 / 比 Stratechery 差。”
+
+而要形成：
+
+> **TradingLabb 在不同产品能力上的真实位置，以及它应该建立自己的什么。**
+
+---
+
+# 27. 最终交付标准
+
+完成后，不要只告诉我：
+
+> “审计完成。”
+
+必须向我汇报：
+
+```text
+1. 已审计 TradingLabb 哪些实际页面 / 文件
+2. 实际访问了哪些竞品
+3. 每个竞品为什么被纳入
+4. 最重要的 Benchmark 发现
+5. TradingLabb 当前真正的优势
+6. TradingLabb 当前真正的缺口
+7. 哪些建议属于 KEEP
+8. 哪些属于 FIX
+9. 哪些属于 REDUCE
+10. 哪些属于 BUILD
+11. 哪些应该 DEFER
+12. 哪些结论需要 Human Review
+```
+
+并明确：
+
+> **本轮只完成研究与审计，不修改任何代码、数据、Schema、Entity、页面、路由或架构。**
+
+# END

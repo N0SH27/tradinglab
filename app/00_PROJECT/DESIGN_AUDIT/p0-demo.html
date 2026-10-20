@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P0 效果 Demo · 落墨 × 纸上肌理</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root {
+  --paper: #f7f5f0;
+  --ivory: #f1ede4;
+  --ink: #1c1b18;
+  --ink-2: rgba(28,27,24,.72);
+  --ink-3: rgba(28,27,24,.42);
+  --line: rgba(28,27,24,.14);
+  --cinnabar: #b23a2a;
+  --water: #2e4a6b;
+  --ease-reveal: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-touch: cubic-bezier(.2,.7,.2,1);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Noto Sans SC', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: rgba(178,58,42,.16); }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 28px; }
+.mono { font-family: 'IBM Plex Mono', monospace; }
+.label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: .22em; color: var(--ink-3); text-transform: uppercase; }
+
+/* ── 顶部 ── */
+header.top { border-bottom: 1px solid var(--line); }
+header.top .wrap { height: 60px; display: flex; align-items: center; justify-content: space-between; }
+.brand { display: flex; align-items: baseline; gap: 12px; font-family: 'IBM Plex Mono', monospace; font-weight: 500; letter-spacing: .02em; }
+.brand .dot { width: 10px; height: 10px; background: var(--cinnabar); border-radius: 50%; align-self: center; }
+
+/* ── Demo 控制条 ── */
+.controls { position: sticky; top: 0; z-index: 50; background: rgba(247,245,240,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+.controls .wrap { display: flex; align-items: center; gap: 18px; height: 56px; flex-wrap: wrap; }
+.switch { display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; font-size: 13px; color: var(--ink-2); }
+.switch .track { width: 40px; height: 22px; border: 1px solid var(--ink); border-radius: 99px; position: relative; transition: background .25s var(--ease-touch); }
+.switch .track::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background: var(--ink); border-radius: 50%; transition: transform .25s var(--ease-touch); }
+.switch input { display: none; }
+.switch input:checked + .track { background: var(--ink); }
+.switch input:checked + .track::after { transform: translateX(18px); background: var(--paper); }
+.switch .state { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .12em; min-width: 64px; color: var(--ink); }
+.btn { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .18em; border: 1px solid var(--ink); padding: 8px 16px; background: transparent; color: var(--ink); cursor: pointer; transition: background .2s var(--ease-touch), color .2s var(--ease-touch); }
+.btn:hover { background: var(--ink); color: var(--paper); }
+.seg { display: flex; border: 1px solid var(--ink); }
+.seg button { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .14em; padding: 8px 14px; background: transparent; border: none; color: var(--ink-2); cursor: pointer; transition: background .2s var(--ease-touch), color .2s var(--ease-touch); }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button.active { background: var(--ink); color: var(--paper); }
+.seg button:hover:not(.active) { color: var(--ink); }
+.hint { margin-left: auto; font-size: 12px; color: var(--ink-3); }
+@media (max-width: 720px) { .hint { display: none; } }
+
+section.block { border-bottom: 1px solid var(--line); padding: 72px 0 84px; }
+section.block .wrap > .label { display: block; margin-bottom: 10px; }
+h2.title { font-family: 'Noto Serif SC', serif; font-weight: 900; font-size: clamp(26px, 3.4vw, 40px); letter-spacing: .01em; margin-bottom: 8px; }
+p.desc { color: var(--ink-2); font-size: 14.5px; line-height: 1.9; max-width: 620px; margin-bottom: 44px; }
+p.desc code { font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; background: var(--ivory); padding: 1px 6px; border: 1px solid var(--line); }
+
+/* ══════════════ P0-2 · 首屏落墨 ══════════════ */
+.hero-stage { border: 1px solid var(--line); background: var(--paper); min-height: 480px; display: flex; flex-direction: column; justify-content: center; padding: clamp(28px, 6vw, 80px); position: relative; overflow: hidden; }
+.hero-headline { font-family: 'Noto Serif SC', serif; font-weight: 900; font-size: clamp(44px, 8.2vw, 108px); line-height: 1.1; letter-spacing: .01em; }
+.hero-headline .line { display: block; }
+.hero-headline .l2-text, .hero-headline .period { display: inline-block; }
+.hero-sub { margin-top: 40px; max-width: 420px; color: var(--ink-2); font-size: 15.5px; line-height: 2.0; }
+.hero-verse { margin-top: 56px; font-family: 'Noto Serif SC', serif; font-weight: 700; font-size: clamp(17px, 1.8vw, 22px); letter-spacing: .12em; }
+
+/* 现状：通用淡入 */
+.stage-old .hero-headline, .stage-old .hero-sub, .stage-old .hero-verse { opacity: 0; }
+.stage-old.play .hero-headline { animation: fadeUp .9s ease forwards; }
+.stage-old.play .hero-sub { animation: fadeUp .9s ease .25s forwards; }
+.stage-old.play .hero-verse { animation: fadeUp .9s ease .5s forwards; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── 新效果 · 沉稳版三种入场（均无回弹，只演一次；整块整体定形，不碎块） ── */
+.stage-new .hero-headline,
+.stage-new .period,
+.stage-new .hero-rest { opacity: 0; }
+
+/* A · 落墨晕染：墨在宣纸上由湿到干，整组宣言一次定形，句号「落印」按下即住 */
+.v-ink.play .hero-headline { animation: inkBloom 1.7s cubic-bezier(0.16,1,0.3,1) .2s forwards; }
+.v-ink.play .period { animation: sealStamp .42s cubic-bezier(.55,0,.2,1) 2.1s forwards; }
+.v-ink.play .hero-rest { animation: inkBloom 1.5s cubic-bezier(0.16,1,0.3,1) 2.4s forwards; }
+
+/* B · 古琴余韵：拨弦快起、余音长收；句间大留白，句号是最后一记泛音 */
+.v-qin.play .hero-headline { animation: qinPluck 2.1s cubic-bezier(0.16,1,0.3,1) .3s forwards; }
+.v-qin.play .period { animation: qinHarmonic 1.8s cubic-bezier(0.16,1,0.3,1) 4.3s forwards; }
+.v-qin.play .hero-rest { animation: qinPluck 2.0s cubic-bezier(0.16,1,0.3,1) 5.0s forwards; }
+
+/* C · 道生一（线上版）：无极（白纸）→ 玄点凝而为丹（太极，句号先行）→
+   整组宣言从墨晕中一次定形 → 副文案与「玄之又玄」作为整体跟上 */
+.v-tao.play .period { animation: taoDot 1.7s cubic-bezier(0.3,0,0.2,1) .4s forwards; }
+.v-tao.play .hero-headline { animation: inkBloom 1.8s cubic-bezier(0.16,1,0.3,1) 2.2s forwards; }
+.v-tao.play .hero-rest { animation: inkBloom 1.6s cubic-bezier(0.16,1,0.3,1) 3.4s forwards; }
+
+@keyframes inkBloom {
+  0% { opacity: 0; filter: blur(14px); transform: scale(1.035); }
+  100% { opacity: 1; filter: blur(0); transform: scale(1); }
+}
+@keyframes sealStamp {
+  0% { opacity: 0; transform: scale(1.75); }
+  62% { opacity: 1; transform: scale(.93); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes qinPluck {
+  0% { opacity: 0; transform: translateY(10px); }
+  10% { opacity: 1; }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes qinHarmonic {
+  0% { opacity: 0; filter: blur(5px); }
+  100% { opacity: 1; filter: blur(0); }
+}
+@keyframes taoDot {
+  0% { opacity: 0; transform: scale(.3); filter: blur(8px); color: #1c1b18; }
+  100% { opacity: 1; transform: scale(1); filter: blur(0); color: #b23a2a; }
+}
+.period { color: var(--cinnabar); }
+
+/* ══════════════ P0-1 · 纸上肌理（hover） ══════════════ */
+.cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 56px; }
+@media (min-width: 900px) { .cards { grid-template-columns: repeat(4, 1fr); } }
+.card { border: 1px solid var(--line); background: var(--paper); padding: 26px 22px 22px; min-height: 210px; display: flex; flex-direction: column; cursor: pointer; }
+.card .tag { font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: .2em; color: var(--ink-3); margin-bottom: 22px; }
+.card h3 { font-family: 'Noto Serif SC', serif; font-weight: 700; font-size: 19px; line-height: 1.45; margin-bottom: 10px; }
+.card p { font-size: 13px; line-height: 1.85; color: var(--ink-2); }
+.card .cta { margin-top: auto; padding-top: 18px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: .22em; color: var(--ink-3); transition: color .2s var(--ease-touch); }
+/* 现状 hover：只有颜色变化 */
+.stage-old .card { transition: border-color .2s var(--ease-touch); }
+.stage-old .card:hover { border-color: var(--line); }
+.stage-old .card:hover .cta { color: var(--ink-3); }
+.stage-old .card:hover h3 { opacity: .75; transition: opacity .2s var(--ease-touch); }
+/* 新效果 hover：上浮 2px + 发丝边框墨色加深 + 箭头回应 */
+.stage-new .card { transition: transform .22s var(--ease-touch), border-color .22s var(--ease-touch), box-shadow .22s var(--ease-touch); }
+.stage-new .card:hover { transform: translateY(-2px); border-color: rgba(28,27,24,.5); box-shadow: 0 14px 28px -22px rgba(28,27,24,.35); }
+.stage-new .card:hover .cta { color: var(--ink); letter-spacing: .26em; }
+.stage-new .card .cta { transition: color .2s var(--ease-touch), letter-spacing .2s var(--ease-touch); }
+
+/* 行级链接肌理 */
+.rows { border-top: 1px solid var(--line); }
+.row { display: grid; grid-template-columns: 130px 150px 1fr; gap: 20px; align-items: baseline; padding: 20px 8px; border-bottom: 1px solid var(--line); cursor: pointer; position: relative; }
+@media (max-width: 720px) { .row { grid-template-columns: 1fr; gap: 6px; } }
+.row .name { font-family: 'Noto Serif SC', serif; font-weight: 700; font-size: 18px; transition: opacity .2s var(--ease-touch); }
+.row .num { font-family: 'IBM Plex Mono', monospace; font-size: 17px; }
+.row .num .delta-up { color: var(--cinnabar); font-size: 12px; margin-left: 6px; }
+.row .num .delta-down { color: var(--water); font-size: 12px; margin-left: 6px; }
+.row .reason { font-size: 13px; color: var(--ink-2); line-height: 1.8; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+/* 现状：只有标题微透明 */
+.stage-old .row:hover .name { opacity: .7; }
+/* 新效果：墨色从左渗入（宣纸吸水）+ 名称加深 */
+.stage-new .row::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(28,27,24,.18), rgba(28,27,24,.065) 45%, transparent 78%); opacity: 0; transition: opacity .32s var(--ease-touch); pointer-events: none; }
+.stage-new .row:hover::before { opacity: 1; }
+.stage-new .row:hover .name { opacity: 1; text-shadow: 0 0 .8px rgba(28,27,24,.7); }
+.stage-new .row .name { transition: opacity .2s var(--ease-touch), text-shadow .28s var(--ease-touch); }
+
+/* 缓动对比小实验 */
+.timing-note { margin-top: 40px; border: 1px dashed var(--line); padding: 22px 26px; font-size: 13px; line-height: 2; color: var(--ink-2); }
+.timing-note b { color: var(--ink); font-weight: 500; }
+footer { padding: 40px 0 60px; text-align: center; }
+footer .label { margin-bottom: 8px; display: block; }
+footer p { font-size: 12px; color: var(--ink-3); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><span class="dot"></span>P0 DEMO<span class="label" style="margin-left:8px">落墨 × 纸上肌理</span></div>
+    <span class="label">TRADINGLABB · DESIGN AUDIT 2026-10-20</span>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="wrap">
+    <label class="switch">
+      <input type="checkbox" id="fxToggle" checked>
+      <span class="track"></span>
+      <span>新效果</span>
+      <span class="state" id="fxState">ON · 落墨晕染</span>
+    </label>
+    <div class="seg" id="variantSeg">
+      <button data-v="v-ink" class="active">落墨晕染</button>
+      <button data-v="v-qin">古琴余韵</button>
+      <button data-v="v-tao">道生一</button>
+    </div>
+    <button class="btn" id="replay">↻ 重播入场</button>
+    <span class="hint">切换三种沉稳入场风格对比；关掉开关 = 线上现状。悬停卡片与行试试肌理。</span>
+  </div>
+</div>
+
+<!-- P0-2 首屏落墨 -->
+<section class="block">
+  <div class="wrap">
+    <span class="label">P0-2 · SIGNATURE MOMENT</span>
+    <h2 class="title">首屏「落墨」· 沉稳版</h2>
+    <p class="desc">去掉上一版的回弹与上抛，从东方时间观里另探三种庄重入场，均可切换对比：<b>落墨晕染</b>——墨在宣纸上由湿到干，两行标题晕开定形，朱砂句号如印章「落印」，按下即住；<b>古琴余韵</b>——拨弦快起、余音长收，句与句之间留大段空白，句号是曲终最后一记泛音；<b>道生一</b>——无极（白纸）中先凝出一点玄色、化而为丹（太极），随后墨色分两行生出（两仪），暗合阴阳。全程约 4–7s，只演一次；关掉开关即线上现状（通用淡入）。</p>
+
+    <div class="hero-stage stage-new v-ink play" id="heroStage">
+      <h1 class="hero-headline">
+        观察变化，<br>而非预测未来<span class="period">。</span>
+      </h1>
+      <div class="hero-rest">
+        <div class="hero-sub">HSN 的交易探索实验室——一部分是对产业与世界的长期观察，一部分是多年交易沉淀下来的系统、纪律与心法。</div>
+        <div class="hero-verse">玄之又玄，众妙之门。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- P0-1 hover 肌理 -->
+<section class="block">
+  <div class="wrap">
+    <span class="label">P0-1 · HOVER 肌理</span>
+    <h2 class="title">纸上肌理</h2>
+    <p class="desc">卡级：悬停上浮 <code>2px</code> + 发丝边框墨色加深 + 极轻投影（像指腹按纸留下的凹陷与晕影）；行级：墨色自左向右渗入 + 名称加「墨重」。交互统一 <code>--ease-touch (.2,.7,.2,1)</code> · 200–280ms。当前线上版本只有颜色微变。</p>
+
+    <div class="cards" id="cardsStage">
+      <div class="card">
+        <span class="tag">REPORT · 2026.08</span>
+        <h3>存储价格还在涨。</h3>
+        <p>DDR4 每月涨约两成，Q4 合约价再涨五成——但股价已经不跟了。</p>
+        <span class="cta">EXPLORE →</span>
+      </div>
+      <div class="card">
+        <span class="tag">REPORT · 2026.08</span>
+        <h3>AI 算力的瓶颈正在搬家。</h3>
+        <p>最紧的环节从芯片，搬到了封装设备与厂房。</p>
+        <span class="cta">EXPLORE →</span>
+      </div>
+      <div class="card">
+        <span class="tag">REPORT · 2026.08</span>
+        <h3>算力的尽头是电力。</h3>
+        <p>当所有人盯着芯片，电力指标正成为智算中心选址的第一约束。</p>
+        <span class="cta">EXPLORE →</span>
+      </div>
+      <div class="card">
+        <span class="tag">REPORT · 2026.09</span>
+        <h3>GPU 租金半年涨了五成。</h3>
+        <p>13.1 个月回本——利率上升，为什么还没有杀死 AI 基建。</p>
+        <span class="cta">EXPLORE →</span>
+      </div>
+    </div>
+
+    <div class="rows" id="rowsStage">
+      <div class="row">
+        <span class="name">机器人</span>
+        <span class="num">46 → 50<span class="delta-up">+4</span></span>
+        <span class="reason">9.04 下调的两个前提双反向移动：情绪定价已挤出（宇树腰斩 + 监管收紧 IPO）、量产斜率兑现（周产 600+、T 链订单）。</span>
+      </div>
+      <div class="row">
+        <span class="name">存储</span>
+        <span class="num">65 → 68<span class="delta-up">+3</span></span>
+        <span class="reason">「上涨失效」从股价蔓延到产品配置：Rubin Ultra 的 HBM 从 12 层降配至 8 层，英伟达下调毛利率指引。</span>
+      </div>
+      <div class="row">
+        <span class="name">国产算力</span>
+        <span class="num">65 → 72<span class="delta-up">+7</span></span>
+        <span class="reason">北京智算项目推进速度快于预期；新增风险：液冷环节竞争加剧。</span>
+      </div>
+    </div>
+
+    <div class="timing-note">
+      <b>为什么这条曲线：</b>入场（reveal）慢——<b>--ease-reveal (0.22,0.61,0.36,1)</b> · 900–1100ms，像墨在宣纸上慢慢化开；回应（hover）快——<b>--ease-touch (.2,.7,.2,1)</b> · 200–280ms，像指尖触纸的瞬间。两种节奏分开，动效才有「呼吸」。
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span class="label">DEMO ONLY</span>
+  <p>本页为效果演示，未触碰 trading-lab 任何代码 · 字体/颜色/组件均复刻线上语言 · 支持 prefers-reduced-motion</p>
+</footer>
+
+<script>
+const toggle = document.getElementById('fxToggle')
+const state = document.getElementById('fxState')
+const hero = document.getElementById('heroStage')
+const cards = document.getElementById('cardsStage')
+const rows = document.getElementById('rowsStage')
+const seg = document.getElementById('variantSeg')
+const VARIANTS = { 'v-ink': '落墨晕染', 'v-qin': '古琴余韵', 'v-tao': '道生一' }
+let variant = 'v-ink'
+
+function apply(mode) {
+  const isNew = mode === 'stage-new'
+  hero.classList.remove('stage-new', 'stage-old', 'play', 'v-ink', 'v-qin', 'v-tao')
+  void hero.offsetWidth
+  hero.classList.add('stage-new', isNew ? variant : 'stage-old', 'play')
+  ;[cards, rows].forEach(el => {
+    el.classList.remove('stage-new', 'stage-old', 'play')
+    void el.offsetWidth
+    el.classList.add(mode, 'play')
+  })
+  state.textContent = isNew ? 'ON · ' + VARIANTS[variant] : 'OFF · 现状'
+}
+toggle.addEventListener('change', () => apply(toggle.checked ? 'stage-new' : 'stage-old'))
+seg.addEventListener('click', e => {
+  const btn = e.target.closest('button[data-v]')
+  if (!btn) return
+  variant = btn.dataset.v
+  seg.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn))
+  if (toggle.checked) apply('stage-new')
+  else state.textContent = 'ON · ' + VARIANTS[variant]
+})
+document.getElementById('replay').addEventListener('click', () => apply(toggle.checked ? 'stage-new' : 'stage-old'))
+</script>
+</body>
+</html>

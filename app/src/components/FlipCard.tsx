@@ -34,7 +34,7 @@ export function FlipCard({
 
   return (
     <div
-      className={`relative min-h-[300px] md:min-h-[340px] border border-[rgb(var(--line))] bg-paper overflow-hidden ${className}`}
+      className={`group paper-card relative min-h-[300px] md:min-h-[340px] border border-[rgb(var(--line))] bg-paper overflow-hidden ${className}`}
     >
       {/* 正面 · 表面（整面即翻面按钮，正面无任何嵌套交互） */}
       <button
@@ -47,7 +47,7 @@ export function FlipCard({
         }`}
       >
         {front}
-        <span className="absolute bottom-7 right-7 md:bottom-8 md:right-8 font-mono-num text-sm ink-3" aria-hidden="true">
+        <span className="absolute bottom-7 right-7 md:bottom-8 md:right-8 font-mono-num text-sm ink-3 transition-all duration-200 group-hover:translate-x-1 group-hover:text-[rgb(var(--ink))]" aria-hidden="true">
           →
         </span>
       </button>

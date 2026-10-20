@@ -259,10 +259,10 @@ export default function Home() {
                   <a
                     key={r.id}
                     href={`#/thesis/${thesis.id}`}
-                    className="group grid md:grid-cols-12 gap-x-6 gap-y-2 items-baseline py-7 md:py-8 hairline-b"
+                    className="ink-seep group grid md:grid-cols-12 gap-x-6 gap-y-2 items-baseline py-7 md:py-8 hairline-b"
                   >
                     <span className="md:col-span-3">
-                      <span className="font-serif-sc font-bold text-xl md:text-2xl tracking-tight group-hover:opacity-70 transition-opacity">
+                      <span className="ink-seep-name font-serif-sc font-bold text-xl md:text-2xl tracking-tight">
                         {thesis.industry.split(' / ')[0]}
                       </span>
                       <span className="block mt-2 font-mono-num tnum text-xs ink-3 tracking-widest">

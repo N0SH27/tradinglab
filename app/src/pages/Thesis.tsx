@@ -54,7 +54,7 @@ function BeliefRow({ t }: { t: Thesis }) {
   return (
     <a
       href={`#/thesis/${t.id}`}
-      className="block hairline-t py-8 md:py-10 group"
+      className="ink-seep block hairline-t py-8 md:py-10 group"
     >
       <div className="grid md:grid-cols-12 gap-x-6 gap-y-4 md:items-baseline">
         {/* 编号 + 状态 */}
@@ -63,7 +63,7 @@ function BeliefRow({ t }: { t: Thesis }) {
         </div>
         {/* 题名 + 一句核心主张（conflict.but = the claim） */}
         <div className="md:col-span-6">
-          <h3 className="font-serif-sc font-bold text-xl md:text-2xl leading-snug tracking-tight group-hover:opacity-70 transition-opacity">
+          <h3 className="ink-seep-name font-serif-sc font-bold text-xl md:text-2xl leading-snug tracking-tight">
             {t.title}
           </h3>
           <p className="mt-3 text-sm ink-3 leading-relaxed line-clamp-2 md:line-clamp-1">

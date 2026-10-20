@@ -20,6 +20,8 @@
     --water-mist: 237 241 243;
     /* 辅助中性色：暖米白——仅用于品牌终幕等极少量场合 */
     --ivory: 243 240 233;
+    /* 交互回应节奏（2026-10-20 P0-1 纸上肌理定案）：指尖触纸，快而利落 */
+    --ease-touch: cubic-bezier(.2, .7, .2, 1);
   }
 
   * {
@@ -155,4 +157,41 @@
   .bg-water-deep { background: rgb(var(--water-deep)); }
   .bg-water-mist { background: rgb(var(--water-mist)); }
   .bg-ivory { background: rgb(var(--ivory)); }
+
+  /* ── P0-1 纸上肌理（2026-10-20 Human 批准）────────────────────────────
+     卡级：悬停上浮 2px + 发丝边框墨色加深 + 极轻投影（指腹按纸留下的凹陷晕影）；
+     行级：墨色自左向右渗入（宣纸吸水）+ 名称加「墨重」。
+     回应节奏统一 --ease-touch · 220–280ms——纸是慢的，指尖触纸是快的。
+     命名注意：行级用 .ink-seep，勿用 .ink-row——那是 ink.css 里目录行的
+     「底线墨迹推进」语言（Research/Journal/Essays 在用），两者不可混挂。 */
+  .paper-card {
+    transition:
+      transform .22s var(--ease-touch),
+      border-color .22s var(--ease-touch),
+      box-shadow .22s var(--ease-touch);
+  }
+  .paper-card:hover {
+    transform: translateY(-2px);
+    border-color: rgb(var(--ink) / .5);
+    box-shadow: 0 14px 28px -22px rgb(var(--ink) / .35);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .paper-card { transition: none; }
+    .paper-card:hover { transform: none; box-shadow: none; }
+  }
+
+  .ink-seep { position: relative; }
+  .ink-seep::before {
+    /* 水痕：墨色自左向右渗入纸面（ hover 时第一眼可读 ） */
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgb(var(--ink) / .18), rgb(var(--ink) / .065) 45%, transparent 78%);
+    opacity: 0;
+    transition: opacity .32s var(--ease-touch);
+    pointer-events: none;
+  }
+  .ink-seep:hover::before { opacity: 1; }
+  .ink-seep .ink-seep-name { transition: text-shadow .28s var(--ease-touch); }
+  .ink-seep:hover .ink-seep-name { text-shadow: 0 0 .8px rgb(var(--ink) / .7); }
 }
