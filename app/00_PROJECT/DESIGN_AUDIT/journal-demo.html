@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>日志页 Demo · 叙事流收纳三方案</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root {
+  --paper: #f7f5f0;
+  --ivory: #f1ede4;
+  --ink: #1c1b18;
+  --ink-2: rgba(28,27,24,.72);
+  --ink-3: rgba(28,27,24,.42);
+  --line: rgba(28,27,24,.14);
+  --cinnabar: #b23a2a;
+  --water: #2e4a6b;
+  --ease-touch: cubic-bezier(.2,.7,.2,1);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Noto Sans SC', -apple-system, 'PingFang SC', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: rgba(178,58,42,.16); }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 28px; }
+.mono { font-family: 'IBM Plex Mono', monospace; }
+.label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: .22em; color: var(--ink-3); text-transform: uppercase; }
+
+/* ── 顶部 ── */
+header.top { border-bottom: 1px solid var(--line); }
+header.top .wrap { height: 60px; display: flex; align-items: center; justify-content: space-between; }
+.brand { display: flex; align-items: baseline; gap: 12px; font-family: 'IBM Plex Mono', monospace; font-weight: 500; letter-spacing: .02em; }
+.brand .dot { width: 10px; height: 10px; background: var(--cinnabar); border-radius: 50%; align-self: center; }
+h1.pagetitle { font-family: 'Noto Serif SC', serif; font-weight: 900; font-size: clamp(26px, 3.4vw, 40px); margin: 40px 0 8px; }
+p.intro { color: var(--ink-2); font-size: 14.5px; line-height: 1.9; max-width: 680px; margin-bottom: 8px; }
+p.intro b { color: var(--ink); font-weight: 500; }
+
+/* ── 方案切换 ── */
+.tabs { display: flex; border: 1px solid var(--ink); margin: 28px 0 18px; width: fit-content; max-width: 100%; flex-wrap: wrap; }
+.tabs button { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: .1em; padding: 10px 18px; background: transparent; border: none; color: var(--ink-2); cursor: pointer; transition: background .2s var(--ease-touch), color .2s var(--ease-touch); }
+.tabs button + button { border-left: 1px solid var(--line); }
+.tabs button.active { background: var(--ink); color: var(--paper); }
+.tabs button:hover:not(.active) { color: var(--ink); }
+
+.pitch { border-left: 2px solid var(--cinnabar); padding: 4px 0 4px 16px; margin-bottom: 26px; max-width: 720px; }
+.pitch h2 { font-family: 'Noto Serif SC', serif; font-weight: 700; font-size: 19px; margin-bottom: 6px; }
+.pitch p { font-size: 13.5px; line-height: 1.9; color: var(--ink-2); }
+.pitch p em { font-style: normal; color: var(--ink); font-weight: 500; }
+
+.stage { display: none; border: 1px solid var(--line); background: var(--paper); margin-bottom: 60px; }
+.stage.on { display: block; }
+
+/* ── 条目渲染（三方案共用） ── */
+.j-item { display: flex; gap: 18px; align-items: flex-start; }
+.j-item + .j-item { margin-top: 26px; }
+.j-mark { font-family: 'IBM Plex Mono', monospace; font-size: 20px; line-height: 1.3; width: 26px; flex-shrink: 0; text-align: center; }
+.j-mark.risk { color: var(--cinnabar); }
+.j-target { font-family: 'Noto Serif SC', serif; font-weight: 700; font-size: 17px; margin-bottom: 6px; }
+.j-note { font-size: 13.5px; line-height: 1.95; color: var(--ink-2); }
+.j-date { font-family: 'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums; }
+
+/* ── 方案一 · 手风琴 ── */
+.acc-head { display: grid; grid-template-columns: 130px 60px 1fr 40px; gap: 16px; align-items: baseline; width: 100%; text-align: left; background: transparent; border: none; border-bottom: 1px solid var(--line); padding: 18px 20px; cursor: pointer; font-family: inherit; color: inherit; position: relative; transition: background .3s var(--ease-touch); }
+.acc-head:hover { background: linear-gradient(90deg, rgba(28,27,24,.07), rgba(28,27,24,.02) 45%, transparent 75%); }
+.acc-head .d { font-family: 'IBM Plex Mono', monospace; font-size: 16px; font-variant-numeric: tabular-nums; }
+.acc-head .cnt { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--ink-3); letter-spacing: .1em; }
+.acc-head .tags { font-size: 12.5px; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.acc-head .tags i { font-style: normal; color: var(--ink-3); margin: 0 6px; }
+.acc-head .toggle { font-family: 'IBM Plex Mono', monospace; font-size: 15px; color: var(--ink-3); text-align: right; transition: transform .3s var(--ease-touch), color .2s; }
+.acc-head.open .toggle { transform: rotate(45deg); color: var(--cinnabar); }
+.acc-body { overflow: hidden; max-height: 0; transition: max-height .5s var(--ease-touch); border-bottom: 0 solid var(--line); }
+.acc-body-in { padding: 26px 20px 30px 166px; }
+.acc-item.open .acc-body { border-bottom: 1px solid var(--line); }
+@media (max-width: 720px) { .acc-head { grid-template-columns: 110px 1fr 30px; } .acc-head .cnt { display: none; } .acc-body-in { padding-left: 20px; } }
+
+/* ── 方案二 · 周选择器 ── */
+.picker { display: flex; align-items: stretch; border-bottom: 1px solid var(--line); }
+.picker .nav { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .14em; padding: 0 20px; background: transparent; border: none; color: var(--ink-2); cursor: pointer; transition: background .2s var(--ease-touch), color .2s; white-space: nowrap; }
+.picker .nav:hover:not(:disabled) { background: var(--ink); color: var(--paper); }
+.picker .nav:disabled { color: var(--ink-3); cursor: default; }
+.sel { position: relative; flex: 1; }
+.sel > button { width: 100%; text-align: center; background: transparent; border: none; border-left: 1px solid var(--line); border-right: 1px solid var(--line); padding: 16px 20px; font-family: 'IBM Plex Mono', monospace; font-size: 15px; font-variant-numeric: tabular-nums; cursor: pointer; color: var(--ink); transition: background .2s var(--ease-touch); }
+.sel > button:hover { background: rgba(28,27,24,.04); }
+.sel > button .caret { color: var(--cinnabar); margin-left: 10px; }
+.sel-panel { position: absolute; top: 100%; left: 0; right: 0; z-index: 20; background: var(--paper); border: 1px solid var(--ink); max-height: 320px; overflow-y: auto; display: none; }
+.sel-panel.on { display: block; }
+.sel-panel button { display: grid; grid-template-columns: 110px 1fr; gap: 14px; width: 100%; text-align: left; background: transparent; border: none; border-bottom: 1px solid var(--line); padding: 12px 18px; font-family: inherit; cursor: pointer; color: inherit; font-size: 13px; }
+.sel-panel button:hover { background: rgba(28,27,24,.05); }
+.sel-panel button.cur { background: var(--ink); color: var(--paper); }
+.sel-panel button.cur .cnt { color: rgba(247,245,240,.6); }
+.sel-panel .cnt { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: var(--ink-3); align-self: center; }
+.week-view { padding: 40px clamp(20px, 5vw, 72px) 48px; }
+.week-view .wv-date { font-family: 'IBM Plex Mono', monospace; font-size: clamp(22px, 2.6vw, 30px); font-variant-numeric: tabular-nums; margin-bottom: 30px; display: flex; align-items: baseline; gap: 14px; }
+.week-view .wv-date .wk { font-size: 11px; letter-spacing: .2em; color: var(--cinnabar); }
+
+/* ── 方案三 · 主从双栏 ── */
+.md { display: grid; grid-template-columns: 220px 1fr; min-height: 480px; }
+.md-rail { border-right: 1px solid var(--line); max-height: 620px; overflow-y: auto; }
+.md-rail button { display: grid; grid-template-columns: 1fr auto; gap: 8px; width: 100%; text-align: left; background: transparent; border: none; border-bottom: 1px solid var(--line); padding: 15px 18px; font-family: inherit; cursor: pointer; color: inherit; position: relative; transition: background .25s var(--ease-touch); }
+.md-rail button:hover { background: linear-gradient(90deg, rgba(28,27,24,.07), rgba(28,27,24,.02) 60%, transparent); }
+.md-rail button.cur { background: linear-gradient(90deg, rgba(28,27,24,.1), rgba(28,27,24,.03) 60%, transparent); }
+.md-rail button.cur::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--cinnabar); }
+.md-rail .d { font-family: 'IBM Plex Mono', monospace; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+.md-rail .cnt { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--ink-3); align-self: center; }
+.md-main { padding: 36px clamp(20px, 4vw, 56px) 48px; max-height: 620px; overflow-y: auto; }
+.md-main .wv-date { font-family: 'IBM Plex Mono', monospace; font-size: 22px; font-variant-numeric: tabular-nums; margin-bottom: 26px; }
+@media (max-width: 720px) { .md { grid-template-columns: 1fr; } .md-rail { border-right: none; border-bottom: 1px solid var(--line); max-height: 180px; } .md-main { max-height: none; } }
+
+/* ── 方案四 · 手卷横陈（横向滚动叙事） ── */
+.hs-space { position: relative; }
+.hs-sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; justify-content: center; }
+.hs-row { display: flex; gap: 6vw; padding: 0 10vw; will-change: transform; }
+.hs-panel { flex: 0 0 54vw; border-left: 1px solid var(--line); padding-left: 3vw; max-height: 62vh; overflow: hidden; }
+.hs-panel .p-date { font-family: 'IBM Plex Mono', monospace; font-size: clamp(24px, 3vw, 34px); font-variant-numeric: tabular-nums; margin-bottom: 4px; }
+.hs-panel .p-week { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: .22em; color: var(--cinnabar); margin-bottom: 26px; }
+.hs-panel .j-note { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.hs-rule { position: absolute; left: 10vw; right: 10vw; bottom: 7vh; }
+.hs-track { position: relative; height: 1px; background: var(--line); }
+.hs-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--ink); }
+.hs-cur { position: absolute; top: -5px; width: 11px; height: 11px; border-radius: 50%; background: var(--cinnabar); transform: translateX(-50%); }
+.hs-labels { display: flex; justify-content: space-between; margin-top: 12px; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.hs-hint { position: absolute; top: 6vh; left: 10vw; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: .2em; color: var(--ink-3); }
+@media (max-width: 720px) { .hs-panel { flex-basis: 82vw; } }
+
+/* ── 方案五 · 档案卡钉叠（sticky stacking cards） ── */
+.stack-wrap { height: 88vh; }
+.stack-card { position: sticky; top: 8vh; height: 76vh; overflow: hidden; background: var(--paper); border: 1px solid rgb(var(--ink) / .3); padding: clamp(22px, 3.4vw, 44px) clamp(22px, 4vw, 56px); box-shadow: 0 -16px 44px -30px rgb(var(--ink) / .3); display: flex; flex-direction: column; }
+.sc-head { display: flex; align-items: baseline; justify-content: space-between; border-bottom: 1px solid var(--line); padding-bottom: 18px; margin-bottom: 26px; }
+.sc-head .d { font-family: 'IBM Plex Mono', monospace; font-size: clamp(22px, 2.6vw, 32px); font-variant-numeric: tabular-nums; }
+.sc-head .no { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .18em; color: var(--ink-3); }
+.sc-head .no b { color: var(--cinnabar); font-weight: 500; }
+.stack-card .j-item + .j-item { margin-top: 20px; }
+.stack-card .j-note { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.sc-body { overflow: hidden; }
+
+/* ── 方案六 · 检索直达（⌘K 命令面板） ── */
+.pk-head { padding: 26px clamp(20px, 4vw, 56px) 8px; display: flex; align-items: center; gap: 14px; }
+.pk-head p { font-size: 13px; color: var(--ink-2); }
+kbd { font-family: 'IBM Plex Mono', monospace; font-size: 11px; border: 1px solid rgb(var(--ink) / .4); border-bottom-width: 2px; padding: 2px 7px; border-radius: 3px; background: var(--ivory); }
+.pk-open { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .14em; border: 1px solid var(--ink); background: transparent; color: var(--ink); padding: 9px 16px; cursor: pointer; transition: background .2s var(--ease-touch), color .2s; }
+.pk-open:hover { background: var(--ink); color: var(--paper); }
+.pk-list { padding: 14px clamp(20px, 4vw, 56px) 40px; }
+.pk-row { display: grid; grid-template-columns: 130px 1fr; gap: 16px; align-items: baseline; width: 100%; text-align: left; background: transparent; border: none; border-bottom: 1px solid var(--line); padding: 15px 12px; font-family: inherit; color: inherit; cursor: pointer; position: relative; }
+.pk-row:hover { background: linear-gradient(90deg, rgba(28,27,24,.1), rgba(28,27,24,.03) 55%, transparent); }
+.pk-row .d { font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-variant-numeric: tabular-nums; }
+.pk-row .t { font-size: 12.5px; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pk-row.flash { animation: pkflash 1.4s var(--ease-touch); }
+@keyframes pkflash { 0% { background: rgb(var(--ink) / .16); } 100% { background: transparent; } }
+.pal { position: fixed; inset: 0; z-index: 100; background: rgba(28,27,24,.18); backdrop-filter: blur(3px); display: none; align-items: flex-start; justify-content: center; padding-top: 16vh; }
+.pal.on { display: flex; }
+.pal-box { width: min(660px, 92vw); background: var(--paper); border: 1px solid var(--ink); box-shadow: 0 30px 80px -30px rgb(var(--ink) / .4); }
+.pal-input { display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--ink); padding: 16px 20px; }
+.pal-input .glyph { color: var(--cinnabar); font-family: 'IBM Plex Mono', monospace; }
+.pal-input input { flex: 1; border: none; background: transparent; outline: none; font-family: inherit; font-size: 15px; color: var(--ink); }
+.pal-results { max-height: 46vh; overflow-y: auto; }
+.pal-results button { display: grid; grid-template-columns: 110px 1fr auto; gap: 14px; width: 100%; text-align: left; background: transparent; border: none; border-bottom: 1px solid var(--line); padding: 13px 20px; font-family: inherit; color: inherit; cursor: pointer; font-size: 13px; align-items: baseline; }
+.pal-results button:hover, .pal-results button.sel { background: var(--ink); color: var(--paper); }
+.pal-results .cnt { font-family: 'IBM Plex Mono', monospace; font-size: 10px; opacity: .55; }
+.pal-empty { padding: 28px 20px; text-align: center; font-size: 13px; color: var(--ink-3); }
+
+/* ── 方案七 · 季度架（档案架 / 函套 / 卷宗） ── */
+.rack { padding: clamp(20px, 3vw, 44px); }
+.ry-label { display: flex; align-items: baseline; gap: 16px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .28em; color: var(--ink-3); margin-bottom: 16px; }
+.ry-label .yr { font-family: 'Noto Serif SC', serif; font-size: 22px; font-weight: 700; letter-spacing: .1em; color: var(--ink); }
+.ry-slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.rack .ry-label { transition: opacity .6s var(--ease-touch); }
+.slot { position: relative; text-align: left; background: var(--ivory); border: 1px solid rgb(var(--ink) / .28); padding: 20px 18px 16px; cursor: pointer; font-family: inherit; color: inherit; min-height: 136px; display: flex; flex-direction: column; transition: transform .45s var(--ease-touch), box-shadow .45s var(--ease-touch), background .45s var(--ease-touch), color .45s var(--ease-touch), filter .45s var(--ease-touch), opacity .45s var(--ease-touch); }
+.slot:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 16px 30px -22px rgb(var(--ink) / .4); }
+.slot .q { font-family: 'IBM Plex Mono', monospace; font-size: 24px; letter-spacing: .08em; line-height: 1; }
+.slot .qn { font-family: 'Noto Serif SC', serif; font-size: 13.5px; margin-top: 8px; color: var(--ink-2); }
+.slot .cnt { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: var(--ink-3); margin-top: auto; padding-top: 16px; letter-spacing: .1em; }
+.slot .marks { font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; margin-top: 7px; color: var(--ink-2); }
+.slot .marks .risk { color: var(--cinnabar); }
+.slot.empty, .slot:disabled { background: transparent; border: 1px dashed var(--line); color: var(--ink-3); cursor: default; }
+.slot.empty:hover { transform: none; box-shadow: none; }
+.slot.empty .q { font-size: 18px; }
+.slot.open { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.slot.open .qn, .slot.open .cnt { color: rgba(247,245,240,.62); }
+.slot.open .marks { color: var(--paper); }
+.slot.open .marks .risk { color: #e0907f; }
+/* ── 卷宗浮层：抽出摊开，背景整页虚化 ── */
+.dossier { position: fixed; inset: 0; z-index: 80; display: none; }
+.dossier.on { display: block; }
+.dos-scrim { position: absolute; inset: 0; background: rgba(247,245,240,.52); backdrop-filter: blur(14px) saturate(.85); -webkit-backdrop-filter: blur(14px) saturate(.85); animation: dosFade .5s var(--ease-touch) both; }
+@keyframes dosFade { from { opacity: 0; } }
+.dos-panel { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: min(1100px, 93vw); max-height: 86vh; background: var(--paper); border: 1px solid rgb(var(--ink) / .3); box-shadow: 0 70px 130px -45px rgb(28 27 24 / .5); display: flex; flex-direction: column; animation: dosIn .6s var(--ease-touch) both; }
+@keyframes dosIn { from { opacity: 0; transform: translate(-50%, -46.5%) scale(.96); } }
+.dos-head { display: flex; align-items: baseline; justify-content: space-between; gap: 20px; padding: 24px 30px 0; }
+.dos-head .t { font-family: 'Noto Serif SC', serif; font-weight: 700; font-size: 20px; }
+.dos-head .t .mono { font-family: 'IBM Plex Mono', monospace; font-weight: 400; font-size: 11px; letter-spacing: .2em; color: var(--cinnabar); margin-left: 14px; }
+.dos-close { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .14em; background: transparent; border: 1px solid var(--line); color: var(--ink-2); padding: 8px 14px; cursor: pointer; transition: background .3s var(--ease-touch), color .3s var(--ease-touch); }
+.dos-close:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+/* 奏折横陈：每周一面，自左向右如展卷 */
+.dos-strip { display: flex; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none; padding: 20px 30px 10px; }
+.dos-strip::-webkit-scrollbar { display: none; }
+.dos-week { flex: 0 0 clamp(320px, 36vw, 440px); scroll-snap-align: start; padding: 16px 28px 30px; border-right: 1px solid var(--line); }
+.dos-week:last-child { border-right: none; }
+.dos-week .dw-date { font-family: 'IBM Plex Mono', monospace; font-size: 16px; font-variant-numeric: tabular-nums; display: flex; align-items: baseline; gap: 12px; margin-bottom: 18px; }
+.dos-week .dw-date .wk { font-size: 9.5px; letter-spacing: .22em; color: var(--ink-3); }
+.dos-nav { display: flex; align-items: center; gap: 16px; padding: 14px 30px 24px; }
+.dos-nav .arrow { font-family: 'IBM Plex Mono', monospace; font-size: 14px; width: 38px; height: 38px; background: transparent; border: 1px solid var(--line); color: var(--ink); cursor: pointer; transition: background .3s var(--ease-touch), color .3s var(--ease-touch); }
+.dos-nav .arrow:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.dos-track { flex: 1; height: 1px; background: var(--line); position: relative; }
+.dos-fill { position: absolute; left: 0; top: -0.5px; height: 2px; background: var(--cinnabar); width: 10%; transition: width .15s linear; }
+.dos-nav .hint { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: .18em; color: var(--ink-3); }
+/* 卷宗滚动区：头与导航钉住，中间展卷；纵向溢出默认整卷滚动 */
+.dos-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; scrollbar-width: none; }
+.dos-scroll::-webkit-scrollbar { display: none; }
+/* ── 纵向溢出四解法（变体切换演示） ── */
+.varbar { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 18px;
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
+.varbar .vlabel { letter-spacing: .22em; color: var(--ink-3); margin-right: 4px; }
+.varbar button { font: inherit; letter-spacing: .08em; padding: 7px 13px; background: transparent;
+  border: 1px solid var(--line); color: var(--ink-2); cursor: pointer;
+  transition: background .3s var(--ease-touch), color .3s var(--ease-touch), border-color .3s var(--ease-touch); }
+.varbar button:hover { border-color: rgba(28,27,24,.5); color: var(--ink); }
+.varbar button.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+/* B · 折面内滚动：每折固定上限，各自细滚动条 */
+.dos-vB .dos-week { max-height: 44vh; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(28,27,24,.35) transparent; }
+.dos-vB .dos-week::-webkit-scrollbar { width: 3px; }
+.dos-vB .dos-week::-webkit-scrollbar-thumb { background: rgba(28,27,24,.3); }
+/* C · 长文截断展开：每条注记限五行，「展开全文」按需摊开 */
+.dos-vC .j-note { display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+.dos-vC .j-note.open { display: block; }
+.dos-vC .j-item { flex-wrap: wrap; }
+.j-more { display: none; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: .14em;
+  background: none; border: none; border-bottom: 1px solid var(--cinnabar); color: var(--cinnabar);
+  cursor: pointer; padding: 2px 0; margin: 2px 0 0 44px; flex: 0 0 100%; text-align: left; width: fit-content; }
+.dos-vC .j-more { display: block; }
+/* D · 点击全幅深读：某折点击后占满卷宗宽度 */
+.dos-vD .dos-week { cursor: pointer; transition: flex-basis .5s var(--ease-touch), background .3s var(--ease-touch); }
+.dos-vD .dos-week:hover { background: rgba(28,27,24,.025); }
+.dos-vD .dos-week.full { flex: 0 0 100%; cursor: default; background: var(--ivory); }
+.dos-vD .dos-week.full .dw-date { font-size: 20px; }
+.dos-vD .dos-week.full .j-note { font-size: 14.5px; }
+.dos-vD .dos-week.full::after { content: '点击日期栏收拢'; display: block; margin-top: 24px;
+  font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: .22em; color: var(--ink-3); }
+@media (max-width: 720px) {
+  .ry-slots { grid-template-columns: repeat(2, 1fr); }
+  .dos-panel { width: 100vw; height: 100dvh; max-height: none; }
+  /* 移动端：奏折退化为折页竖叠——纵向下卷即读，无需横移 */
+  .dos-strip { display: block; overflow-x: visible; scroll-snap-type: none; padding: 16px 20px 8px; }
+  .dos-strip .dos-week { flex: none; max-height: none !important; overflow: visible; border-right: none;
+    border-bottom: 1px solid var(--line); padding: 18px 2px 26px; }
+  .dos-strip .dos-week:last-child { border-bottom: none; }
+  .dos-nav { display: none; }
+  .dos-head { padding: 18px 20px 0; }
+  .dos-head .t { font-size: 17px; }
+  .dos-head .t .mono { display: block; margin: 4px 0 0; font-size: 9.5px; }
+  .dos-close { padding: 6px 10px; white-space: nowrap; flex-shrink: 0; }
+}
+
+footer { border-top: 1px solid var(--line); padding: 32px 0 56px; text-align: center; }
+footer p { font-size: 12px; color: var(--ink-3); margin-top: 6px; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><span class="dot"></span>JOURNAL DEMO<span class="label" style="margin-left:8px">叙事流收纳 · 三方案</span></div>
+    <span class="label">TRADINGLABB · 2026-10-21</span>
+  </div>
+</header>
+
+<div class="wrap">
+  <span class="label" style="display:block;margin-top:36px">02 叙事流 · NARRATIVE</span>
+  <h1 class="pagetitle">每周更新，如何不全铺在页面上</h1>
+  <p class="intro">现状：19 个周次全部展开平铺，叙事每篇 200–400 字，整页约 10 屏。以下七个方案：前三组是<b>信息架构</b>思路（档案柜／选择器／双栏），中间三组是<b>获奖设计站的标志性手法</b>（横向手卷／卡钉叠／⌘K 检索），最后<b>方案七</b>是你的灵感——架子 × 函套 × 卷宗的<b>季度档案架</b>。全部用<b>真实日志数据</b>（demo 取前 8 周示意）做成可交互 demo。</p>
+
+  <div class="tabs" id="tabs">
+    <button data-s="s1" class="active">方案一 · 档案柜</button>
+    <button data-s="s2">方案二 · 周选择器</button>
+    <button data-s="s3">方案三 · 主从双栏</button>
+    <button data-s="s4">方案四 · 手卷横陈</button>
+    <button data-s="s5">方案五 · 卡叠</button>
+    <button data-s="s6">方案六 · ⌘K 检索</button>
+    <button data-s="s7">方案七 · 季度架</button>
+  </div>
+
+  <div class="pitch" id="pitch"></div>
+
+  <!-- 方案一 -->
+  <div class="stage on" id="s1">
+    <div id="accList"></div>
+  </div>
+
+  <!-- 方案二 -->
+  <div class="stage" id="s2">
+    <div class="picker">
+      <button class="nav" id="prevW">← 前一周</button>
+      <div class="sel">
+        <button id="selBtn"><span id="selLabel"></span><span class="caret">▾</span></button>
+        <div class="sel-panel" id="selPanel"></div>
+      </div>
+      <button class="nav" id="nextW">后一周 →</button>
+    </div>
+    <div class="week-view" id="weekView"></div>
+  </div>
+
+  <!-- 方案三 -->
+  <div class="stage" id="s3">
+    <div class="md">
+      <aside class="md-rail" id="mdRail"></aside>
+      <div class="md-main" id="mdMain"></div>
+    </div>
+  </div>
+
+  <!-- 方案四 -->
+  <div class="stage" id="s4">
+    <div class="hs-space" id="hsSpace">
+      <div class="hs-sticky">
+        <span class="hs-hint">SCROLL ↓ 卷轴向右展开 →</span>
+        <div class="hs-row" id="hsRow"></div>
+        <div class="hs-rule">
+          <div class="hs-track"><div class="hs-fill" id="hsFill"></div><div class="hs-cur" id="hsCur"></div></div>
+          <div class="hs-labels" id="hsLabels"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 方案五 -->
+  <div class="stage" id="s5">
+    <div id="stackList"></div>
+  </div>
+
+  <!-- 方案六 -->
+  <div class="stage" id="s6">
+    <div class="pk-head">
+      <button class="pk-open" id="pkOpen">检索全部周次 ⌘K</button>
+      <p>页面只展示一行式全索引；按 <kbd>⌘</kbd> + <kbd>K</kbd>（或点击按钮）输入日期／主题／关键词，秒级跳转到任意一周。</p>
+    </div>
+    <div class="pk-list" id="pkList"></div>
+  </div>
+
+  <!-- 方案七 -->
+  <div class="stage" id="s7">
+    <div class="varbar" id="varbar">
+      <span class="vlabel">纵向溢出解法 →</span>
+      <button data-v="dos-vA" class="on">A · 整卷纵向滚动</button>
+      <button data-v="dos-vB">B · 折面内滚动</button>
+      <button data-v="dos-vC">C · 长文截断展开</button>
+      <button data-v="dos-vD">D · 点击全幅深读</button>
+    </div>
+    <div class="rack" id="rack"></div>
+  </div>
+</div>
+
+<!-- 方案六 · 命令面板 -->
+<div class="pal" id="pal">
+  <div class="pal-box">
+    <div class="pal-input">
+      <span class="glyph">◎</span>
+      <input id="palInput" type="text" placeholder="输入日期（2026.09）、主题（存储 / 裁决）或关键词…" autocomplete="off">
+      <kbd>ESC</kbd>
+    </div>
+    <div class="pal-results" id="palResults"></div>
+  </div>
+</div>
+
+<!-- 方案七 · 卷宗浮层 -->
+<div class="dossier dos-vA" id="dossier">
+  <div class="dos-scrim" id="dosScrim"></div>
+  <div class="dos-panel">
+    <div class="dos-head">
+      <span class="t" id="dosTitle"></span>
+      <button class="dos-close" id="dosClose">收起卷宗 ✕</button>
+    </div>
+    <div class="dos-scroll">
+      <div class="dos-strip" id="dosStrip"></div>
+    </div>
+    <div class="dos-nav">
+      <button class="arrow" id="dosPrev" aria-label="向前翻">←</button>
+      <div class="dos-track"><div class="dos-fill" id="dosFill"></div></div>
+      <button class="arrow" id="dosNext" aria-label="向后翻">→</button>
+      <span class="hint">横移如展卷 · 滚轮可用</span>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span class="label">DEMO ONLY</span>
+  <p>本页为交互演示，未触碰 trading-lab 任何代码 · 数据取自 domains/journal.ts（前 8 周）</p>
+</footer>
+
+<script>
+/* ── 真实数据（domains/journal.ts 前 8 周，零改写） ── */
+const TYPE_META = {
+  up: { mark: '↑', label: '上调概率' },
+  down: { mark: '↓', label: '下调概率' },
+  risk: { mark: '△', label: '新增风险', red: true },
+  new: { mark: '＋', label: '新增记录' },
+};
+const J = [{"date":"2026.10.18","items":[
+{"t":"new","g":"入库消化","n":"42 周消化批入账：NOW +2 新观察（CoreWeave 信用危机「循环融资首次被定价」/ 低流动性价格有效性方法纪律）+ 3 条目注记；地图 5 节点补证据（gpu / hbm / dram / optical / cloud，valuation 全部不动）；命题注记 +3 命题（概率全部不动）；周期盘「AI 应用」note 补 Anthropic 就业形态。Ledger 零变更（验证不是变化，沿用 9.20/9.27 纪律）。"},
+{"t":"new","g":"裁决","n":"42 周 7 项待裁决全部采纳落账：①L4-C10 循环融资结构风险升正式并标「已实证（2026.10.18）」；②「长鑫缩至两代」改双刻度；③大摩三档排序登记 L4-C18 候选 +「周期后段」定义注记；④「低流动性市场价格有效性」升 L4 方法纪律；⑤Anthropic 就业形态登记 L4-C19 候选 + 边界注记；⑥「AI 官方读法=SI」定义之争结案为「定义已迁移」；⑦A视野《川普赖债》《梦回 1929 i 型》入 L2 + 挂观察项。元结论：M-06 n=5 升 Method Candidate；M-07 n=3 升正式；M-08 升正式。"},
+{"t":"risk","g":"宏观","n":"金丝雀周：9 月 CPI 3.7%（汽油环比 +9.1% 贡献过半）→ 30Y 一度 5.63% → CoreWeave 信用危机成为 AI 抛售风暴眼（CDS 破 1000bp、债破 80 美分），费半 −11%、纳指 100 −5.5%；沃什 IMF 讲话确认「已收回一定剂量的宽松」——利率与 AI 资本开支之间的负反馈通道从「样本为零」变成每周有新读数。"},
+{"t":"new","g":"存储","n":"存储的两张面孔：三星 Q3 营业利润约 800 亿美元全球第一 vs 韩厂 PE 3–4 倍（科技均值 16.9 倍）——周期后段是倍数问题不是利润问题；Q4 合约价上修（DRAM 10–15% / NAND 15–20%）与「供给偏紧延续至 2027 年底」第一次给出的终点并存；大摩「周期后段」读法=增速二阶导转负（150% < 153%）而非规模见顶。命题六不改概率（68%）。"}
+]},{"date":"2026.10.11","items":[
+{"t":"new","g":"入库消化","n":"40 周消化批入账：NOW +1 新观察（迈威尔投资者日「上调目标价不动评级」）+ 5 条目注记；地图 5 节点补证据；命题注记 +3 命题（概率全部不动）；周期盘「AI 应用」note 补订阅算力账。Ledger 零变更。"},
+{"t":"new","g":"裁决","n":"40 周 7 项待裁决全部采纳落账：①L4-10 第四次验证后终裁升正式，边界扩写「产业链任一环节之间的定价背离」；②传闻打折升正式 L4 方法纪律（第二个独立样本）；③M-08 扩展为「口径纪律」覆盖 ARR 三要素——OpenAI 500 亿 vs 700 亿为直接样本；④迈威尔「30 in 30」登记可验证时间标尺；⑤L4-C16 拆二：C16a 展示位侵蚀 / C16b 交易执行绕过；⑥A视野「三节点只能保两个」入 L2 + 两条观察项；⑦半导体「美国本土不可替代」叙事归 FCC 认证线跟踪。"},
+{"t":"risk","g":"宏观","n":"反转周：10/7 纪要（19 名官员一致支持 9 月加息）四天内推翻非农鸽派叙事——框架修正「宏观数据与政策表态冲突时以政策表态为准」；AI 资本开支首次写入美联储通胀讨论。10/29 双节点入观察：OpenAI 旧限额过渡期截止 + FCC 投票。"},
+{"t":"new","g":"算力","n":"方向与斜率分裂为两个独立命题的卖方注脚：迈威尔给出 FY31 营收 700–900 亿 / TAM 4000 亿蓝图，高盛、大摩只上调目标价不动评级；SemiAnalysis 折旧判据（1 万亿投入需每年约 2500 亿营收覆盖）+ 英伟达表外长期采购承诺约 5880 亿——「明年年底触到极限」读法为二阶导见顶、非需求消失。命题一不改概率（72%）。"}
+]},{"date":"2026.10.04","items":[
+{"t":"new","g":"入库消化","n":"39 周消化批入账：NOW +3 新观察（美光 FQ4 裁决周 / AI 算力债务化 / 互联网第二类受众）+ 1 条目注记；地图 5 节点补证据；命题注记 +3（概率全部不动）；周期盘「AI 应用」note 补流量换物种。Ledger 零变更。"},
+{"t":"new","g":"裁决","n":"39 周 7 项待裁决全部采纳落账：①L4-10 分歧度终裁升级、适用边界扩写为「跨环节」；②L4-C14 长协不对称升正式 + 限定「封顶价是供不应求期产物」；③M-03 适用边界改写「只适用于增速已放缓、靠叙事维持估值的一级资产」；④「承诺 vs 合同」登记口径补丁（按已签合同 ÷ 承诺 = 约 52% 打折）；⑤LeCun vs World Labs 世界模型路线之争登记 L3 跟踪项；⑥「传闻按落地机制打折」升 L4 方法纪律（FCC 案第三次验证）；⑦Brent 引用口径规则采纳——必须标注（基准，合约月份，时点）三元组。"},
+{"t":"risk","g":"存储","n":"美光 FQ4 裁决周：营收 542.29 亿超指引上限 32 亿、FCF 超瑞银约 53%，但毛利率 87.0% 是瑞银十项预测中唯一低于预期的项——超预期来自量而非价；管理层三次确认 2027/2028 供需更紧，但 3/4 新签带保底+封顶价、2027 年 75% 产能被锁定——紧缺确认到 2028、变现弹性被合同管理，「紧缺 ≠ 斜率」获财报层直接验证。命题六不改概率（68%）。"},
+{"t":"new","g":"宏观","n":"非农反转：9 月非农仅 +2.9 万（7 月下修至 −1.0 万），10 月加息概率约 80% → 约 15%；但同期 10Y 5.34%（2002 年来峰值）、30Y 5.62%、2s10s 缩至 17bp 逼近倒挂——上周拆分的两个命题（权益温和 / 久期否证）本周同时强验证；港股「美债第一受害人」再验证 + 中资券商暂停内地客户入金 = 估值面 + 资金面双压制升级。"}
+]},{"date":"2026.09.27","items":[
+{"t":"new","g":"入库消化","n":"38 周消化批入账（9 篇 + 体系记忆周报总纲 v17→v18）：NOW +2 新观察（股债背离 / Agent 沙箱 CPU）+ 4 条目注记；地图 4 节点补证据；命题注记 +6；周期盘「AI 材料」补涨价链扩散。Ledger 零变更。"},
+{"t":"new","g":"裁决","n":"38 周 7 项待裁决全部采纳落账：①L4-10「上下游分歧度=拐点预警信号」升正式、不锁参数；②L4-C13 维持候选、提高优先级；③L4-C14 长协结构不对称性登记候选（n=1）；④Brent 口径冲突两版保留标「口径待核」；⑤美债双情景保留不强行统一（分辨器=期限溢价是否伴随 CDS/美元信用恶化）；⑥A视野《救市》入 L2 战略层；⑦37 周 L3 种子拆两命题——「加息对权益冲击温和」与「加息对久期资产冲击温和」，原种子终止单一裁决、10 月议息再判。"},
+{"t":"risk","g":"宏观","n":"股债背离独立成题：30Y 5.53%（2004-06 以来最高）、10Y 升破 5.22% 与纳指历史新高同周并立——不是「冲击温和」，而是冲击被权益端 AI 盈利叙事对冲。AI 治理三连闭环确认算力需求曲线短期不被监管削平。元结论：M-06 单调外推偏差 n=3 建议升 Method Candidate；M-07 朴素乘法偏差新候选（CPU 需求高估近 25 倍）；M-05 二次下调为「局部跟随、方法论可对冲」。"},
+{"t":"new","g":"存储","n":"「紧缺 ≠ 斜率」第二维度：紧缺指标走强（DRAM 订单满足率约 60%、2027 服务器位元 +约 80%）但变现弹性被长协压缩（开放市场 11 月预计 +10% vs 美光混合 ASP 只能涨高个位数）；HBM 毛利率倒挂（约 68% < 标准 DRAM 约 91%）使 L4-C12 获财务层强验证。命题六不改概率（68%），9/30 美光财报为第一检验点——读法=能撑多久，不是超预期多少。"}
+]},{"date":"2026.09.21","items":[
+{"t":"up","g":"机器人","n":"回调概率 46% → 50%。9.04 下调的两个前提双反向移动：情绪定价已挤出（宇树腰斩 + 监管收紧 IPO）、量产斜率兑现（周产 600+、T 链订单、京东 300 万台）。解禁与首份季报未验，不全额回调——留 1 点在桌上。"},
+{"t":"new","g":"光模块","n":"复核立项（不改概率）：FCC 落地未被针对 + 投行集体上调，与 8.8「天花板已盖上」的冲突从并存变成加剧。约定改判信号——天花板侧：Q4 合约价环比走平/下跌、龙头指引增速下台阶；上调侧：订单与毛利持续上修。裁决窗口：Q4 合约价谈判与三季报季（10–11 月）。"},
+{"t":"new","g":"数值复核","n":"数值复核 5 项裁决全部采纳落账：命题三回调 46→50；命题五复核立项；Map · server 维持 yin、operator yin→turn（NBIS 13.1 个月回本打脸「慢回报」，命门=95% 利用率假设）；Cycle 机器人 note 更新为「终端需求初验未终验」+ 新增「AI 材料（成长）」。NOW 确立闭环标注纪律。"}
+]},{"date":"2026.09.20","items":[
+{"t":"new","g":"入库消化","n":"37 周消化批入账（32 篇 + 体系记忆周报总纲 v17）：重大回测闭环正式落地 1 条（美联储 9.17 加息 25bp——城堡预警兑现）、直接验证 2 条、L4 强化 2 条、新增 L4 候选 3 条、L4-10 上下游分歧度正式立规。落地：NOW +4 条、命题注记 +2 处；8 项待裁决本人已全部采纳落账。"},
+{"t":"risk","g":"宏观","n":"加息落地但种子不升级：9.18 反弹几乎全由 AI 股贡献、带逼空特征（活跃度 4/10、CTA 未来一周仍将卖出约 300 亿美元），10 月议息再加息定价约五成——「冲击或温和」延长观察至 10 月。M-05 出现反向样本，由「系统性跟随」下调为「局部跟随、可用方法论对冲」。"},
+{"t":"new","g":"存储","n":"「紧缺 ≠ 斜率」直接验证：HBM 涨价共识 +200%→+100%、Q3 均价环比 +20% 属预期而非实现；上下游分歧公开化（铠侠 vs 闪迪；三星电机涨价 vs 村田收缩料号）——「产业上下游分歧度 = 拐点预警信号」升正式 L4-10（验证方式：以价格实锚而非厂商表态）。命题六不改概率。"},
+{"t":"new","g":"元结论","n":"新增 M-06 候选（单调外推偏差，n=2）：HBM 12-hi→8-hi/4-hi 反转 + 决策型 AI「可靠廉价微小优于更大」——默认技术参数单向演进的倾向被登记。M-02 新增纪律修正：高斜率数据采用前先拆价格效应与数量效应。另建「定义之争」跟踪项三处。"},
+{"t":"new","g":"裁决","n":"37 周 8 项待裁决全部采纳落账：①加息种子不升级、延长观察至 10 月议息；②L4-C12 候选（规律立、参数不锁）；③MLCC「真减产不上公告」并入「公告产能 ≠ 有效供给」；④L4-10 正式立规；⑤A视野六命题留 L2 + 两条观察项；⑥L4-C11 候选；⑦L4-C13 候选；⑧黄仁勋「超级智能已至」登记为定义层注记。"}
+]},{"date":"2026.09.13","items":[
+{"t":"new","g":"入库消化","n":"36 周消化批入账（47 篇 + 体系记忆周报）：重大回测闭环 1 条（美联储路径——6.19「9 月加息」预警方向命中）、方向命中 3 条、冲突加剧 1 条、新增 L4 候选 1 条（L4-C10 循环融资结构风险）。落地：NOW +8 条、命题注记 +7 处；7 项待裁决本人已全部采纳落账。"},
+{"t":"risk","g":"宏观","n":"利率路径反转：核心 CPI 环比 0.3% 创 5 月新高，9 月加息定价一周 70%→90%，2 年期 4.58%、10 年期 4.95%。比判断对错更重要的发现：体系在宏观利率上存在跟随当下共识、缺乏独立锚的倾向——登记为元结论 M-05 候选（共识跟随偏差），10 月议息前后自验。"},
+{"t":"risk","g":"存储","n":"利润率 76%–82% 历史极值 vs 铠侠第一句「涨够了」与客户预算抵制——登记「紧缺延续 ≠ 价格斜率延续」（L2，2027Q1 验证）。命题六距证伪条件进入最近值守距离；不改概率，分歧以分层共存方式登记。"},
+{"t":"new","g":"机器人","n":"「有业绩」版获强化：特斯拉周产 600+、T 链数千台级订单、京东五年 300 万台采购计划；监管收紧机器人 IPO 完成宇树判断的后果链。不改概率——量产爬坡与估值消化同步，解禁与业绩期再验。"},
+{"t":"new","g":"裁决","n":"36 周 7 项待裁决全部采纳落账：①冲突#5 美联储路径标记「城堡预警命中」，L3 种子「加息落地且路径不大幅上修则冲击或温和」登记（10 月验证）；②存储 L2「紧缺延续 ≠ 价格斜率延续」（2027Q1 验证）；③L4-C10 候选「AI 资本开支循环融资结构风险」裁决通过；④L4-09 参数不动；⑤宇树→收紧机器人 IPO 登记为回测表案例验证（L1）；⑥A 视野六命题留 L2；⑦重复 2 篇标注处理确认。"}
+]},{"date":"2026.09.06","items":[
+{"t":"new","g":"入库消化","n":"35 周消化批入账（33 文件）：强化 12 条（AI 算力周期——博通合同锚、DELL 企业端、HBM/DRAM 紧缺）、修正 2 条、新增量化 2 条（每 GW 推理变现 600–1000 亿/年；高频 Token 用户或不足 1000 万）。落地：NOW +4 条、光模块条目边界修正、命题注记 +6 处。"},
+{"t":"new","g":"国产算力","n":"命题一证据强化但概率未动：博通 FY27 约 $115B / FY28 约 $230B 客户合同已签、英伟达 Blackwell 排队至 2027、DELL 企业客户 6500+——CapEx 从云厂指引变成客户合同、从云厂单边走向企业端。验证不是变化，不改概率（沿用 08.30 纪律）；远端数据按每季季报打折持有。"},
+{"t":"risk","g":"存储","n":"三星 DRAM 价格上行 + HBM 执行改善打开盈利弹性；HBM4 翻倍至 $700+、2027「存储超级周期」叙事走强——与命题六证伪条件（三星、海力士盈利预测不降反升）的距离在缩短。不改概率，进入重点值守。"}
+]},{"date":"2026.08.30","items":[
+{"t":"new","g":"周度研究","n":"登记三条深度研究：存储涨价遭遇成建制的买方抵抗（HBM 降配、BoM 占比 70%）；AI 硬件瓶颈迁移到设备交期与洁净室；长鑫进入全球第四大 DRAM 厂商行列。"},
+{"t":"up","g":"存储","n":"上调概率 65% → 68%。涨价的终结者不是低价，而是买方的配置降级——Rubin Ultra 从 12 层降配至 8 层，英伟达以存储极端定价为由下调毛利率指引。「上涨失效」从股价蔓延到产品配置。反证并存：降配提高良率，HBM 总供给反增。"},
+{"t":"new","g":"国产算力","n":"命题一证据强化但概率未动：英伟达 FY28 指引 +70% 且声明受供给约束、不计中国收入；亚洲封测资本开支同比 +80%，CoW 设备交期 12 个月。瓶颈迁移判断被验证——验证不是变化，不改概率。"},
+{"t":"new","g":"机器人","n":"更新一个观察：行业在蓄力喷发，但整体股价萧条，宛若黎明前的黑暗。与六月「交易拥挤」的记录正好构成一个完整回合——拥挤时降温，萧条时重新点亮注意力。"},
+{"t":"risk","g":"稀土","n":"登记一条反证：沃什删除前瞻指引并给出鹰派行动标准——四重底中的「降息预期」一腿受到挑战。单周言论不足以改判断，继续观察。"}
+]}];
+
+/* ── 共用渲染 ── */
+const itemsHTML = (items) => items.map(it => {
+  const m = TYPE_META[it.t];
+  return `<div class="j-item">
+    <span class="j-mark${m.red ? ' risk' : ''}">${m.mark}</span>
+    <div><div class="j-target">${it.g}</div><p class="j-note">${it.n}</p></div>
+  </div>`;
+}).join('');
+
+const tagsOf = (entry) => entry.items.map(it => it.g).join('<i>·</i>');
+
+/* ── 方案一 · 手风琴 ── */
+const accList = document.getElementById('accList');
+J.forEach((entry, idx) => {
+  const wrap = document.createElement('div');
+  wrap.className = 'acc-item';
+  wrap.innerHTML = `
+    <button class="acc-head" data-i="${idx}">
+      <span class="d">${entry.date}</span>
+      <span class="cnt">${entry.items.length} 条</span>
+      <span class="tags">${tagsOf(entry)}</span>
+      <span class="toggle">＋</span>
+    </button>
+    <div class="acc-body"><div class="acc-body-in">${itemsHTML(entry.items)}</div></div>`;
+  accList.appendChild(wrap);
+});
+function accCloseAll() {
+  document.querySelectorAll('.acc-item').forEach(w => {
+    w.querySelector('.acc-head').classList.remove('open');
+    w.querySelector('.acc-body').style.maxHeight = '0';
+    w.querySelector('.toggle').textContent = '＋';
+  });
+}
+function accOpen(i) {
+  const w = document.querySelectorAll('.acc-item')[i];
+  const head = w.querySelector('.acc-head');
+  const body = w.querySelector('.acc-body');
+  accCloseAll();
+  head.classList.add('open');
+  body.style.maxHeight = body.scrollHeight + 'px';
+  head.querySelector('.toggle').textContent = '－';
+}
+accList.addEventListener('click', e => {
+  const head = e.target.closest('.acc-head');
+  if (!head) return;
+  const w = head.parentElement;
+  const body = w.querySelector('.acc-body');
+  if (head.classList.contains('open')) {
+    head.classList.remove('open');
+    body.style.maxHeight = '0';
+    head.querySelector('.toggle').textContent = '＋';
+  } else {
+    accOpen(+head.dataset.i);
+  }
+});
+accOpen(0);
+
+/* ── 方案二 · 周选择器 ── */
+let curW = 0;
+const selBtn = document.getElementById('selBtn');
+const selPanel = document.getElementById('selPanel');
+const selLabel = document.getElementById('selLabel');
+const weekView = document.getElementById('weekView');
+const prevW = document.getElementById('prevW');
+const nextW = document.getElementById('nextW');
+
+selPanel.innerHTML = J.map((entry, i) =>
+  `<button data-i="${i}"><span class="mono">${entry.date}</span><span class="cnt">${entry.items.length} 条 · ${entry.items.map(it => it.g).join(' / ')}</span></button>`
+).join('');
+
+function renderWeek(i) {
+  curW = i;
+  const entry = J[i];
+  selLabel.textContent = entry.date + '　·　' + entry.items.length + ' 条';
+  weekView.innerHTML = `
+    <div class="wv-date">${entry.date}<span class="wk">WEEK ${String(J.length - i).padStart(2, '0')} / ${J.length}</span></div>
+    ${itemsHTML(entry.items)}`;
+  prevW.disabled = i === J.length - 1;
+  nextW.disabled = i === 0;
+  selPanel.querySelectorAll('button').forEach((b, bi) => b.classList.toggle('cur', bi === i));
+}
+selBtn.addEventListener('click', () => selPanel.classList.toggle('on'));
+selPanel.addEventListener('click', e => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  renderWeek(+b.dataset.i);
+  selPanel.classList.remove('on');
+});
+prevW.addEventListener('click', () => { if (curW < J.length - 1) renderWeek(curW + 1); });
+nextW.addEventListener('click', () => { if (curW > 0) renderWeek(curW - 1); });
+renderWeek(0);
+
+/* ── 方案三 · 主从双栏 ── */
+const mdRail = document.getElementById('mdRail');
+const mdMain = document.getElementById('mdMain');
+mdRail.innerHTML = J.map((entry, i) =>
+  `<button data-i="${i}"><span class="d">${entry.date}</span><span class="cnt">${entry.items.length} 条</span></button>`
+).join('');
+function renderMd(i) {
+  mdRail.querySelectorAll('button').forEach((b, bi) => b.classList.toggle('cur', bi === i));
+  mdMain.innerHTML = `<div class="wv-date">${J[i].date}</div>${itemsHTML(J[i].items)}`;
+  mdMain.scrollTop = 0;
+}
+mdRail.addEventListener('click', e => {
+  const b = e.target.closest('button');
+  if (b) renderMd(+b.dataset.i);
+});
+renderMd(0);
+
+/* ── 方案四 · 手卷横陈 ── */
+const hsSpace = document.getElementById('hsSpace');
+const hsRow = document.getElementById('hsRow');
+const hsFill = document.getElementById('hsFill');
+const hsCur = document.getElementById('hsCur');
+hsRow.innerHTML = J.map((entry, i) => `
+  <div class="hs-panel">
+    <div class="p-date">${entry.date}</div>
+    <div class="p-week">WEEK ${String(J.length - i).padStart(2, '0')} / ${J.length} · ${entry.items.length} 条</div>
+    ${itemsHTML(entry.items)}
+  </div>`).join('');
+hsSpace.style.height = (J.length * 78) + 'vh';
+document.getElementById('hsLabels').innerHTML =
+  `<span>${J[0].date}</span><span>${J[Math.floor(J.length / 2)].date}</span><span>${J[J.length - 1].date}</span>`;
+
+const clamp01 = v => Math.min(1, Math.max(0, v));
+function hsUpdate() {
+  if (!document.getElementById('s4').classList.contains('on')) return;
+  const total = hsSpace.offsetHeight - window.innerHeight;
+  const p = clamp01(-hsSpace.getBoundingClientRect().top / total);
+  const shift = Math.max(0, hsRow.scrollWidth - window.innerWidth + window.innerWidth * 0.1);
+  hsRow.style.transform = `translateX(${-p * shift}px)`;
+  hsFill.style.width = (p * 100) + '%';
+  hsCur.style.left = (p * 100) + '%';
+}
+window.addEventListener('scroll', () => requestAnimationFrame(hsUpdate), { passive: true });
+window.addEventListener('resize', hsUpdate);
+hsUpdate();
+
+/* ── 方案五 · 档案卡钉叠 ── */
+const stackList = document.getElementById('stackList');
+stackList.innerHTML = J.map((entry, i) => `
+  <div class="stack-wrap">
+    <div class="stack-card">
+      <div class="sc-head">
+        <span class="d">${entry.date}</span>
+        <span class="no"><b>${String(i + 1).padStart(2, '0')}</b> / ${String(J.length).padStart(2, '0')} · ${entry.items.length} 条</span>
+      </div>
+      <div class="sc-body">${itemsHTML(entry.items)}</div>
+    </div>
+  </div>`).join('');
+
+/* ── 方案六 · 检索直达 ── */
+const pkList = document.getElementById('pkList');
+pkList.innerHTML = J.map((entry, i) => `
+  <button class="pk-row" id="pk-${entry.date}" data-i="${i}">
+    <span class="d">${entry.date}</span>
+    <span class="t">${entry.items.map(it => it.g).join(' / ')} · ${entry.items.map(it => TYPE_META[it.t].mark).join(' ')}</span>
+  </button>`).join('');
+
+const pal = document.getElementById('pal');
+const palInput = document.getElementById('palInput');
+const palResults = document.getElementById('palResults');
+function palRender(q) {
+  const query = (q || '').trim().toLowerCase();
+  const hits = J.map((entry, i) => ({ entry, i }))
+    .filter(({ entry }) => !query ||
+      entry.date.toLowerCase().includes(query) ||
+      entry.items.some(it => it.g.toLowerCase().includes(query) || it.n.toLowerCase().includes(query)));
+  palResults.innerHTML = hits.length
+    ? hits.map(({ entry, i }) => `
+      <button data-i="${i}">
+        <span class="mono">${entry.date}</span>
+        <span>${entry.items.map(it => it.g).join(' / ')}</span>
+        <span class="cnt">${entry.items.length} 条</span>
+      </button>`).join('')
+    : '<div class="pal-empty">没有匹配的周次</div>';
+}
+function palOpen() { pal.classList.add('on'); palInput.value = ''; palRender(''); setTimeout(() => palInput.focus(), 30); }
+function palClose() { pal.classList.remove('on'); }
+function palJump(i) {
+  const entry = J[i];
+  palClose();
+  document.getElementById('s6').classList.add('on');
+  const row = document.getElementById('pk-' + entry.date);
+  row.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  row.classList.remove('flash'); void row.offsetWidth; row.classList.add('flash');
+}
+document.getElementById('pkOpen').addEventListener('click', palOpen);
+palInput.addEventListener('input', () => palRender(palInput.value));
+palResults.addEventListener('click', e => {
+  const b = e.target.closest('button');
+  if (b) palJump(+b.dataset.i);
+});
+document.addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); pal.classList.contains('on') ? palClose() : palOpen(); }
+  if (e.key === 'Escape') palClose();
+});
+
+/* ── 方案七 · 季度架 ── */
+const QN = ['第一季度','第二季度','第三季度','第四季度'];
+const byQ = {};
+J.forEach(en => { const q = Math.ceil(+en.date.split('.')[1] / 3); (byQ[q] = byQ[q] || []).push(en); });
+const rack = document.getElementById('rack');
+rack.innerHTML = `
+  <div class="ry-label"><span class="yr">2026</span><span>ARCHIVE RACK · 一层四函</span></div>
+  <div class="ry-slots">${[1,2,3,4].map(q => {
+    const weeks = byQ[q] || [];
+    if (!weeks.length) return `<button class="slot empty" disabled><span class="q">Q${q}</span><span class="qn">${QN[q-1]}</span><span class="cnt">虚位以待</span></button>`;
+    const marks = { up:0, down:0, risk:0, new:0 }; let n = 0;
+    weeks.forEach(w => w.items.forEach(it => { marks[it.t]++; n++; }));
+    return `<button class="slot" data-q="${q}"><span class="q">Q${q}</span><span class="qn">${QN[q-1]}</span>
+      <span class="cnt">${weeks.length} 周 · ${n} 条</span>
+      <span class="marks"><span class="risk">△${marks.risk}</span>　↑${marks.up} ↓${marks.down} ＋${marks.new}</span></button>`;
+  }).join('')}</div>`;
+/* 卷宗浮层：抽出 → 背景整页虚化 → 奏折横陈摊开当季周记 */
+const dossier = document.getElementById('dossier');
+const dosStrip = document.getElementById('dosStrip');
+const dosFill = document.getElementById('dosFill');
+let openQ = null;
+function dosRender(q) {
+  const weeks = byQ[q];
+  document.getElementById('dosTitle').innerHTML = `2026 · Q${q} 卷宗<span class="mono">${QN[q-1]} · ${weeks.length} WEEKS</span>`;
+  // 奏折：DOM 按时间自左向右（最旧→最新），最新一面在最右（展卷即见最新）
+  dosStrip.innerHTML = weeks.slice().reverse().map((w, i) => `<div class="dos-week">
+      <div class="dw-date">${w.date}<span class="wk">WEEK ${String(i + 1).padStart(2,'0')} / ${weeks.length}</span></div>
+      ${itemsHTML(w.items)}</div>`).join('');
+  // 变体 C：为每条注记挂「展开全文」按钮（长文才挂）
+  dosStrip.querySelectorAll('.j-item').forEach(item => {
+    const note = item.querySelector('.j-note');
+    if (note && note.textContent.length > 140) {
+      const btn = document.createElement('button');
+      btn.className = 'j-more';
+      btn.textContent = '展开全文 ↓';
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const open = note.classList.toggle('open');
+        btn.textContent = open ? '收起 ↑' : '展开全文 ↓';
+      });
+      item.appendChild(btn);
+    }
+  });
+}
+/* 变体切换 */
+document.getElementById('varbar').addEventListener('click', e => {
+  const b = e.target.closest('button[data-v]');
+  if (!b) return;
+  document.querySelectorAll('#varbar button').forEach(x => x.classList.toggle('on', x === b));
+  dossier.className = 'dossier ' + b.dataset.v;
+});
+/* 变体 D：点击折面 → 全幅深读；点击已全幅折面的日期栏收拢 */
+dosStrip.addEventListener('click', e => {
+  if (!dossier.classList.contains('dos-vD') || window.innerWidth <= 720) return;
+  const week = e.target.closest('.dos-week');
+  if (!week) return;
+  if (week.classList.contains('full')) {
+    if (e.target.closest('.dw-date')) week.classList.remove('full');
+    return;
+  }
+  dosStrip.querySelectorAll('.dos-week.full').forEach(x => x.classList.remove('full'));
+  week.classList.add('full');
+  week.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+});
+function dosSync() {
+  const max = dosStrip.scrollWidth - dosStrip.clientWidth;
+  dosFill.style.width = (max > 0 ? 8 + (dosStrip.scrollLeft / max) * 92 : 100) + '%';
+}
+function dosOpen(q) {
+  openQ = q;
+  rack.querySelectorAll('.slot').forEach(s => s.classList.toggle('open', s.dataset.q === String(q)));
+  dosRender(q);
+  dossier.classList.add('on');
+  document.body.style.overflow = 'hidden';
+  requestAnimationFrame(() => {
+    if (window.innerWidth <= 720) {
+      const sc = dossier.querySelector('.dos-scroll');
+      sc.scrollTop = sc.scrollHeight; // 移动端：纵卷直接落到底（最新）
+    } else {
+      dosStrip.scrollLeft = dosStrip.scrollWidth;
+    }
+    dosSync();
+  });
+}
+function dosClose() {
+  openQ = null;
+  dossier.classList.remove('on');
+  document.body.style.overflow = '';
+  rack.querySelectorAll('.slot.open').forEach(s => s.classList.remove('open'));
+}
+rack.addEventListener('click', e => {
+  const slot = e.target.closest('.slot[data-q]');
+  if (!slot) return;
+  const q = +slot.dataset.q;
+  openQ === q ? dosClose() : dosOpen(q);
+});
+document.getElementById('dosScrim').addEventListener('click', dosClose);
+document.getElementById('dosClose').addEventListener('click', dosClose);
+document.getElementById('dosPrev').addEventListener('click', () => dosStrip.scrollBy({ left: -dosStrip.clientWidth * .8, behavior: 'smooth' }));
+document.getElementById('dosNext').addEventListener('click', () => dosStrip.scrollBy({ left: dosStrip.clientWidth * .8, behavior: 'smooth' }));
+// 滚轮手感（仅变体 B 接管）：折面还能纵向滚动时交给折面（触摸板纵向手势），
+// 滚到折面尽头后继续滚才转为横向翻折；其余变体一律原生——纵向滚纸、横向手势展卷。
+dosStrip.addEventListener('wheel', e => {
+  if (!dossier.classList.contains('dos-vB')) return;
+  if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return; // 横向手势原生处理
+  const col = e.target.closest('.dos-week');
+  if (col && col.scrollHeight > col.clientHeight + 1) {
+    const atTop = col.scrollTop <= 0 && e.deltaY < 0;
+    const atBottom = col.scrollTop + col.clientHeight >= col.scrollHeight - 1 && e.deltaY > 0;
+    if (!atTop && !atBottom) return; // 折面内纵向滚动，走原生
+  }
+  e.preventDefault();
+  dosStrip.scrollLeft += e.deltaY;
+}, { passive: false });
+dosStrip.addEventListener('scroll', () => requestAnimationFrame(dosSync), { passive: true });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && openQ !== null) dosClose(); });
+
+/* ── 方案切换 ── */
+const PITCH = {
+  s1: { h: '方案一 · 档案柜（手风琴）', p: '全部周次平铺为一行一条的<b>发丝线目录</b>（日期 / 条数 / 本周主题），默认收起；点开一周、压平一周，<em>页面总长度恒定</em>，不随周数增长。保留纵向时间流的仪式感，扫读「哪周讲了什么」一眼完成。代价：读多周需要逐个点开。' },
+  s2: { h: '方案二 · 周选择器（单周视图）', p: '顶部一条<b>周导航</b>（下拉选周 + 前后翻页），正文只渲染当周全文——<em>页面最短</em>，永远一屏读完。最适合「读最新 + 按需考古」；代价：看不到全部周次的整体轮廓，跳转依赖选择器。' },
+  s3: { h: '方案三 · 主从双栏（索引 + 详情）', p: '左侧常驻<b>全部周次的紧凑索引</b>（朱砂线标记当前），右侧读选中周全文——扫读与深读<em>同屏完成</em>，档案柜感最强，也是周数持续增长（一年后将 70+ 周）时<em>扩展性最好</em>的方案。代价：移动端需降级为上下叠放。' },
+  s4: { h: '方案四 · 手卷横陈（横向滚动叙事）', p: '获奖站点的标志性手法（Studio Freight / Locomotive 一系）——而且<b>横卷本来就是中国画的观看方式</b>（手卷徐徐展开）：继续向下滚动，叙事流横向铺开，一周一面，底部日期刻度如卷轴引首。纵向永远一屏，信息密度藏在横向。代价：滚轮→横移的映射需要调缓（正式版会拉长纵向空间）；触屏需滑杆替代。' },
+  s5: { h: '方案五 · 档案卡钉叠（Sticky Stacking Cards）', p: 'Awwwards 常客手法：每周一张档案卡，滚动时<b>卡片钉住并逐张叠上去</b>——像手指捻开一叠纸质档案，页眉自带序号（03/08）。纯竖向、零学习成本，「翻档案」的隐喻与日志页气质天然相合。代价：单卡高度有限，长条目卡内截断（正式版可卡内滚动）。' },
+  s6: { h: '方案六 · 检索直达（⌘K 命令面板）', p: 'Linear / Raycast 的交互范式：页面本身只保留<b>一行式全索引</b>，把「浏览」与「调取」分成两个动作——按 ⌘K 输入日期、主题或正文关键词，秒级定位任意一周并高亮。周数再多也无关页面长度，<em>扩展性无上限</em>。代价：少了「随手翻到意外发现」的浏览乐趣，适合目标明确的读者。' },
+  s7: { h: '方案七 · 季度架（函套 × 卷宗 · 奏折展卷）', p: '你的灵感落地：<b>年度档案架</b>——一层四个函套（Q1–Q4），卡面显示当季周数、条目数与标记统计（△ 朱砂高亮）。点击函套如<b>抽出卷宗</b>：整页背景虚化退后，卷宗独立浮于案上，当季周记按<b>奏折</b>自左向右横陈铺开（滚轮或箭头展卷，底部朱砂进度如卷轴引首），最新一面在最右。空季度「虚位以待」虚线占位，年份增长往上添一层——页面主体永远只有一架，扩展无上限。<br><b>单周内容高于卷宗时怎么办？</b>点开任意函套，用上方「纵向溢出解法」切换四种方案：<b>A</b> 整卷纵向滚动（各折等高于最高者，卷宗如一张高纸整体下移）· <b>B</b> 折面内滚动（每折固定上限、细滚动条）· <b>C</b> 长文截断展开（每条限五行，「展开全文」按需摊开）· <b>D</b> 点击全幅深读（点某折占满卷宗宽度细读）。' },
+};
+const pitch = document.getElementById('pitch');
+document.getElementById('tabs').addEventListener('click', e => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('active', x === b));
+  document.querySelectorAll('.stage').forEach(s => s.classList.toggle('on', s.id === b.dataset.s));
+  const p = PITCH[b.dataset.s];
+  pitch.innerHTML = `<h2>${p.h}</h2><p>${p.p}</p>`;
+  window.scrollTo({ top: 0, behavior: 'instant' });
+  requestAnimationFrame(hsUpdate);
+});
+pitch.innerHTML = `<h2>${PITCH.s1.h}</h2><p>${PITCH.s1.p}</p>`;
+</script>
+</body>
+</html>

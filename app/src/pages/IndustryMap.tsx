@@ -224,20 +224,21 @@ export default function IndustryMap() {
       <EraScale />
 
       <div className="grid lg:grid-cols-12 gap-10 lg:gap-14 pb-8">
-        {/* ── 地图画布 ── */}
-        <div className="lg:col-span-7">
-          <div className="border border-[rgb(var(--line))] bg-paper relative">
-            <div className="absolute top-4 left-4 md:top-5 md:left-5">
-              <Label>{INDUSTRY_MAP.root}</Label>
-            </div>
-            <div className="absolute top-4 right-4 md:top-5 md:right-5 text-right">
-              <Label className="block">上游 ↓ 下游</Label>
-            </div>
-            <svg
-              viewBox="0 0 100 120"
-              className="w-full h-auto block select-none"
-              onMouseLeave={() => setHoverId(null)}
-            >
+        {/* ── 地图画布（桌面端钉住：翻长卡片时保持情景意识） ── */}
+        <div className="lg:col-span-7 lg:sticky lg:top-20 self-start">
+          <div className="border border-[rgb(var(--line))] bg-paper lg:h-[calc(100vh-13rem)] lg:flex lg:flex-col">
+            <div className="relative lg:flex-1 lg:min-h-0">
+              <div className="absolute top-4 left-4 md:top-5 md:left-5 z-10">
+                <Label>{INDUSTRY_MAP.root}</Label>
+              </div>
+              <div className="absolute top-4 right-4 md:top-5 md:right-5 text-right z-10">
+                <Label className="block">上游 ↓ 下游</Label>
+              </div>
+              <svg
+                viewBox="0 0 100 120"
+                className="w-full h-auto block select-none lg:absolute lg:inset-0 lg:h-full"
+                onMouseLeave={() => setHoverId(null)}
+              >
               {/* 连线 */}
               {MAP_EDGES.map(([a, b]) => {
                 const na = byId[a]; const nb = byId[b]
@@ -276,7 +277,8 @@ export default function IndustryMap() {
                     />
                   </g>
                 ))}
-            </svg>
+              </svg>
+            </div>
           </div>
           {/* 图例 */}
           <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs ink-3">
@@ -305,21 +307,19 @@ export default function IndustryMap() {
           </div>
         </div>
 
-        {/* ── 详情面板 ── */}
+        {/* ── 详情面板（长内容自然下滚，地图钉在左侧） ── */}
         <div className="lg:col-span-5">
-          <div className="lg:sticky lg:top-24">
-            <NodeDetail node={active} linkedNodes={linkedNodes} />
-            <a
-              href={`#/essays/${MAP_ESSAY}`}
-              className="mt-4 flex items-center justify-between border border-[rgb(var(--line))] px-5 md:px-6 py-4 group hover:border-[rgb(var(--water))] transition-colors"
-            >
-              <div>
-                <Label className="block mb-1.5 water">延伸阅读 · 文集</Label>
-                <span className="text-sm font-medium">如何写一个产业命题</span>
-              </div>
-              <span className="water group-hover:translate-x-1 transition-transform">→</span>
-            </a>
-          </div>
+          <NodeDetail node={active} linkedNodes={linkedNodes} />
+          <a
+            href={`#/essays/${MAP_ESSAY}`}
+            className="mt-4 flex items-center justify-between border border-[rgb(var(--line))] px-5 md:px-6 py-4 group hover:border-[rgb(var(--water))] transition-colors"
+          >
+            <div>
+              <Label className="block mb-1.5 water">延伸阅读 · 文集</Label>
+              <span className="text-sm font-medium">如何写一个产业命题</span>
+            </div>
+            <span className="water group-hover:translate-x-1 transition-transform">→</span>
+          </a>
         </div>
       </div>
 

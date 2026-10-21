@@ -1,4 +1,6 @@
+import { useEffect, useRef, useState } from 'react'
 import { JOURNAL, LEDGER, THESES } from '../data/content'
+import type { JournalEntry, JournalItem } from '../data/domains/journal'
 import { deltaOf, latestChanges } from '../data/ledger'
 import { PageHead, Label } from '../components/Bits'
 
@@ -9,7 +11,251 @@ const TYPE_META: Record<string, { mark: string; label: string; red?: boolean }> 
   new: { mark: '＋', label: '新增记录' },
 }
 
-/* 日志页（V2-06-04 双层结构；V2-C.1 投影规则 · 2026-09-05 Human 裁决 = A）——
+const QN = ['第一季度', '第二季度', '第三季度', '第四季度']
+const yearOf = (d: string) => d.split('.')[0]
+const quarterOf = (d: string) => Math.ceil(Number(d.split('.')[1]) / 3)
+
+/* 季度档案架分组：年为一层（新年份在上），每层四函 Q1–Q4。
+   JOURNAL 源数据新→旧；组内保持新→旧，展卷时 reverse 成时间顺序（最新一面在最右）。 */
+interface Rack { year: string; quarters: Map<number, JournalEntry[]> }
+const RACKS: Rack[] = (() => {
+  const byYear = new Map<string, Map<number, JournalEntry[]>>()
+  for (const en of JOURNAL) {
+    const y = yearOf(en.date)
+    const q = quarterOf(en.date)
+    if (!byYear.has(y)) byYear.set(y, new Map())
+    const quarters = byYear.get(y)!
+    if (!quarters.has(q)) quarters.set(q, [])
+    quarters.get(q)!.push(en)
+  }
+  return [...byYear.entries()]
+    .sort((a, b) => b[0].localeCompare(a[0]))
+    .map(([year, quarters]) => ({ year, quarters }))
+})()
+
+/* 单条叙事（01 REVISION 不用，02 卷宗折面复用） */
+function JournalItems({ items }: { items: JournalItem[] }) {
+  return (
+    <div className="space-y-8">
+      {items.map((item, i) => {
+        const meta = TYPE_META[item.type]
+        const inner = (
+          <>
+            <div className="flex items-baseline gap-3 mb-2 flex-wrap">
+              <span className="font-serif-sc font-bold text-lg">{item.target}</span>
+            </div>
+            <p className="text-sm md:text-base leading-relaxed ink-2">{item.note}</p>
+          </>
+        )
+        return (
+          <div key={i} className="flex gap-5 md:gap-8 items-start">
+            <span
+              className={`font-mono-num tnum text-2xl leading-none shrink-0 w-8 ${
+                meta.red ? 'ink' : ''
+              }`}
+            >
+              {meta.mark}
+            </span>
+            {item.thesisId ? (
+              <a href={`#/thesis/${item.thesisId}`} className="ink-hv block">{inner}</a>
+            ) : (
+              <div>{inner}</div>
+            )}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+/* 02 叙事流 · 季度档案架（方案七实施）：架 → 函套 → 卷宗浮层（奏折横陈） */
+function NarrativeRack() {
+  const [open, setOpen] = useState<{ year: string; q: number } | null>(null)
+  const [fill, setFill] = useState(100)
+  const stripRef = useRef<HTMLDivElement>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  const syncFill = (el: HTMLDivElement) => {
+    const max = el.scrollWidth - el.clientWidth
+    setFill(max > 0 ? 8 + (el.scrollLeft / max) * 92 : 100)
+  }
+
+  /* ESC 收卷 + 锁定背景滚动 */
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(null)
+    }
+    document.addEventListener('keydown', onKey)
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.body.style.overflow = prev
+    }
+  }, [open])
+
+  /* 展卷即见最新：渲染后桌面滚到最右（最新一面）、移动端纵卷落到底；
+     滚轮智能接管——折面还能纵向滚动时交给折面（触摸板纵向手势），
+     滚到折面尽头后继续滚才转为横向翻折；横向手势原生展卷 */
+  useEffect(() => {
+    const el = stripRef.current
+    if (!el || !open) return
+    const raf = requestAnimationFrame(() => {
+      if (window.innerWidth <= 720) {
+        const sc = scrollRef.current
+        if (sc) sc.scrollTop = sc.scrollHeight
+      } else {
+        el.scrollLeft = el.scrollWidth
+      }
+      syncFill(el)
+    })
+    const onWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return
+      const col = (e.target as HTMLElement).closest?.('.dos-week')
+      if (col && col.scrollHeight > col.clientHeight + 1) {
+        const atTop = col.scrollTop <= 0 && e.deltaY < 0
+        const atBottom =
+          col.scrollTop + col.clientHeight >= col.scrollHeight - 1 && e.deltaY > 0
+        if (!atTop && !atBottom) return
+      }
+      e.preventDefault()
+      el.scrollLeft += e.deltaY
+    }
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => {
+      cancelAnimationFrame(raf)
+      el.removeEventListener('wheel', onWheel)
+    }
+  }, [open])
+
+  const openWeeks =
+    open && RACKS.find((r) => r.year === open.year)?.quarters.get(open.q)
+
+  return (
+    <>
+      {RACKS.map((rack) => (
+        <div key={rack.year} className="mb-14 last:mb-0">
+          <div className="rack-label">
+            <span className="yr">{rack.year}</span>
+            <span>ARCHIVE RACK · 一层四函</span>
+          </div>
+          <div className="rack-slots">
+            {[1, 2, 3, 4].map((q) => {
+              const weeks = rack.quarters.get(q)
+              if (!weeks || !weeks.length) {
+                return (
+                  <button key={q} className="rack-slot" disabled>
+                    <span className="q">Q{q}</span>
+                    <span className="qn">{QN[q - 1]}</span>
+                    <span className="cnt">虚位以待</span>
+                  </button>
+                )
+              }
+              const marks = { up: 0, down: 0, risk: 0, new: 0 }
+              let n = 0
+              weeks.forEach((w) =>
+                w.items.forEach((it) => {
+                  marks[it.type]++
+                  n++
+                })
+              )
+              const isOpen = open?.year === rack.year && open.q === q
+              return (
+                <button
+                  key={q}
+                  className={isOpen ? 'rack-slot rack-slot-open' : 'rack-slot'}
+                  onClick={() => setOpen(isOpen ? null : { year: rack.year, q })}
+                >
+                  <span className="q">Q{q}</span>
+                  <span className="qn">{QN[q - 1]}</span>
+                  <span className="cnt">{weeks.length} 周 · {n} 条</span>
+                  <span className="marks">
+                    <span className="risk">△{marks.risk}</span>
+                    　↑{marks.up} ↓{marks.down} ＋{marks.new}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      ))}
+
+      {open && openWeeks && (
+        <div className="dos" role="dialog" aria-modal="true">
+          <div className="dos-scrim" onClick={() => setOpen(null)} />
+          <div className="dos-panel">
+            <div className="dos-head">
+              <span className="t">
+                {open.year} · Q{open.q} 卷宗
+                <span className="mono">
+                  {QN[open.q - 1]} · {openWeeks.length} WEEKS
+                </span>
+              </span>
+              <button className="dos-close" onClick={() => setOpen(null)}>
+                收起卷宗 ✕
+              </button>
+            </div>
+            <div className="dos-scroll" ref={scrollRef}>
+              <div
+                className="dos-strip"
+                ref={stripRef}
+                onScroll={(e) => syncFill(e.currentTarget)}
+              >
+                {/* 奏折：按时间自左向右铺开，最新一面在最右 */}
+                {[...openWeeks].reverse().map((w, i, arr) => (
+                  <div className="dos-week" key={w.date}>
+                    <div className="dos-date">
+                      {w.date}
+                      <span className="wk">
+                        WEEK {String(i + 1).padStart(2, '0')} / {arr.length}
+                      </span>
+                    </div>
+                    <JournalItems items={w.items} />
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="dos-nav">
+              <button
+                className="dos-arrow"
+                aria-label="向前翻"
+                onClick={() =>
+                  stripRef.current?.scrollBy({
+                    left: -stripRef.current.clientWidth * 0.8,
+                    behavior: 'smooth',
+                  })
+                }
+              >
+                ←
+              </button>
+              <div className="dos-track">
+                <div className="dos-fill" style={{ width: `${fill}%` }} />
+              </div>
+              <button
+                className="dos-arrow"
+                aria-label="向后翻"
+                onClick={() =>
+                  stripRef.current?.scrollBy({
+                    left: stripRef.current.clientWidth * 0.8,
+                    behavior: 'smooth',
+                  })
+                }
+              >
+                →
+              </button>
+              <span className="dos-hint">横移如展卷 · 滚轮可用</span>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+
+/* 日志页（V2-06-04 双层结构；V2-C.1 投影规则 · 2026-09-05 Human 裁决 = A；
+   02 叙事流 2026-10-21 改为季度档案架：年为一层、每架四函，卷宗浮层奏折横陈，
+   Human 批准 demo 实施，页高恒定、周数增长只添函不添长）——
    01 REVISION = WHAT CHANGED MY MIND：展示层只投影「每命题最新一条 delta≠0」
    的真实变化（latestChanges 派生）；confirm（delta=0，如 55→55 校准记录）
    不作为变化展示——底层 Ledger append-only，原始记录零删改。
@@ -58,49 +304,12 @@ export default function Journal() {
         </div>
       </section>
 
-      {/* ── 02 叙事流 · 研究日志 ── */}
+      {/* ── 02 叙事流 · 季度档案架 ── */}
       <section className="py-4 md:py-8">
         <div className="flex items-baseline justify-between mb-4 md:mb-6">
           <Label>NARRATIVE · 研究叙事</Label>
         </div>
-        <div className="border-t border-[rgb(var(--line))]">
-          {JOURNAL.map((entry) => (
-            <section key={entry.date} className="grid md:grid-cols-12 gap-6 md:gap-10 py-12 md:py-16 hairline-b">
-              <div className="md:col-span-3">
-                <span className="font-mono-num tnum text-2xl md:text-3xl font-medium">{entry.date}</span>
-              </div>
-              <div className="md:col-span-8 md:col-start-5 space-y-8">
-                {entry.items.map((item, i) => {
-                  const meta = TYPE_META[item.type]
-                  const inner = (
-                    <>
-                      <div className="flex items-baseline gap-3 mb-2 flex-wrap">
-                        <span className="font-serif-sc font-bold text-lg">{item.target}</span>
-                      </div>
-                      <p className="text-sm md:text-base leading-relaxed ink-2">{item.note}</p>
-                    </>
-                  )
-                  return (
-                    <div key={i} className="flex gap-5 md:gap-8 items-start">
-                      <span
-                        className={`font-mono-num tnum text-2xl leading-none shrink-0 w-8 ${
-                          meta.red ? 'ink' : ''
-                        }`}
-                      >
-                        {meta.mark}
-                      </span>
-                      {item.thesisId ? (
-                        <a href={`#/thesis/${item.thesisId}`} className="ink-hv block">{inner}</a>
-                      ) : (
-                        <div>{inner}</div>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-            </section>
-          ))}
-        </div>
+        <NarrativeRack />
       </section>
 
       <div className="py-16 md:py-24 text-center">

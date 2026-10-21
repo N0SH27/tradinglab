@@ -1,8 +1,32 @@
+import { useState } from 'react'
 import {
   CYCLE_STAGES, CYCLE_INDUSTRIES, CYCLE_NOTE,
   CYCLE_RESONANCE, THEME_LIFECYCLE, THEME_LEVELS, FACE_WEIGHTS,
 } from '../data/content'
 import { Label, PageHead, SectionHead, Taiji } from '../components/Bits'
+
+/* 阶段卡：note 为多段「；」分隔的时序记录时，默认只展示最新一段（最新结论），
+   点击卡片展开完整证据链；单段短结论原样展示。 */
+function StageItem({ name, note }: { name: string; note: string }) {
+  const [expanded, setExpanded] = useState(false)
+  const segs = note.split('；')
+  const truncated = segs.length > 1
+  const latest = truncated ? segs[segs.length - 1].trim() : note
+  return (
+    <div
+      className={truncated ? 'cursor-pointer' : ''}
+      onClick={() => truncated && setExpanded((v) => !v)}
+    >
+      <div className="text-sm font-medium mb-1">{name}</div>
+      <div className="text-xs leading-relaxed ink-3">{expanded ? note : latest}</div>
+      {truncated && (
+        <div className="font-mono-num text-[10px] ink-3 tracking-widest mt-1 opacity-70">
+          {expanded ? '收起 ↑' : '完整证据链 ↓'}
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default function Cycle() {
   return (
@@ -43,12 +67,7 @@ export default function Cycle() {
                   {items.length === 0 ? (
                     <span className="text-xs ink-3 tracking-widest">— 空 —</span>
                   ) : (
-                    items.map((x) => (
-                      <div key={x.name}>
-                        <div className="text-sm font-medium mb-1">{x.name}</div>
-                        <div className="text-xs leading-relaxed ink-3">{x.note}</div>
-                      </div>
-                    ))
+                    items.map((x) => <StageItem key={x.name} name={x.name} note={x.note} />)
                   )}
                 </div>
               </div>
