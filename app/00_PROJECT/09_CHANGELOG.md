@@ -5,6 +5,13 @@
 
 ---
 
+## 2026-10-25 · W43 证据入账：消化批 + 地图 3 节点 + 7 项裁决落账
+
+**Decision**：`now.ts` +3 Observation（AI 信用危机第二波「判据实证 + Meta FCF 首负 + 四种融资形态」/ 涨价≠利润「L4-C20 候选」/ 归因三段法「L4 方法纪律」）+ 3 条目注记（第二波数字并 CoreWeave / 2027 量价锁定 + 西数反向传导并美光 FQ4 / 10Y 含义反转并股债背离）+ 头注释更新；`map.ts` 3 节点 observation 补证据（gpu / dram / cloud，valuation 全部维持不动）；`thesis.ts` 3 命题 evidence +3（compute ×1 / memory-cycle ×1 / ai-app ×1），probability 全部不动；`journal.ts` W43 入库批 + 裁决 + 宏观/存储条目；`cycle.ts`「AI 应用」note 补 Muse 变现首数据（stage 不动、非 C1 字段不入账）；context-history 新增 `ctx-20261025` + initial 快照 re-baseline（59 → 62 条）。
+**Why**：43 周消化批经网站更新裁决清单逐项裁决——研究层 7 项（L4-C10 升正式并改名「AI 债务危机」/ 涨价≠利润升 L4-C20 候选 / 归因三段法升正式 L4 / 产业叙事对信用免疫登记 C21 / 长鑫 4F² 并入 L4-10 判据 / 42 周遗留四项收口 / 黄金三重共振登记债务对冲项失效）+ 网站层清单全部按建议采纳，Ledger 零变更（验证不是变化）。
+**Impact**：Observation 59 → 62 条；check 414/415 通过——1 项失败为预存问题（`37dc919` 日志页改版在 Cycle.tsx 引入 `note.split('；')` 文本提取，与 check [17] 冲突），非本次改动引入，待本人裁决处置；build ✓。Commit 见 git log。
+**Not Changed**：ledger.ts（本周无 conviction 变更）/ map 节点 valuation 与 state（信用事件与结构信号不改节点层判断）/ essays.ts / Report 页 / framework.ts·method.ts（LOCKED）/ 全部组件与页面。
+
 ## 2026-10-18 · W42 证据入账：消化批 + 地图 5 节点 + 7 项裁决落账
 
 **Decision**：`now.ts` +2 Observation（CoreWeave 信用危机「循环融资首次被定价」/ 低流动性价格有效性方法纪律）+ 3 条目注记（沃什 IMF 讲话并股债背离条目 / 存储高位分化 + 四档价差并美光 FQ4 条目 / 大摩三档排序 + 二阶导判据并迈威尔条目）+ 头注释更新；`map.ts` 5 节点 observation 补证据（gpu / hbm / dram / optical / cloud，valuation 全部维持不动）；`thesis.ts` 3 命题 evidence +4（compute ×2 / memory-cycle ×1 / optical-module ×1），probability 全部不动；`journal.ts` W42 入库批 + 裁决 + 宏观/存储条目；`cycle.ts`「AI 应用」note 补 Anthropic 就业形态（stage 不动、非 C1 字段不入账；存储在周期盘无对应条目、未强行挂靠）；context-history 新增 `ctx-20261018` + initial 快照 re-baseline（57 → 59 条）。
