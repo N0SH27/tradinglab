@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>产业地图节点卡片 · 三方案试稿</title>
+<style>
+  :root { --paper:250 250 249; --ink:10 10 10; --ink-2:44 44 43; --ink-3:117 117 115;
+          --line:229 229 226; --cinnabar:192 57 43; --water:43 78 107; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:rgb(var(--paper)); color:rgb(var(--ink));
+         font-family:'Noto Serif SC','Songti SC',serif; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:1560px; margin:0 auto; padding:48px 40px 72px; }
+  h1 { font-size:26px; letter-spacing:.12em; margin:0 0 6px; font-weight:900; }
+  .sub { font-size:13px; color:rgb(var(--ink-3)); letter-spacing:.08em; margin-bottom:8px; line-height:1.9; }
+  .rule { height:1px; background:rgb(var(--line)); margin:18px 0 34px; }
+  .lbl { font-size:11px; letter-spacing:.28em; color:rgb(var(--cinnabar)); font-weight:700; }
+  .mono { font-family:'IBM Plex Mono',monospace; letter-spacing:.12em; }
+
+  /* ── 现状对照 ── */
+  .now-card { border:1px solid rgb(var(--line)); padding:28px 32px; max-width:860px; }
+  .now-body { max-height:150px; overflow-y:auto; font-size:13.5px; line-height:2; color:#3f3f3e;
+              border-left:2px solid rgb(var(--cinnabar)); padding-left:16px; margin-top:12px; }
+  .now-body::-webkit-scrollbar { width:4px; } .now-body::-webkit-scrollbar-thumb { background:#c9c9c6; }
+
+  .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:26px; margin-top:30px; }
+  @media (max-width:1100px){ .grid{ grid-template-columns:1fr; } }
+  .col-head { margin-bottom:14px; }
+  .col-head .name { font-size:19px; font-weight:900; letter-spacing:.1em; margin:6px 0 8px; }
+  .col-head .desc { font-size:12.5px; line-height:1.9; color:#3f3f3e; }
+  .col-head .desc b { color:rgb(var(--ink)); }
+
+  /* ── 卡片公共 ── */
+  .card { border:1px solid rgb(var(--line)); background:rgb(var(--paper)); padding:24px 26px; }
+  .card .top { display:flex; align-items:baseline; justify-content:space-between; gap:8px; margin-bottom:10px; }
+  .card .top .stage { font-size:11px; color:rgb(var(--ink-3)); }
+  .card h3 { font-size:26px; font-weight:900; margin:0 0 2px; letter-spacing:.02em; }
+  .card .en { font-size:11px; letter-spacing:.2em; color:rgb(var(--ink-3)); margin-bottom:16px; }
+  .tagrow { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+  .tag { font-size:10.5px; letter-spacing:.16em; border:1px solid rgb(var(--line)); padding:3px 9px; color:rgb(var(--ink-2)); }
+  .tag.yang { border-color:rgb(var(--ink)); }
+  .tag.warn { color:rgb(var(--cinnabar)); border-color:rgb(var(--cinnabar)); }
+  .tag.water { color:rgb(var(--water)); border-color:rgb(var(--water)); }
+  .kv { display:grid; grid-template-columns:auto 1fr; gap:5px 14px; font-size:12.5px; margin-bottom:16px; }
+  .kv dt { color:rgb(var(--ink-3)); letter-spacing:.14em; font-size:11px; white-space:nowrap; padding-top:2px; }
+  .kv dd { margin:0; color:rgb(var(--ink-2)); line-height:1.8; }
+  .sec { margin-bottom:16px; }
+  .sec > .sl { font-size:10.5px; letter-spacing:.26em; color:rgb(var(--ink-3)); display:block; margin-bottom:7px; }
+  .sec > .sl.red { color:rgb(var(--cinnabar)); }
+  .sec p { font-size:13.5px; line-height:2; margin:0; color:rgb(var(--ink-2)); }
+  .statenote { font-size:16px; font-weight:700; line-height:1.9; }
+
+  /* 本周动态盒 */
+  .news { border:1px solid rgb(var(--line)); border-left:2px solid rgb(var(--ink)); background:rgba(10,10,10,.025);
+          padding:12px 15px; font-size:12.5px; line-height:1.95; color:rgb(var(--ink-2)); }
+  .news .nd { font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:.1em; color:rgb(var(--cinnabar)); display:block; margin-bottom:5px; }
+
+  /* 折叠 */
+  .fold { border-top:1px solid rgb(var(--line)); padding-top:12px; }
+  .fold > button { all:unset; cursor:pointer; display:flex; align-items:center; gap:8px;
+                   font-size:11px; letter-spacing:.22em; color:rgb(var(--ink-3)); }
+  .fold > button:hover { color:rgb(var(--ink)); }
+  .fold > button .arr { display:inline-block; transition:transform .25s; }
+  .fold.open > button .arr { transform:rotate(90deg); }
+  .fold .body { display:none; margin-top:12px; }
+  .fold.open .body { display:block; }
+
+  /* 时间线条目 */
+  .tl { border-left:1px solid rgb(var(--line)); margin-left:5px; padding-left:16px; }
+  .tl-item { position:relative; padding-bottom:14px; }
+  .tl-item:last-child { padding-bottom:2px; }
+  .tl-item::before { content:''; position:absolute; left:-19.5px; top:7px; width:7px; height:7px;
+                     border-radius:50%; background:rgb(var(--paper)); border:1.5px solid rgb(var(--ink-3)); }
+  .tl-item.latest::before { border-color:rgb(var(--cinnabar)); background:rgb(var(--cinnabar)); }
+  .tl-item .td { font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:.1em; color:rgb(var(--ink-3)); display:block; margin-bottom:4px; }
+  .tl-item p { font-size:12px; line-height:1.9; color:#4a4a48; margin:0; }
+  .tl-scroll { max-height:220px; overflow-y:auto; padding-right:6px; }
+  .tl-scroll::-webkit-scrollbar { width:4px; } .tl-scroll::-webkit-scrollbar-thumb { background:#c9c9c6; }
+
+  /* 方案B 仪表 */
+  .gauge { display:grid; gap:10px; }
+  .g-item { border:1px solid rgb(var(--line)); padding:10px 14px; }
+  .g-item .gl { font-size:10px; letter-spacing:.24em; color:rgb(var(--ink-3)); display:block; margin-bottom:5px; }
+  .g-item .gl.red { color:rgb(var(--cinnabar)); }
+  .g-item p { font-size:12.5px; line-height:1.85; margin:0; color:rgb(var(--ink-2)); }
+  .g-item.hero { border-left:2px solid rgb(var(--ink)); background:rgba(10,10,10,.025); }
+  .g-item.hero p { font-size:13.5px; font-weight:700; }
+
+  .reco { margin-top:38px; border:1px solid rgb(var(--line)); padding:24px 28px; max-width:960px; }
+  .reco p { font-size:13.5px; line-height:2.05; margin:8px 0 0; color:#2c2c2b; }
+  .flag { display:inline-block; font-size:10px; letter-spacing:.2em; border:1px solid rgb(var(--cinnabar));
+          color:rgb(var(--cinnabar)); padding:2px 8px; margin-left:8px; vertical-align:2px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>产业地图节点卡片 · 三方案试稿</h1>
+  <div class="sub">同一节点（算力芯片 · 当前线上数据）的三种减法 · 只动信息架构、不动数据本身 · 追加块按周自动解析<br>目标：卡片默认高度可控、三秒读完当下，历史一次点击可达</div>
+  <div class="rule"></div>
+
+  <div class="lbl">现状</div>
+  <div class="now-card">
+    <div class="top"><h3 style="margin:0">算力芯片</h3><span class="mono" style="font-size:11px;color:rgb(var(--ink-3))" id="now-len"></span></div>
+    <div class="now-body" id="now-body"></div>
+  </div>
+
+  <div class="grid">
+
+    <!-- ── 方案 A：论断 + 本周动态 ── -->
+    <div>
+      <div class="col-head">
+        <div class="lbl">方案 A</div>
+        <div class="name">两层式 · 论断 + 本周动态</div>
+        <div class="desc">默认只呈现两层：<b>核心论断</b>（立论时的判断）＋<b>本周动态</b>（最新一条追加，按日期自动识别）。中间历史收进「研究轨迹」，点击展开。<b>零维护成本</b>——程序按日期自动切片，不需要人工每周写摘要。</div>
+      </div>
+      <div class="card" id="card-a"></div>
+    </div>
+
+    <!-- ── 方案 B：仪表速览 ── -->
+    <div>
+      <div class="col-head">
+        <div class="lbl">方案 B</div>
+        <div class="name">仪表化 · 四格速览</div>
+        <div class="desc">长文<b>提炼为固定四格</b>：核心判断 / 本周增量 / 风险信号 / 跟踪动作，每格一句。卡片最薄、扫读最快，最有「研究仪表」感。代价：数据层需新增每周一句话摘要字段（人工或随更新流程撰写），长文整体迁入折叠层。</div>
+      </div>
+      <div class="card" id="card-b"></div>
+    </div>
+
+    <!-- ── 方案 C：折叠时间线 ── -->
+    <div>
+      <div class="col-head">
+        <div class="lbl">方案 C</div>
+        <div class="name">时间线抽屉 · 论断优先</div>
+        <div class="desc">默认只有<b>核心论断一段</b>，所有追加收进「研究轨迹 N 条」抽屉，展开后是带日期的竖向时间线（可滚动）。卡片高度最恒定、最忠实原数据（无提炼、无改写），考古式阅读。</div>
+      </div>
+      <div class="card" id="card-c"></div>
+    </div>
+  </div>
+
+  <div class="reco">
+    <div class="lbl">推荐</div>
+    <p><b>主推 方案 A（两层式），备选 方案 C。</b>A 与 C 都不动数据、零维护；A 的「本周动态」默认上浮，符合本站点「观察变化」的定位——读者每回来看到的都是「判断 + 这周变了什么」，历史一次点击可达。B 的信息效率最高，但引入每周写摘要的流程负担，若你愿意把它并入周度更新流程，B 可升级为主方案。C 最保守，适合「先解决臃肿、再谈呈现」的两步走。</p>
+    <p>三个方案共通：生命周期 / 分析重点并入两列字段行；阴阳状态保持大字；关联环节与关联命题（未画出）维持现状不变。</p>
+  </div>
+</div>
+
+<script>
+const NODE = {"name": "算力芯片", "en": "GPU / ASIC", "stage": "源头", "penetration": "成长期 · 渗透率陡峭段（推理侧 15%→40%）", "stageFocus": "规模性 + 供给瓶颈验证", "stateNote": "阳中有阴：需求极旺，供给受制", "observation": "需求的确定性高于供给的确定性。国产芯片在推理侧持续渗透，但先进制程产能决定天花板。观察出货增速与智算投资增速的剪刀差。见命题一。（2026.10.04 追加：AI 算力债务化三案例——博通向 Anthropic 最高 420 亿美元贷款、亚马逊 80 亿美元 GPU 装 SPV 售后回租、英伟达寻求保险机构分担——算力资产成为可抵押品、杠杆化自然发生（L4-C10 强化），登记为周期后段结构特征；Anthropic 招股书暴露承诺与合同的缺口：5180 亿算力承诺 vs 公开合同约 2700 亿、覆盖率约 52%（L4-09/C13 口径补丁 + M-08 候选）。）（2026.10.11 追加：AI 叙事单点脆弱性实证——10/8 OpenAI 年化营收口径事件（约 500 亿 vs 流传 700 亿）一天内造成费半 −3.39%、龙头市值蒸发超万亿，口径修正非需求证伪（Q3 +77%、企业级 +107%）；SemiAnalysis 折旧判据——1 万亿美元投入按 6 年折旧需每年约 2500 亿美元营收覆盖，英伟达表外长期采购承诺约 5880 亿美元 ≈ 美国 M2 的 2.5%、\"明年年底触到极限\"读法为二阶导见顶、非需求消失；AI 资本开支首次进入美联储通胀讨论。）（2026.10.18 追加：循环融资风险首次实盘定价——CoreWeave 5 年 CDS 破 1000bp、2032 无担保债破 80 美分、五年违约概率定价 >50%，L4-C10 升正式\"已实证（2026.10.18）\"；美银口径超大规模云厂未来 12 个月合计 FCF < −1000 亿美元、买方资本开支减速 vs 供应商加速——上游收钱、下游借钱，现金流方向决定利率上行时谁先被重定价；博通 CEO\"资本正取代芯片/存储/电力成为 AI 最大制约\"、英特尔 CEO 同指融资成本——算力房东模式的命门=资产不被重定价这一假设被推到台前。）（2026.10.25 追加：信用危机第二波与\"需求旺盛和融资紧张同时存在\"——高盛时间错配机制（capex 先付、回款后到；建设或供电延误会推迟收费、不推迟利息租金和设备付款）；\"卖铲子\"四种融资形态分化（Meta 股权稀释 / 亚马逊无杠杆但低披露 / SpaceX 短约现货 / 西数客户信用自保），危机没有单一模板；一级市场定价权转移样本——Nscale 300 亿 IPO 估值遇 160–190 亿压价要求（折让 37–47%，尚非已完成下调）。订单实锚未坏：亚马逊售罄曲线至 2028、西数能见度 2030–31。）"};
+
+/* 解析：基础论断 = 第一个「（20xx.xx.xx 追加」之前；追加块按日期切片 */
+function parseObs(text){
+  const re = /（(20\d\d\.\d\d\.\d\d) 追加：/g
+  const marks = []
+  let m
+  while((m = re.exec(text)) !== null) marks.push({ idx:m.index, date:m[1] })
+  const base = text.slice(0, marks.length ? marks[0].idx : text.length).trim()
+  /* 逐段切 */
+  const segs = []
+  marks.forEach((mk, i) => {
+    const from = mk.idx
+    const to = i < marks.length - 1 ? marks[i+1].idx : text.length
+    let seg = text.slice(from, to)
+    /* 去掉结尾的右括号 */
+    segs.push({ date: mk.date, text: seg.replace(/^（/, '').replace(/）\s*$/, '').trim() })
+  })
+  return { base, segs }
+}
+const P = parseObs(NODE.observation)
+const fmt = s => s.replace(/\n/g, '<br>')
+
+function headTags(){
+  return `<div class="tagrow">
+    <span class="tag warn">估值透支</span>
+    <span class="tag yang">阳中有阴</span>
+    <span class="tag">源头</span>
+  </div>`
+}
+function kvRow(){
+  return `<dl class="kv">
+    <dt>生命周期</dt><dd>${NODE.penetration}</dd>
+    <dt>分析重点</dt><dd>${NODE.stageFocus}</dd>
+    <dt>阴阳状态</dt><dd class="statenote" style="font-size:13.5px">${NODE.stateNote}</dd>
+  </dl>`
+}
+function header(){
+  return `<div class="top"><span class="stage">${NODE.stage}</span><span class="stage mono">GPU / ASIC</span></div>
+  <h3>${NODE.name}</h3><div class="en">${NODE.en.toUpperCase()}</div>`
+}
+
+/* ── 方案 A ── */
+function renderA(){
+  const latest = P.segs[P.segs.length-1]
+  const hist = P.segs.slice(0, -1)
+  document.getElementById('card-a').innerHTML = `
+    ${header()}${headTags()}${kvRow()}
+    <div class="sec"><span class="sl">核心论断</span><p>${fmt(P.base)}</p></div>
+    <div class="sec"><span class="sl red">本周动态 · ${latest.date}</span>
+      <div class="news">${fmt(latest.text)}</div></div>
+    <div class="fold" id="fold-a">
+      <button onclick="document.getElementById('fold-a').classList.toggle('open')">
+        <span class="arr">▸</span> 研究轨迹 · ${hist.length} 条更早记录</button>
+      <div class="body"><div class="tl tl-scroll">
+        ${hist.map(s=>`<div class="tl-item"><span class="td">${s.date}</span><p>${fmt(s.text)}</p></div>`).join('')}
+      </div></div>
+    </div>`
+}
+
+/* ── 方案 B ── */
+function renderB(){
+  const latest = P.segs[P.segs.length-1]
+  /* 提炼：核心判断取基础论断首句；本周增量取最新追加首句 */
+  const firstSentence = t => t.split(/(?<=。)/).slice(0,2).join('')
+  document.getElementById('card-b').innerHTML = `
+    ${header()}${headTags()}
+    <div class="gauge">
+      <div class="g-item hero"><span class="gl">核心判断</span><p>${firstSentence(P.base)}</p></div>
+      <div class="g-item"><span class="gl red">本周增量 · ${latest.date}</span><p>${firstSentence(latest.text)}</p></div>
+      <div class="g-item"><span class="gl">跟踪</span><p>出货增速 × 智算投资增速的剪刀差；循环融资定价（CDS / 无担保债）；订单能见度。</p></div>
+    </div>
+    <div style="margin:14px 0" class="kv">
+      <dt>生命周期</dt><dd>${NODE.penetration}</dd>
+      <dt>分析重点</dt><dd>${NODE.stageFocus}</dd>
+      <dt>阴阳状态</dt><dd>${NODE.stateNote}</dd>
+    </div>
+    <div class="fold" id="fold-b">
+      <button onclick="document.getElementById('fold-b').classList.toggle('open')">
+        <span class="arr">▸</span> 完整研究日志 · ${P.base.length + NODE.observation.length > 0 ? P.segs.length + 1 : 0} 段</button>
+      <div class="body">
+        <div class="sec"><span class="sl">核心论断全文</span><p style="font-size:12px">${fmt(P.base)}</p></div>
+        <div class="tl tl-scroll">
+          ${P.segs.map(s=>`<div class="tl-item"><span class="td">${s.date}</span><p>${fmt(s.text)}</p></div>`).join('')}
+        </div>
+      </div>
+    </div>`
+}
+
+/* ── 方案 C ── */
+function renderC(){
+  document.getElementById('card-c').innerHTML = `
+    ${header()}${headTags()}${kvRow()}
+    <div class="sec"><span class="sl">核心论断</span><p>${fmt(P.base)}</p></div>
+    <div class="fold" id="fold-c">
+      <button onclick="document.getElementById('fold-c').classList.toggle('open')">
+        <span class="arr">▸</span> 研究轨迹 · ${P.segs.length} 条</button>
+      <div class="body"><div class="tl tl-scroll">
+        ${P.segs.map((s,i)=>`<div class="tl-item ${i===P.segs.length-1?'latest':''}">
+          <span class="td">${s.date}${i===P.segs.length-1?' · 最新':''}</span><p>${fmt(s.text)}</p></div>`).join('')}
+      </div></div>
+    </div>`
+}
+
+document.getElementById('now-body').innerHTML = fmt(NODE.observation)
+document.getElementById('now-len').textContent = NODE.observation.length + ' 字 · ' + P.segs.length + ' 个追加块'
+renderA(); renderB(); renderC();
+</script>
+</body>
+</html>

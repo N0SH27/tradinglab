@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { INDUSTRY_MAP, MAP_EDGES, MAP_ESSAY, MAP_ERA, THESES, type MapNode } from '../data/content'
 import { Label, PageHead, PolarityTag } from '../components/Bits'
 
@@ -130,12 +130,45 @@ function NodeShape({ node, isActive, isLinked }: { node: MapNode; isActive: bool
   )
 }
 
+/* 解析 observation：基础论断 + 周度追加块（「（YYYY.MM.DD 追加：…）」） */
+function parseObservation(text: string): { base: string; appends: { date: string; text: string }[] } {
+  const re = /（(20\d\d\.\d\d\.\d\d) 追加：/g
+  const marks: { idx: number; date: string }[] = []
+  let m: RegExpExecArray | null
+  while ((m = re.exec(text)) !== null) marks.push({ idx: m.index, date: m[1] })
+  const base = (marks.length ? text.slice(0, marks[0].idx) : text).trim()
+  const appends = marks.map((mk, i) => {
+    const to = i < marks.length - 1 ? marks[i + 1].idx : text.length
+    const seg = text
+      .slice(mk.idx, to)
+      .replace(/^（/, '')
+      .replace(/）\s*$/, '')
+      .replace(/^20\d\d\.\d\d\.\d\d 追加：/, '')
+      .trim()
+    return { date: mk.date, text: seg }
+  })
+  return { base, appends }
+}
+
+/* 取开头 n 句作为「速览判断」（不用 lookbehind，兼容旧 iOS WebView） */
+function lead(text: string, n = 2): string {
+  const segs = text.split('。')
+  const cnt = segs.length - (text.endsWith('。') ? 1 : 0)
+  if (cnt <= n) return text
+  return segs.slice(0, n).join('。') + '。'
+}
+
 function NodeDetail({ node, linkedNodes }: { node: MapNode; linkedNodes: MapNode[] }) {
+  const [logOpen, setLogOpen] = useState(false)
+  useEffect(() => setLogOpen(false), [node.id])
   const valuationMeta = {
     stretched: { label: '估值透支', cls: 'ink' },
     fair: { label: '估值合理', cls: 'ink-3' },
     washed: { label: '估值出清', cls: 'water' },
   }[node.valuation]
+  const { base, appends } = parseObservation(node.observation)
+  const latest = appends[appends.length - 1]
+  const hasMore = appends.length > 0 || lead(base) !== base
   return (
     <div key={node.id} className="border border-[rgb(var(--line))] p-6 md:p-10">
       <div className="flex items-baseline justify-between gap-4 mb-2">
@@ -148,7 +181,22 @@ function NodeDetail({ node, linkedNodes }: { node: MapNode; linkedNodes: MapNode
       <h3 className="font-serif-sc font-bold text-3xl md:text-4xl tracking-tight mb-1">{node.name}</h3>
       <Label className="block mb-8">{node.en}</Label>
 
-      {/* 阶段坐标三件套 */}
+      {/* 仪表速览（2026-10-27 Human 裁决：方案 B）——核心判断 + 本周增量，
+          长文收进底部「完整研究日志」折叠时间线 */}
+      <div className="space-y-2.5 mb-8">
+        <div className="gauge-box hero">
+          <span className="gl">核心判断</span>
+          <p>{lead(base)}</p>
+        </div>
+        {latest && (
+          <div className="gauge-box">
+            <span className="gl red">本周增量 · {latest.date}</span>
+            <p>{lead(latest.text)}</p>
+          </div>
+        )}
+      </div>
+
+      {/* 阶段坐标两列 */}
       <div className="mb-8 border border-[rgb(var(--line))]">
         <div className="px-4 py-3">
           <Label className="block mb-1">生命周期</Label>
@@ -166,11 +214,6 @@ function NodeDetail({ node, linkedNodes }: { node: MapNode; linkedNodes: MapNode
       </div>
 
       <div className="mb-8">
-        <Label className="block mb-3">当前观察</Label>
-        <p className="text-base leading-loose ink-2">{node.observation}</p>
-      </div>
-
-      <div>
         <Label className="block mb-3">关联环节</Label>
         <div className="flex flex-wrap gap-2">
           {linkedNodes.map((l) => (
@@ -182,7 +225,7 @@ function NodeDetail({ node, linkedNodes }: { node: MapNode; linkedNodes: MapNode
       </div>
 
       {node.theses && node.theses.length > 0 && (
-        <div className="mt-8 pt-6 hairline-t">
+        <div className="mb-8">
           <Label className="block mb-3 water">关联命题</Label>
           <div className="space-y-2">
             {node.theses.map((tid) => {
@@ -200,6 +243,37 @@ function NodeDetail({ node, linkedNodes }: { node: MapNode; linkedNodes: MapNode
           </div>
         </div>
       )}
+
+      {/* 完整研究日志（折叠）：立论原文 + 周更时间线，可滚动 */}
+      {hasMore && (
+        <div className={`node-log ${logOpen ? 'open' : ''}`}>
+          <button type="button" onClick={() => setLogOpen(!logOpen)} aria-expanded={logOpen}>
+            <span className="arr">▸</span>
+            {appends.length > 0 ? `完整研究日志 · ${appends.length} 条周更` : '研究全文'}
+          </button>
+          <div className="body">
+            {lead(base) !== base && (
+              <div className="mb-5">
+                <Label className="block mb-2">立论原文</Label>
+                <p className="text-xs leading-loose ink-3">{base}</p>
+              </div>
+            )}
+            {appends.length > 0 && (
+              <div className="map-tl map-tl-scroll">
+                {appends.map((a, i) => (
+                  <div key={a.date} className={`map-tl-item ${i === appends.length - 1 ? 'latest' : ''}`}>
+                    <span className="td">
+                      {a.date}
+                      {i === appends.length - 1 ? ' · 最新' : ''}
+                    </span>
+                    <p>{a.text}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -207,6 +281,34 @@ function NodeDetail({ node, linkedNodes }: { node: MapNode; linkedNodes: MapNode
 export default function IndustryMap() {
   const [activeId, setActiveId] = useState(INDUSTRY_MAP.nodes[0]?.id ?? '')
   const [hoverId, setHoverId] = useState<string | null>(null)
+  /* 使用说明浮层：悬浮即显（150ms 过桥防抖），点击钉住，再点或 ✕ 关闭 */
+  const [infoOpen, setInfoOpen] = useState(false)
+  const infoPin = useRef(false)
+  const infoTimer = useRef<number | undefined>(undefined)
+  useEffect(() => () => window.clearTimeout(infoTimer.current), [])
+  const openInfo = () => {
+    window.clearTimeout(infoTimer.current)
+    setInfoOpen(true)
+  }
+  const delayCloseInfo = () => {
+    window.clearTimeout(infoTimer.current)
+    infoTimer.current = window.setTimeout(() => {
+      if (!infoPin.current) setInfoOpen(false)
+    }, 150)
+  }
+  const toggleInfo = () => {
+    if (infoPin.current) {
+      infoPin.current = false
+      setInfoOpen(false)
+    } else {
+      infoPin.current = true
+      setInfoOpen(true)
+    }
+  }
+  const closeInfo = () => {
+    infoPin.current = false
+    setInfoOpen(false)
+  }
   const active = INDUSTRY_MAP.nodes.find((n) => n.id === activeId) ?? INDUSTRY_MAP.nodes[0]
   if (!active) return null // 地图数据为空时不渲染，不拖垮整站
   const byId = Object.fromEntries(INDUSTRY_MAP.nodes.map((n) => [n.id, n]))
@@ -231,8 +333,24 @@ export default function IndustryMap() {
               <div className="absolute top-4 left-4 md:top-5 md:left-5 z-10">
                 <Label>{INDUSTRY_MAP.root}</Label>
               </div>
-              <div className="absolute top-4 right-4 md:top-5 md:right-5 text-right z-10">
-                <Label className="block">上游 ↓ 下游</Label>
+              {/* 使用说明入口：圆圈 i · 悬浮或点击弹出（2026-10-27 Human 裁决） */}
+              <div className="absolute top-4 right-4 md:top-5 md:right-5 z-30 flex items-center gap-3">
+                <Label>上游 ↓ 下游</Label>
+                <button
+                  type="button"
+                  aria-label="使用说明"
+                  aria-expanded={infoOpen}
+                  onClick={toggleInfo}
+                  onMouseEnter={openInfo}
+                  onMouseLeave={delayCloseInfo}
+                  className="block cursor-pointer text-[rgb(var(--ink-3))] hover:text-[rgb(var(--ink))] transition-colors"
+                >
+                  <svg width="21" height="21" viewBox="0 0 21 21" fill="none" aria-hidden="true">
+                    <circle cx="10.5" cy="10.5" r="9.5" stroke="currentColor" strokeWidth="1" />
+                    <circle cx="10.5" cy="6.6" r="1.15" fill="currentColor" />
+                    <path d="M10.5 9.3v5.6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                  </svg>
+                </button>
               </div>
               <svg
                 viewBox="0 0 100 120"
@@ -278,6 +396,50 @@ export default function IndustryMap() {
                   </g>
                 ))}
               </svg>
+              {/* 使用说明浮层：背景虚化（backdrop-blur 毛玻璃） */}
+              {infoOpen && (
+                <div
+                  className="absolute inset-0 z-20 flex items-center justify-center p-4 md:p-8"
+                  style={{
+                    background: 'rgba(250,250,249,.45)',
+                    backdropFilter: 'blur(7px)',
+                    WebkitBackdropFilter: 'blur(7px)',
+                  }}
+                  onClick={closeInfo}
+                  onMouseEnter={openInfo}
+                  onMouseLeave={delayCloseInfo}
+                >
+                  <div
+                    role="dialog"
+                    aria-label="地图使用说明"
+                    className="relative w-full max-w-lg max-h-full overflow-y-auto bg-paper border border-[rgb(var(--line))] p-6 md:p-9"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <button
+                      type="button"
+                      aria-label="关闭使用说明"
+                      onClick={closeInfo}
+                      className="absolute top-3.5 right-3.5 p-1 cursor-pointer text-[rgb(var(--ink-3))] hover:text-[rgb(var(--ink))] transition-colors"
+                    >
+                      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+                        <path d="M1 1l11 11M12 1L1 12" stroke="currentColor" strokeWidth="1.2" />
+                      </svg>
+                    </button>
+                    <Label className="block mb-5">使用说明 HOW TO READ</Label>
+                    <div className="space-y-4">
+                      <p className="text-sm leading-loose ink-2">
+                        这张地图读的不是名单，是位置。每个节点有两个坐标：产业景气（黑实/白空/半实）回答「生意好不好」，估值位置（朱砂/深水蓝描边）回答「市场已经为它付了多少钱」。两者可以背离——量价齐升的行业，股价可能已经开始不跟。
+                      </p>
+                      <p className="text-sm leading-loose ink-2">
+                        节点状态只代表当下坐标。渗透率 15%–20% 进入成长期、35%–40% 步入成熟期；成长期看规模与增速，成熟期看格局与估值。每一次坐标修正，都在日志里留下日期与原因。
+                      </p>
+                      <p className="font-serif-sc text-base leading-relaxed pt-2">
+                        这个世界没有永恒的赛道，只有永恒的周期思维。
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           {/* 图例 */}
@@ -320,27 +482,6 @@ export default function IndustryMap() {
             </div>
             <span className="water group-hover:translate-x-1 transition-transform">→</span>
           </a>
-        </div>
-      </div>
-
-      {/* 地图使用说明 */}
-      <div className="hairline-t py-14 md:py-20 grid md:grid-cols-12 gap-8">
-        <div className="md:col-span-3">
-          <Label>使用说明 HOW TO READ</Label>
-        </div>
-        <div className="md:col-span-9 space-y-5 max-w-3xl">
-          <p className="text-sm md:text-base leading-loose ink-2">
-            这张地图读的不是名单，是位置。每个节点有两个坐标：产业景气（黑实/白空/半实）
-            回答「生意好不好」，估值位置（朱砂/深水蓝描边）回答「市场已经为它付了多少钱」。
-            两者可以背离——量价齐升的行业，股价可能已经开始不跟。
-          </p>
-          <p className="text-sm md:text-base leading-loose ink-2">
-            节点状态只代表当下坐标。渗透率 15%–20% 进入成长期、35%–40% 步入成熟期；
-            成长期看规模与增速，成熟期看格局与估值。每一次坐标修正，都在日志里留下日期与原因。
-          </p>
-          <p className="font-serif-sc text-base md:text-lg leading-relaxed">
-            这个世界没有永恒的赛道，只有永恒的周期思维。
-          </p>
         </div>
       </div>
     </div>

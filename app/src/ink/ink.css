@@ -61,3 +61,37 @@
     transition: none;
   }
 }
+
+/* —— 目录行（索引项）：hover 时底线如墨迹推进（2026-10-27 恢复——
+   158332d 笔墨体系落地时误删，类名仍在 Essays/Journal/Research 行上使用）—— */
+.ink-row {
+  position: relative;
+}
+.ink-row::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  height: 1px;
+  width: 100%;
+  background: rgb(var(--ink));
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 640ms cubic-bezier(.7, 0, .2, 1);
+}
+.ink-row:hover::after {
+  transform: scaleX(1);
+}
+.ink-row .row-no {
+  transition: color 400ms ease;
+}
+.ink-row:hover .row-no {
+  color: rgb(var(--cinnabar));
+}
+.ink-row .row-zh {
+  transition: transform 560ms cubic-bezier(.22, .8, .36, 1);
+  display: inline-block;
+}
+.ink-row:hover .row-zh {
+  transform: translateX(8px);
+}

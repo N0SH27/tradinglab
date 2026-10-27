@@ -292,3 +292,29 @@
     .dos-scrim, .dos-panel { animation: none; }
   }
 }
+
+/* ── 产业地图节点卡 · 仪表化（2026-10-27 Human 裁决：方案 B 四格速览）── */
+.gauge-box { border: 1px solid rgb(var(--line)); padding: 10px 14px; }
+.gauge-box.hero { border-left: 2px solid rgb(var(--ink)); background: rgba(10, 10, 10, .025); }
+.gauge-box .gl { display: block; font-size: 10px; letter-spacing: .24em; color: rgb(var(--ink-3)); margin-bottom: 5px; }
+.gauge-box .gl.red { color: rgb(var(--cinnabar)); }
+.gauge-box p { font-size: 12.5px; line-height: 1.85; margin: 0; color: rgb(var(--ink-2)); }
+.gauge-box.hero p { font-size: 13.5px; font-weight: 700; color: rgb(var(--ink)); font-family: 'Noto Serif SC', serif; }
+.node-log { border-top: 1px solid rgb(var(--line)); padding-top: 12px; }
+.node-log > button { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+  font-size: 11px; letter-spacing: .22em; color: rgb(var(--ink-3)); }
+.node-log > button:hover { color: rgb(var(--ink)); }
+.node-log .arr { display: inline-block; transition: transform .25s; }
+.node-log.open .arr { transform: rotate(90deg); }
+.node-log .body { display: none; margin-top: 14px; }
+.node-log.open .body { display: block; }
+.map-tl { border-left: 1px solid rgb(var(--line)); margin-left: 5px; padding-left: 16px; }
+.map-tl-item { position: relative; padding-bottom: 14px; }
+.map-tl-item:last-child { padding-bottom: 2px; }
+.map-tl-item::before { content: ''; position: absolute; left: -19.5px; top: 7px; width: 7px; height: 7px;
+  border-radius: 50%; background: rgb(var(--paper)); border: 1.5px solid rgb(var(--ink-3)); }
+.map-tl-item.latest::before { border-color: rgb(var(--cinnabar)); background: rgb(var(--cinnabar)); }
+.map-tl-item .td { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: .1em;
+  color: rgb(var(--ink-3)); display: block; margin-bottom: 4px; }
+.map-tl-item p { font-size: 12px; line-height: 1.9; color: #4a4a48; margin: 0; }
+.map-tl-scroll { max-height: 260px; overflow-y: auto; padding-right: 6px; }

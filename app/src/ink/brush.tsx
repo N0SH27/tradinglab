@@ -496,6 +496,9 @@ export function EdgeStroke({ ch }: { ch: string }) {
       cv.width = W * dpr
       cv.height = H * dpr
       cv.style.width = W + 'px'
+      /* 显式像素高，不靠 100vh：避免 iOS Safari/微信 vh 与 innerHeight
+         口径不一致时位图被拉伸 */
+      cv.style.height = H + 'px'
       const c = cv.getContext('2d')
       if (!c) return
       c.setTransform(dpr, 0, 0, dpr, 0, 0)
@@ -521,10 +524,27 @@ export function EdgeStroke({ ch }: { ch: string }) {
       setOn(true)
     }
     if (reducedMotion()) setOn(true)
-    const onR = () => draw()
+    /* iOS 微信橡皮筋拖动会高频触发 resize 且 innerHeight 随抖动变化——
+       去抖 220ms：拖动中不重绘；宽度未变且高度小幅波动视为抖动忽略，
+       回弹后尺寸自然归位。方向旋转/大变窗才真重绘。 */
+    let lastW = window.innerWidth,
+      lastH = window.innerHeight,
+      rT: number | undefined
+    const onR = () => {
+      window.clearTimeout(rT)
+      rT = window.setTimeout(() => {
+        const w = window.innerWidth,
+          h = window.innerHeight
+        if (w === lastW && Math.abs(h - lastH) < 90) return
+        lastW = w
+        lastH = h
+        draw()
+      }, 220)
+    }
     window.addEventListener('resize', onR)
     return () => {
       alive = false
+      window.clearTimeout(rT)
       window.removeEventListener('resize', onR)
     }
   }, [ch])

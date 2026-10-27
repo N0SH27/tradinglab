@@ -4,22 +4,26 @@ import {
   CYCLE_RESONANCE, THEME_LIFECYCLE, THEME_LEVELS, FACE_WEIGHTS,
 } from '../data/content'
 import { Label, PageHead, SectionHead, Taiji } from '../components/Bits'
-import { InkDivider } from '../ink/brush'
 
-/* 阶段卡：note 为多段「；」分隔的时序记录时，默认只展示最新一段（最新结论），
-   点击卡片展开完整证据链；单段短结论原样展示。 */
+/* 阶段卡：note 为多段「；」分隔的时序记录时，默认只展示最新一段的第一句
+   （最新最关键的一句，2026-10-27 Human 裁决），点击卡片展开完整证据链；
+   单段短结论原样展示。 */
 function StageItem({ name, note }: { name: string; note: string }) {
   const [expanded, setExpanded] = useState(false)
   const segs = note.split('；')
   const truncated = segs.length > 1
   const latest = truncated ? segs[segs.length - 1].trim() : note
+  const firstSentence = (t: string) => {
+    const i = t.indexOf('。')
+    return i >= 0 ? t.slice(0, i + 1) : t
+  }
   return (
     <div
       className={truncated ? 'cursor-pointer' : ''}
       onClick={() => truncated && setExpanded((v) => !v)}
     >
       <div className="text-sm font-medium mb-1">{name}</div>
-      <div className="text-xs leading-relaxed ink-3">{expanded ? note : latest}</div>
+      <div className="text-xs leading-relaxed ink-3">{expanded ? note : firstSentence(latest)}</div>
       {truncated && (
         <div className="font-mono-num text-[10px] ink-3 tracking-widest mt-1 opacity-70">
           {expanded ? '收起 ↑' : '完整证据链 ↓'}
@@ -43,9 +47,9 @@ export default function Cycle() {
             <p className="font-serif-sc text-xl md:text-2xl font-bold leading-relaxed">
               盛极而衰，否极泰来。
             </p>
+            {/* 2026-10-27 Human 裁决：主题解释只留最关键一句 */}
             <p className="mt-4 text-sm md:text-base leading-loose ink-2">
               圆环上的七个位置没有好坏之分——处于出清期的行业可能比处于狂热期的行业更接近机会。
-              空着的阶段同样是一种信息：它说明市场此刻缺少什么。
             </p>
           </div>
         </div>
@@ -84,9 +88,6 @@ export default function Cycle() {
 
       {/* ── 三层共振 ─────────────────────── */}
       <section className="pb-20 md:pb-28">
-        <div className="mb-8 md:mb-10 opacity-80">
-          <InkDivider variant="light" />
-        </div>
         <SectionHead no="Ⅱ" zh="三层共振" en="TRIPLE RESONANCE" note="必须 ≥2 层共振，禁止 3 层逆向" />
         <div className="grid md:grid-cols-3 gap-px bg-[rgb(var(--line))] border border-[rgb(var(--line))]">
           {CYCLE_RESONANCE.map((r, i) => (
@@ -101,9 +102,6 @@ export default function Cycle() {
 
       {/* ── 题材生命周期 ──────────────────── */}
       <section className="pb-20 md:pb-28">
-        <div className="mb-8 md:mb-10 opacity-80">
-          <InkDivider variant="light" />
-        </div>
         <SectionHead no="Ⅲ" zh="题材的生命" en="LIFECYCLE OF A THEME" note="在启动点抓住机会，在退潮期规避风险" />
         <div className="grid lg:grid-cols-12 gap-10">
           <div className="lg:col-span-7">
@@ -139,9 +137,6 @@ export default function Cycle() {
 
       {/* ── 四面权重 ─────────────────────── */}
       <section className="pb-8">
-        <div className="mb-8 md:mb-10 opacity-80">
-          <InkDivider variant="light" />
-        </div>
         <SectionHead no="Ⅳ" zh="四面权重" en="FOUR FACES, WEIGHTED" note="按市场状态分配四面的权重" />
         <div className="border border-[rgb(var(--line))] overflow-x-auto">
           <div className="min-w-[640px]">
