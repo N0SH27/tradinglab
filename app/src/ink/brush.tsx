@@ -452,7 +452,7 @@ export function InkDivider({
  *   湍流置换炸毫、多层洇墨、source-atop 于墨迹内部刻飞白——非印刷体。
  * 点景为辅：字左上一记淡墨短斜笔（PALE α.3）＋ 字周 silver 散点（globalAlpha .6）；
  * 朱点作押：字左下两粒朱砂（α.6）。全部落 canvas z-[-1]（#page-root 内），
- *   正文在上——2026-10-27 层级纪律：字只露左缘约 1/3，主体待在右缘沟。
+ *   正文在上——2026-10-27 层级纪律：字露约 1/2，主体待在右缘沟。
  * 题眼字：世界=观 周期=复 日志=记 论点=证 无为=无 首页=观（Layout.edgeKind 映射）。
  * 字体异步：document.fonts.ready 后重绘一次；prefers-reduced-motion 直接成图。 */
 function drawCalliChar(
@@ -540,15 +540,17 @@ export function EdgeStroke({ ch }: { ch: string }) {
     const seed = [...ch].reduce((a, c) => a + c.charCodeAt(0), 0)
     const draw = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 1.5)
-      const W = window.innerWidth <= 720 ? 110 : 200
       const H = window.innerHeight
+      const size = H * (window.innerWidth <= 720 ? 0.42 : 0.58)
+      /* 2026-10-27 Human：露字 1/3 → 1/2——画布半字宽，相对定位不变 */
+      const W = Math.round(size * 0.5)
       cv.width = W * dpr
       cv.height = H * dpr
+      cv.style.width = W + 'px'
       const c = cv.getContext('2d')
       if (!c) return
       c.setTransform(dpr, 0, 0, dpr, 0, 0)
       c.clearRect(0, 0, W, H)
-      const size = H * (window.innerWidth <= 720 ? 0.42 : 0.58)
       const cx = W - size * 0.34,
         cy = (H - size) / 2
       drawCalliChar(c, ch, cx, cy, size, seed)
@@ -637,7 +639,7 @@ export function EdgeStroke({ ch }: { ch: string }) {
       <canvas
         ref={ref}
         aria-hidden="true"
-        className={`pointer-events-none fixed right-0 top-0 z-[-1] h-screen w-[110px] md:w-[200px] transition-opacity duration-[1400ms] ${on ? 'opacity-100' : 'opacity-0'}`}
+        className={`pointer-events-none fixed right-0 top-0 z-[-1] h-screen transition-opacity duration-[1400ms] ${on ? 'opacity-100' : 'opacity-0'}`}
       />
     </>
   )

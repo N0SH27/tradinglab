@@ -9,6 +9,45 @@ import { reducedMotion } from './brush'
 
 const CIN = '192,57,43' // 朱砂；勿改空格格式——addColorStop 对 rgb 串的空格敏感
 
+/* 句号墨点真位（2026-10-27 校正）：占位 span 给的是整行行盒，「。」的墨圈在行盒
+ * 内的位置随字体而变（之前用 width/2、height*0.6 经验值，偏右上）。把同一字重/
+ * 字号/字族的「。」画到 em 方离屏布扫描墨包围盒取中心；纵向锚定：行盒内 em 顶
+ * ≈ (行盒高 − 字号)/2（半行距均分），叠加墨心相对 em 顶的偏移。 */
+function dotInkCenter(el: HTMLElement) {
+  const cs = getComputedStyle(el)
+  const fs = parseFloat(cs.fontSize)
+  if (!cs.fontFamily || !fs) return null
+  const S = Math.ceil(fs * 1.2)
+  const oc = document.createElement('canvas')
+  oc.width = S
+  oc.height = S
+  const ox = oc.getContext('2d')
+  if (!ox) return null
+  ox.font = `${cs.fontWeight} ${fs}px ${cs.fontFamily}`
+  ox.textAlign = 'left'
+  ox.textBaseline = 'top'
+  ox.fillStyle = '#000'
+  ox.fillText('。', 0, 0)
+  const d = ox.getImageData(0, 0, S, S).data
+  let x0 = S,
+    y0 = S,
+    x1 = -1,
+    y1 = -1
+  for (let py = 0; py < S; py++)
+    for (let px = 0; px < S; px++)
+      if (d[(py * S + px) * 4 + 3] > 24) {
+        if (px < x0) x0 = px
+        if (px > x1) x1 = px
+        if (py < y0) y0 = py
+        if (py > y1) y1 = py
+      }
+  if (x1 < 0) return null
+  const arH = el.getBoundingClientRect().height
+  /* 纵向校准（2026-10-27 截图实测）：em 顶真实位置比 (行盒高−字号)/2 高约
+     fs×0.055（Noto Serif SC 行盒指标使然），否则墨点上浮约 7px */
+  return { x: (x0 + x1) / 2, y: (arH - fs) / 2 + fs * 0.055 + (y0 + y1) / 2 }
+}
+
 export function HeroInk({ dotRef }: { dotRef: RefObject<HTMLSpanElement | null> }) {
   const soakRef = useRef<HTMLCanvasElement>(null)
   const trailRef = useRef<HTMLCanvasElement>(null)
@@ -26,8 +65,9 @@ export function HeroInk({ dotRef }: { dotRef: RefObject<HTMLSpanElement | null> 
       if (!dot) return
       const r = hero.getBoundingClientRect(),
         ar = dot.getBoundingClientRect()
-      const cx = ar.left - r.left + ar.width / 2,
-        cy = ar.top - r.top + ar.height * 0.6
+      const ink = dotInkCenter(dot)
+      const cx = ar.left - r.left + (ink ? ink.x : ar.width / 2),
+        cy = ar.top - r.top + (ink ? ink.y : ar.height * 0.6)
       const dpr = Math.min(1.5, window.devicePixelRatio || 1)
       if (soakCv.width !== Math.round(r.width * dpr)) {
         soakCv.width = Math.round(r.width * dpr)
