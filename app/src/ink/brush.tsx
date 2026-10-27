@@ -452,7 +452,8 @@ export function InkDivider({
  *   湍流置换炸毫、多层洇墨、source-atop 于墨迹内部刻飞白——非印刷体。
  * 点景为辅：字左上一记淡墨短斜笔（PALE α.3）＋ 字周 silver 散点（globalAlpha .6）；
  * 朱点作押：字左下两粒朱砂（α.6）。全部落 canvas z-[-1]（#page-root 内），
- *   正文在上——2026-10-27 层级纪律：字露约 2/3，主体待在右缘沟。
+ *   正文在上——2026-10-27 层级纪律：可见窗 = 字宽 [2%, 75%]（又全见前），
+ *   右缘沟出血 25% 字宽。
  * 题眼字：世界=观 周期=复 日志=记 论点=证 无为=无 首页=观（Layout.edgeKind 映射）。
  * 字体异步：document.fonts.ready 后重绘一次；prefers-reduced-motion 直接成图。 */
 function drawCalliChar(
@@ -553,8 +554,11 @@ export function EdgeStroke({ ch }: { ch: string }) {
       const dpr = Math.min(window.devicePixelRatio || 1, 1.5)
       const H = window.innerHeight
       const size = H * (window.innerWidth <= 720 ? 0.42 : 0.58)
-      /* 2026-10-27 Human 二裁：露字 1/2 → 2/3——画布 2/3 字宽，相对定位不变 */
-      const W = Math.round((size * 2) / 3)
+      /* 2026-10-27 Human 三裁：可见窗 = 字宽的 [2%, 75%]——完整的「又」＋
+         「见」的前半；右侧 25% 字宽出血入缘沟。BLEED 与 W 显式化，
+         不再耦合在 cx 的 0.34 系数里 */
+      const BLEED = size * 0.25
+      const W = Math.round(size * 0.73)
       cv.width = W * dpr
       cv.height = H * dpr
       cv.style.width = W + 'px'
@@ -562,7 +566,9 @@ export function EdgeStroke({ ch }: { ch: string }) {
       if (!c) return
       c.setTransform(dpr, 0, 0, dpr, 0, 0)
       c.clearRect(0, 0, W, H)
-      const cx = W - size * 0.34,
+      /* cx 是字方左边线（drawCalliChar 以 x,y 为左上锚点）：左缘约 2% 在
+         画布外，右缘出血 BLEED 入缘沟——可见窗恰为字宽的 [2%, 75%] */
+      const cx = W + BLEED - size,
         cy = (H - size) / 2
       drawCalliChar(c, ch, cx, cy, size, seed)
       /* 点景一：字左上一记短斜笔（淡墨，余光档） */

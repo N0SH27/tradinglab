@@ -173,18 +173,28 @@ function Footer() {
   )
 }
 
-/* 行气题眼字（2026-10-27 裁决 · 结合版定案）：一页一字，皆出道家语系——
+/* 行气题眼字（2026-10-27 三裁 · 全站每页一字）：一页一字，皆出道家语系——
    世界=观、周期=复（「万物并作，吾以观复」《道德经》十六章，与日志落款同源）、
-   日志=记、论点=证、无为=无、首页=观。巨字＋点景＋朱点，落 canvas z-[-1]。
+   日志=记、论点=证、无为=无、首页=观；本轮补齐：宣言=易、系统=律、
+   杂文=文、维度=衡、框架=枢、方法=法、研究=研（含 report/essay 详情页同源）。
+   字库：马善正楷书 12 字子集（app/public/fonts/mashanzheng-subset.ttf）。
+   巨字＋点景＋朱点，落 canvas z-[-1]。
    必须渲染在 #page-root 之内：page-root 的 relative+z-[1]+bg-paper 构成层叠上下文，
    画布以 z-[-1] 置于其背景之上、内容之下；挂在外面会被这层纸色整个盖住。 */
 function edgeChar(path: string): string | null {
+  if (path === '/') return '观'
   if (path === '/map') return '观'
   if (path === '/cycle') return '复'
   if (path === '/journal') return '记'
-  if (path === '/thesis') return '证'
+  if (path === '/thesis' || path.startsWith('/thesis/')) return '证'
   if (path === '/wuwei') return '无'
-  if (path === '/') return '观'
+  if (path === '/manifesto') return '易'
+  if (path === '/system') return '律'
+  if (path === '/essays' || path.startsWith('/essays/')) return '文'
+  if (path === '/dimensions') return '衡'
+  if (path === '/framework') return '枢'
+  if (path === '/method') return '法'
+  if (path === '/research' || path.startsWith('/research/')) return '研'
   return null
 }
 
