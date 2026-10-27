@@ -2,6 +2,7 @@ import { THESES, INDUSTRY_MAP, LEDGER, type Thesis } from '../data/content'
 import { deriveThesisPolarity, type DerivedPolarity } from '../data/polarity'
 import { deriveCurrentBelief, lastRevisedOf } from '../data/ledger'
 import { Label, PageHead } from '../components/Bits'
+import { Seal } from '../ink/brush'
 
 /* 命题聚合页（V2-06-05 · Thesis as Belief Registry）。
    Thesis 不是文章目录，是当前仍然有效的投资判断及其随现实更新的注册表。
@@ -143,7 +144,15 @@ export default function Thesis() {
                       className="ink-hv flex items-baseline justify-between gap-4 px-5 py-4 hairline-b last:border-b-0"
                     >
                       <span className="font-serif-sc font-bold tracking-wide">{t.title}</span>
-                      <span className="font-mono-num tnum text-xs ink-3 shrink-0">{t.updated}</span>
+                      <span className="flex items-center gap-3 shrink-0">
+                        {/* 状态签收为朱印：命题完成盖「已归档」，被证伪盖「已失效」 */}
+                        <Seal
+                          text={s === 'closed' ? '已归档' : '已失效'}
+                          size={22}
+                          title={s === 'closed' ? '已归档' : '已失效'}
+                        />
+                        <span className="font-mono-num tnum text-xs ink-3">{t.updated}</span>
+                      </span>
                     </a>
                   ))}
                 </div>

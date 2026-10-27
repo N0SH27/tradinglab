@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>墨迹边框 Demo · 极细笔线勾框</title>
+<style>
+  :root{
+    --paper:#F7F3EA; --ink:#1A1A1A; --ink3:#6B6B6B; --cinnabar:#9E2B1F;
+    --serif:"Songti SC","STSong","STZhongsong","Noto Serif CJK SC","Source Han Serif SC",serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);font-family:var(--serif);line-height:1.9;font-size:15px;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0.55 0 0 0 0 0.5 0 0 0 0 0.42 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");}
+  .wrap{max-width:1120px;margin:0 auto;padding:52px 28px 110px}
+  .crumb{color:var(--ink3);font-size:13px;letter-spacing:.18em;margin-bottom:8px}
+  h1{font-size:28px;font-weight:700;letter-spacing:.06em;margin-bottom:6px}
+  .lead{color:var(--ink3);max-width:660px;margin-bottom:14px}
+  .bar{display:flex;gap:12px;align-items:center;margin:10px 0 44px}
+  .rp{font-family:var(--serif);font-size:12px;color:var(--ink3);background:none;border:1px solid #D8CFBB;
+      border-radius:3px;padding:3px 14px;cursor:pointer;letter-spacing:.2em}
+  .rp:hover{color:var(--ink);border-color:var(--ink3)}
+  .s-head{display:flex;align-items:baseline;gap:14px;border-bottom:1px solid #E2DACA;padding-bottom:12px;margin-bottom:10px}
+  .s-head .no{font-size:12px;color:var(--cinnabar);letter-spacing:.3em}
+  .s-head h2{font-size:20px;font-weight:700;letter-spacing:.1em}
+  .s-note{color:var(--ink3);font-size:13.5px;max-width:720px;margin:10px 0 26px}
+  .s-note b{color:#3C3C3C;font-weight:600}
+  section{margin-bottom:84px}
+
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+  @media(max-width:960px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:640px){.grid{grid-template-columns:1fr}}
+  .cell .tag{font-size:12px;color:var(--ink3);letter-spacing:.14em;margin:0 0 8px 2px;display:flex;gap:10px;align-items:baseline}
+  .cell .tag b{color:#3C3C3C;font-size:13.5px}
+  .cell .tag .en{font-size:10px;letter-spacing:.2em;text-transform:uppercase;opacity:.7}
+
+  /* 卡片本体：无任何 CSS 边（墨迹由 canvas 绘制）；基准卡除外 */
+  .card{position:relative;background:#FCFAF4;border-radius:2px;padding:26px 28px}
+  .card.control{border:1px solid #E7DFCE}
+  .card h4{font-size:16px;margin-bottom:8px;letter-spacing:.04em;display:flex;align-items:center;gap:10px}
+  .card h4 .st{font-size:10.5px;letter-spacing:.18em;border:1px solid var(--cinnabar);color:var(--cinnabar);
+      border-radius:2px;padding:0 7px;font-weight:400}
+  .card p{font-size:13px;color:var(--ink3);line-height:1.95}
+  .card .meta{margin-top:14px;font-size:11.5px;color:#8C8574;letter-spacing:.14em}
+  .inkframe{position:absolute;inset:0;pointer-events:none;width:100%;height:100%}
+
+  .apply{display:flex;gap:24px;flex-wrap:wrap}
+  .apply .card{flex:1;min-width:280px}
+  .apply .wide{flex:2 1 560px}
+  .foot{margin-top:70px;color:var(--ink3);font-size:12px;letter-spacing:.2em;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="crumb">TRADINGLABB · DESIGN AUDIT · 墨迹边框</div>
+  <h1>卡片的框：一笔极细墨线</h1>
+  <p class="lead">界画之线。线宽 1–2.5px，墨色沿周长呼吸，缘有 ±0.6px 的缓浪，转角处笔锋交叠微沉。入视口时勾框一次，落纸即驻留；reduced-motion 直接呈现。基准卡保留现有 CSS 边框作对照。</p>
+  <div class="bar"><button class="rp" id="seedBtn">换一批（重勾）</button><span style="font-size:12px;color:var(--ink3)">所有框种子化，每次重勾形态不同、气质不变</span></div>
+
+  <section>
+    <div class="s-head"><span class="no">壹</span><h2>八种框 · 对照</h2><span style="font-size:11px;color:var(--ink3);letter-spacing:.28em;margin-left:auto">VARIANTS</span></div>
+    <p class="s-note">从上往下读：先看<b>框本身的存在感</b>是否压过内容，再看<b>长时间停留</b>时它是否还安静。框的职责是「收住一摊墨」，不是「围住一块内容」。</p>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section>
+    <div class="s-head"><span class="no">贰</span><h2>落到三种真实卡片</h2><span style="font-size:11px;color:var(--ink3);letter-spacing:.28em;margin-left:auto">IN CONTEXT · 已选 4 号</span></div>
+    <p class="s-note">已选定 <b>淡墨飞白 · 残边</b>：框如其名——淡墨勾框、沿周长有枯笔骤淡的残段，像一笔写就未加修饰。存在感最低，与「收住一摊墨」的职责最合。</p>
+    <div class="apply">
+      <div class="card"><canvas class="inkframe"></canvas>
+        <h4>黄金的真实定价锚 <span class="st">已验证</span></h4>
+        <p>已从实际利率转向央行购金的边际速度。总量早已 priced，边际没有。</p>
+        <div class="meta">命题 · #07 · 丙午暮秋立</div>
+      </div>
+      <div class="card"><canvas class="inkframe"></canvas>
+        <h4>本周消化 · 第 42 周</h4>
+        <p>黄金裂口以周为单位走阔；铜的两条旧证据维持有效；无新增命题。</p>
+        <div class="meta">日志 · 2026-10-19</div>
+      </div>
+      <div class="card wide"><canvas class="inkframe"></canvas>
+        <h4>卷宗 · 2026 Q3 <span class="st" style="border-color:var(--ink3);color:var(--ink3)">已检</span></h4>
+        <p>七篇日志、三处旧命题复核完毕。两处证据补强，一处被证伪的命题保留原文备查——苦寒出香，错题配得上一个位置。</p>
+        <div class="meta">季度卷宗 · 检于霜降后</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="foot">墨迹边框 DEMO · 线宽 1–2.5PX · 缘 ±0.6PX 缓浪 · 转角交叠 · 种子化 · 勾框一次即驻留</div>
+</div>
+
+<script>
+'use strict';
+const Q=new URLSearchParams(location.search);
+const SHOT=Q.has('shot');
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function hash(n){const s=Math.sin(n*127.1+311.7)*43758.5453;return s-Math.floor(s);}
+function vnoise(x,seed){const i0=Math.floor(x),f=x-i0,s=f*f*(3-2*f);
+  return hash(i0*3.7+seed)*(1-s)+hash((i0+1)*3.7+seed)*s;}
+
+/* ── 边框笔画 ─────────────────────────────────────────────────────────
+   周长参数化：从左上角起，顺时针一圈。每边采样 56 点，
+   法向缓浪 ±0.6px（祭侄文稿缘部实测：平滑、非锯齿），
+   线宽与墨色沿弧长做双频呼吸（墨量不均），转角处笔锋交叠微沉。 */
+function framePath(W,H,seed){
+  const m=7;                                  // 离边距离
+  const per=2*(W-2*m)+2*(H-2*m);
+  const N=Math.max(160,Math.round(per/7));
+  const pts=[];
+  for(let i=0;i<N;i++){
+    const s=i/N, d=s*per;
+    let x,y,tan;
+    const a=W-2*m, b=H-2*m;
+    if(d<a){x=m+d;y=m;tan=0;}
+    else if(d<a+b){x=W-m;y=m+(d-a);tan=Math.PI/2;}
+    else if(d<2*a+b){x=W-m-(d-a-b);y=H-m;tan=Math.PI;}
+    else{x=m;y=H-m-(d-2*a-b);tan=-Math.PI/2;}
+    const nx=-Math.sin(tan), ny=Math.cos(tan);
+    const wob=(vnoise(d/30,seed)-.5)*.7+(vnoise(d/9,seed+9)-.5)*.25;   // 收敛：±0.35px 缓浪
+    pts.push({x:x+nx*wob,y:y+ny*wob,d,s,tan});
+  }
+  return pts;
+}
+function paintFrame(ctx,W,H,o){               // o:{seed, baseW, dark(bool), dry(bool), round(bool), prog}
+  const pts=framePath(W,H,o.seed);
+  const n=Math.max(2,Math.floor(pts.length*(o.prog??1)));
+  const col=o.dark?[40,40,40]:[110,110,110];  // 浓墨 / 淡墨
+  const L=pts.length;
+  for(let i=0;i<n;i++){
+    const p=pts[i], q=pts[(i+1)%L];
+    if(q.d<p.d&&(o.prog??1)<1)break;           // 勾框进度：未圆满时封口前停
+    // 墨色呼吸：双频缓变（波长刻意拉长，如墨量随行的不匀）；dry 模式叠加骤淡段（飞白）
+    let a=.5+.18*(vnoise(p.d/300,o.seed+3)-.5)+.05*(vnoise(p.d/170,o.seed+5)-.5);
+    if(o.dry){                                // 飞白骤淡，但留底痕——纸纹始终挂得住一点墨
+      const t=Math.max(0,Math.min(1,(vnoise(p.d/90,o.seed+7)-.3)/.55));
+      a*=.3+.7*Math.pow(t,1.3);
+    }
+    const hp=o.baseW*(.9+.22*vnoise(p.d/110,o.seed+11))/2;
+    const hq=o.baseW*(.9+.22*vnoise(q.d/110,o.seed+11))/2;
+    const nx=-Math.sin(p.tan), ny=Math.cos(p.tan);
+    ctx.fillStyle=`rgba(${col[0]},${col[1]},${col[2]},${a.toFixed(3)})`;
+    ctx.beginPath();                            // 每段一枚四边形，瓦片式相贴——叠笔接头处无双倍墨
+    ctx.moveTo(p.x+nx*hp,p.y+ny*hp);
+    ctx.lineTo(q.x+nx*hq,q.y+ny*hq);
+    ctx.lineTo(q.x-nx*hq,q.y-ny*hq);
+    ctx.lineTo(p.x-nx*hp,p.y-ny*hp);
+    ctx.closePath();ctx.fill();
+  }
+  // 转角交叠：笔锋换向处微沉
+  if((o.prog??1)>=1){
+    const m=7, corners=[[m,m],[W-m,m],[W-m,H-m],[m,H-m]];
+    corners.forEach(([x,y],i)=>{
+      const a=o.dark?.3:.2;
+      ctx.fillStyle=`rgba(${col[0]},${col[1]},${col[2]},${a})`;
+      ctx.beginPath();ctx.arc(x,y,.9+hash(o.seed+i)*.4,0,7);ctx.fill();
+    });
+  }
+}
+/* 双线（册页）：内圈一痕更淡更细 */
+function paintInnerHair(ctx,W,H,o){
+  const m=14;
+  ctx.strokeStyle=`rgba(150,150,150,${o.alpha??.34})`;
+  ctx.lineWidth=.8;
+  const wob=(k)=> (vnoise(k/22,o.seed+21)-.5)*.9;
+  ctx.beginPath();
+  [[m,m,W-m,m],[W-m,m,W-m,H-m],[W-m,H-m,m,H-m],[m,H-m,m,m]].forEach(([x1,y1,x2,y2],si)=>{
+    const steps=Math.max(8,Math.round(Math.hypot(x2-x1,y2-y1)/12));
+    for(let k=0;k<=steps;k++){
+      const t=k/steps, x=x1+(x2-x1)*t, y=y1+(y2-y1)*t;
+      const off=wob(si*37+k*.8);
+      const nx=(y2-y1)===0?0:(x2-x1)===0?1:0, ny=(x2-x1)===0?0:1;
+      k===0&&si===0?ctx.moveTo(x+nx*off,y+ny*off):ctx.lineTo(x+nx*off,y+ny*off);
+    }
+  });
+  ctx.stroke();
+}
+
+/* ── 变体清单 ───────────────────────────────────────────────────────── */
+const VARIANTS=[
+  {key:'control', zh:'基准 · 现 CSS 边框', en:'Control',  run:null},
+  {key:'light',   zh:'淡墨单线 · 方角交叠', en:'Pale',    run:(c,W,H,s,p)=>paintFrame(c,W,H,{seed:s,baseW:1.3,dark:false,prog:p})},
+  {key:'dark',    zh:'浓墨单线 · 方角交叠', en:'Dark',    run:(c,W,H,s,p)=>paintFrame(c,W,H,{seed:s,baseW:1.5,dark:true,prog:p})},
+  {key:'dry',     zh:'淡墨飞白 · 残边', en:'Dry Brush · 已选',   run:(c,W,H,s,p)=>paintFrame(c,W,H,{seed:s,baseW:1.3,dark:false,dry:true,prog:p})},
+  {key:'book',    zh:'册页双线 · 淡框细线', en:'Mounted', run:(c,W,H,s,p)=>{paintFrame(c,W,H,{seed:s,baseW:1.2,dark:false,prog:p});if(p>=1)paintInnerHair(c,W,H,{seed:s});}},
+  {key:'bolddry', zh:'浓墨飞白 · 重残边', en:'Bold Dry',  run:(c,W,H,s,p)=>paintFrame(c,W,H,{seed:s,baseW:1.9,dark:true,dry:true,prog:p})},
+  {key:'hair',    zh:'极细匀线 · 无呼吸', en:'Hairline',  run:(c,W,H,s,p)=>paintFrame(c,W,H,{seed:s,baseW:1.0,dark:false,prog:p})},
+  {key:'thick',   zh:'按笔粗线 · 沉着', en:'Pressed',     run:(c,W,H,s,p)=>paintFrame(c,W,H,{seed:s,baseW:2.2,dark:true,prog:p})},
+];
+
+function build(seed){
+  const grid=document.getElementById('grid');
+  grid.innerHTML=VARIANTS.map((v,i)=>`
+    <div class="cell"><div class="tag"><b>${v.zh}</b><span class="en">${v.en}</span></div>
+      <div class="card ${v.key==='control'?'control':''}" data-k="${v.key}">
+        ${v.key==='control'?'':'<canvas class="inkframe"></canvas>'}
+        <h4>铜价观察 #12 ${i%2?'<span class="st">观察中</span>':''}</h4>
+        <p>TC 溢价与 LME 库存的背离已连续四周走阔。裂口本身比价格更靠前——本周继续只看，不动手。</p>
+        <div class="meta">日志 · 2026-10-${String(14+i).padStart(2,'0')}</div>
+      </div></div>`).join('');
+  // 应用区（统一用「淡墨方角交叠」）
+  document.querySelectorAll('.apply .card').forEach((cd,i)=>{
+    cd.querySelector('canvas')?.remove();
+    const cv=document.createElement('canvas');cv.className='inkframe';cd.prepend(cv);
+  });
+  // 绘制
+  document.querySelectorAll('.card').forEach((cd,ci)=>{
+    const cv=cd.querySelector('canvas.inkframe');
+    if(!cv)return;
+    const v=VARIANTS.find(x=>x.key===cd.dataset.k);
+    const run=v?v.run:(c,W,H,s,p)=>paintFrame(c,W,H,{seed:s,baseW:1.3,dark:false,dry:true,prog:p});   // 已选：4 号淡墨飞白
+    const draw=(prog)=>{const c=cv.getContext('2d');c.clearRect(0,0,cv.width,cv.height);run(c,cv.width,cv.height,seed+ci*13.7,prog);};
+    const fit=()=>{cv.width=cd.clientWidth;cv.height=cd.clientHeight;};
+    fit();
+    if(reduced||SHOT){draw(1);}
+    else{
+      draw(0);
+      const io=new IntersectionObserver(es=>es.forEach(e=>{
+        if(!e.isIntersecting)return;
+        io.unobserve(cd);
+        const t0=performance.now(),DUR=1300;
+        (function tick(now){
+          const p=Math.min(1,(now-t0)/DUR);
+          draw(1-Math.pow(1-p,2.4));
+          if(p<1)requestAnimationFrame(tick);
+        })(t0);
+      }),{threshold:.4});
+      io.observe(cd);
+    }
+    if(ci<8)cd._fit=fit;
+  });
+}
+let seed=41.7;
+build(seed);
+document.getElementById('seedBtn').onclick=()=>{seed=Math.random()*997;build(seed);};
+addEventListener('resize',()=>{document.querySelectorAll('.card').forEach(cd=>{const cv=cd.querySelector('canvas.inkframe');if(!cv)return;cv.width=cd.clientWidth;cv.height=cd.clientHeight;const v=VARIANTS.find(x=>x.key===cd.dataset.k);const run=v?v.run:(c,W,H,s,p)=>paintFrame(c,W,H,{seed:s,baseW:1.3,dark:false,dry:true,prog:p});run(cv.getContext('2d'),cv.width,cv.height,seed,1);});});
+if(SHOT)document.body.classList.add('shot');
+</script>
+<style>body.shot *{transition:none!important;animation:none!important}</style>
+</body>
+</html>

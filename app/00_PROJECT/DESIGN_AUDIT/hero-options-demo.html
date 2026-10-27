@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>首屏动态 · 四方案 · 静态排版不动</title>
+<style>
+  :root{--paper:#F7F3EA;--paper2:#F2EDE1;--ink:#1A1A1A;--ink2:#3C3C3C;--ink3:#6B6B6B;--cinnabar:#9B2B1F;
+    --serif:"Songti SC","STSong","Noto Serif CJK SC",serif}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--paper);color:var(--ink);font-family:var(--serif);padding:44px 20px 80px}
+  .wrap{max-width:920px;margin:0 auto}
+  .crumb{font-size:11px;letter-spacing:.28em;color:var(--ink3);margin-bottom:14px}
+  h1{font-size:26px;letter-spacing:.1em;font-weight:600;margin-bottom:10px}
+  .lead{font-size:13.5px;color:var(--ink3);line-height:1.9;max-width:640px;margin-bottom:8px}
+  .lead b{color:var(--ink2);font-weight:600}
+  .opt{margin-top:44px}
+  .o-head{display:flex;align-items:baseline;gap:14px;margin-bottom:12px}
+  .o-head .no{font-size:12px;color:var(--cinnabar);letter-spacing:.2em}
+  .o-head h2{font-size:19px;letter-spacing:.12em;font-weight:600}
+  .o-head .en{font-size:10.5px;letter-spacing:.24em;color:var(--ink3)}
+  .o-note{font-size:12.5px;color:var(--ink3);line-height:1.85;margin-bottom:14px;max-width:640px}
+  .o-note b{color:var(--ink2);font-weight:600}
+  .stage{position:relative;height:300px;border:1px solid #E7DFCE;border-radius:4px;overflow:hidden;
+    background:linear-gradient(180deg,#FBF8F1,#F5F0E4)}
+  .stage canvas{position:absolute;inset:0;width:100%;height:100%}
+  .motto{position:absolute;left:7%;top:50%;transform:translateY(-50%);pointer-events:none}
+  .motto .t{font-size:27px;letter-spacing:.14em;line-height:1.75;font-weight:600;white-space:nowrap}
+  .motto .t .dot{color:var(--cinnabar)}
+  .motto .t .dot.ghost{visibility:hidden}
+  .motto .sub{margin-top:12px;font-size:11px;letter-spacing:.3em;color:var(--ink3)}
+  .ctrl{position:absolute;right:14px;bottom:12px}
+  .rp{font-family:var(--serif);font-size:11.5px;letter-spacing:.16em;padding:5px 14px;
+    border:1px solid #C9BFA6;border-radius:3px;background:rgba(255,255,255,.4);color:var(--ink2);cursor:pointer}
+  .rp:hover{border-color:var(--cinnabar);color:var(--cinnabar)}
+  /* 方案B 落印 */
+  .seal-pop{position:absolute;left:7%;top:calc(50% + 74px);width:32px;height:32px;border-radius:5px;
+    background:radial-gradient(circle at 42% 38%,rgba(178,58,44,.94),rgba(155,43,31,.86) 72%,rgba(155,43,31,.64));
+    color:#F7F3EA;font-size:15px;font-weight:900;display:flex;align-items:center;justify-content:center;
+    transform:rotate(-2.5deg);opacity:0;box-shadow:0 1px 2px rgba(60,40,20,.18)}
+  .seal-pop::after{content:"";position:absolute;inset:3.5px;border:1px solid rgba(247,243,234,.75);border-radius:3px}
+  /* 方案C 墨泅 */
+  .soak-dot{position:absolute;width:9px;height:9px;border-radius:50%;
+    background:radial-gradient(circle,rgba(155,43,31,.95),rgba(155,43,31,.5) 58%,rgba(155,43,31,0) 76%);
+    transform:translate(-50%,-50%) scale(0);opacity:0}
+  .soak-halo{position:absolute;width:34px;height:34px;border-radius:50%;
+    background:radial-gradient(circle,rgba(155,43,31,.16),rgba(155,43,31,0) 70%);
+    transform:translate(-50%,-50%) scale(0);opacity:0}
+  .verdict{margin-top:40px;border-top:1px solid #E7DFCE;padding-top:18px;font-size:12.5px;color:var(--ink3);line-height:2}
+  .verdict b{color:var(--ink2)}
+  @media (max-width:640px){ .motto .t{font-size:19px} .stage{height:240px} }
+  body.shot *,body.shot *::before,body.shot *::after{transition:none!important;animation:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="crumb">TRADINGLABB · DESIGN AUDIT · 首屏动态备选</div>
+  <h1>首屏四方案 · 静态排版一律不动</h1>
+  <p class="lead">你现在的静态开头排版保留：宣言两行、位置、字号全不变，四个方案只在「排版之外」各加一笔墨。<b>字不浮、不跳、不一块一块出</b>——动态发生在纸面或标点上，读者视线里的文字始终稳定。</p>
+
+  <!-- A 纸缘行气 -->
+  <div class="opt">
+    <div class="o-head"><span class="no">方案一</span><h2>纸缘行气</h2><span class="en">Edge Breath</span></div>
+    <p class="o-note">左边纸缘，一笔淡墨自下而上<b>一次写定</b>（藏锋起、枯锋收，带三两散点），像有人在纸边试了一枝。宣言全程静态已在那里。笔速放得很慢，约三秒——观者余光能感到纸「活」了一下，读完即驻留，不循环。这是最接近「行气」体系的一版。</p>
+    <div class="stage" id="stageA">
+      <canvas id="cvA"></canvas>
+      <div class="motto"><div class="t">观察变化，而非预测未来<span class="dot">。</span></div><div class="sub">TRADINGLABB · 研究日志</div></div>
+      <div class="ctrl"><button class="rp" data-rp="A">重播</button></div>
+    </div>
+  </div>
+
+  <!-- B 落印 -->
+  <div class="opt">
+    <div class="o-head"><span class="no">方案二</span><h2>落印</h2><span class="en">The Seal</span></div>
+    <p class="o-note">全页唯一的动态：宣言落款的位子上，一枚朱砂小印「观」<b>轻压而下</b>（微放大回弹 1.25→1，附 -2.5° 钤压斜角），0.4 秒完成，驻留。手卷读毕钤印——首屏即卷首，印落即「此页有人」。信息量为零，仪式感拉满，移动端同样成立。</p>
+    <div class="stage">
+      <div class="motto"><div class="t">观察变化，而非预测未来<span class="dot">。</span></div><div class="sub">TRADINGLABB · 研究日志</div></div>
+      <div class="seal-pop" id="sealB">观</div>
+      <div class="ctrl"><button class="rp" data-rp="B">重播</button></div>
+    </div>
+  </div>
+
+  <!-- C 墨泅标点 -->
+  <div class="opt">
+    <div class="o-head"><span class="no">方案三</span><h2>墨泅标点</h2><span class="en">Soaking Period</span></div>
+    <p class="o-note">文字从头到尾都在，动的是<b>那一个朱砂句号</b>：先一小团淡墨晕开（像笔尖触纸），墨色收拢、凝成朱砂句点，约一秒。宣言十二个字无一移动——「观察变化，而非预测未来」的笃定，由一个自己凝住的句号说完。最静的一版。</p>
+    <div class="stage" id="stageC">
+      <canvas id="cvC"></canvas>
+      <div class="motto"><div class="t" id="tC">观察变化，而非预测未来<span class="dot" id="dotAnchor">。</span></div><div class="sub">TRADINGLABB · 研究日志</div></div>
+      <div class="ctrl"><button class="rp" data-rp="C">重播</button></div>
+    </div>
+  </div>
+
+  <!-- D 润笔 -->
+  <div class="opt">
+    <div class="o-head"><span class="no">方案四</span><h2>润笔</h2><span class="en">Ink Play</span></div>
+    <p class="o-note">首屏<b>完全静态</b>，一笔都不自动发生。桌面端：光标在纸面游走时留下极淡的润笔墨痕，两三秒自行淡去——像编辑在宣纸上试笔。移动端与 reduced-motion：无此彩蛋，首屏就是纯静。这是把「动态」从展示降级成交互的一版，最克制也最新奇。</p>
+    <div class="stage" id="stageD">
+      <canvas id="cvD"></canvas>
+      <div class="motto"><div class="t">观察变化，而非预测未来<span class="dot">。</span></div><div class="sub">TRADINGLABB · 研究日志</div></div>
+      <div class="ctrl"><button class="rp" data-rp="D">拭纸</button></div>
+    </div>
+  </div>
+
+  <!-- E 墨泅标点 + 润笔 -->
+  <div class="opt">
+    <div class="o-head"><span class="no">方案五</span><h2>墨泅标点 · 润笔</h2><span class="en">Soak × Play</span></div>
+    <p class="o-note">方案三与四的合体：开场仍是<b>朱砂句号自己凝住</b>（约一秒，说完「笃定」），此后纸面进入润笔状态——光标游走留淡痕自隐。登场一刻与日常交互各归各位：一次性的庄重交给句号，持续的生命力交给读者的手。</p>
+    <div class="stage" id="stageE">
+      <canvas id="cvE"></canvas>
+      <div class="motto"><div class="t" id="tE">观察变化，而非预测未来<span class="dot" id="dotAnchorE">。</span></div><div class="sub">TRADINGLABB · 研究日志</div></div>
+      <div class="ctrl"><button class="rp" data-rp="E">重泅</button></div>
+    </div>
+  </div>
+
+  <div class="verdict">
+    取舍参考：<b>方案一</b>延续行气体系、最有辨识度；<b>方案二</b>最庄重、实现最简；<b>方案三</b>最静、与静态排版相性最好；<b>方案四</b>把主动权交给读者，但弱化了「登场」时刻；<b>方案五</b>是三与四的合体——句号管登场的庄重，润笔管日常的生命力，层次最完整。
+  </div>
+</div>
+
+<script>
+const SHOT=new URLSearchParams(location.search).has('shot');
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function hash(n){const s=Math.sin(n*127.1+311.7)*43758.5453;return s-Math.floor(s);}
+const INK={concentrated:[13,13,13],rich:[26,26,26],soot:[60,60,60],graphite:[94,94,94],
+  slate:[52,52,52],silver:[135,135,135],pale:[170,170,170],mist:[220,220,220]};
+const inkA=(c,a)=>`rgba(${INK[c][0]},${INK[c][1]},${INK[c][2]},${Math.max(0,Math.min(1,a)).toFixed(3)})`;
+const easeIO=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+
+/* 通用带状行笔 */
+function strokePts(W,H,o){
+  const N=o.N||220,pts=[];
+  for(let i=0;i<N;i++){
+    const s=i/(N-1),x=s*W;
+    const y=H*o.yK+o.amps[0]*Math.sin(s*o.f[0]+o.ph)+o.amps[1]*Math.sin(s*o.f[1])+o.amps[2]*Math.sin(s*o.f[2]);
+    pts.push({x,y,s});
+  }
+  for(let i=0;i<N;i++){
+    const a=pts[Math.max(0,i-1)],b=pts[Math.min(N-1,i+1)];
+    const tx=b.x-a.x,ty=b.y-a.y,l=Math.hypot(tx,ty)||1;
+    pts[i].nx=-ty/l;pts[i].ny=tx/l;
+  }
+  let pw=null;
+  for(let i=0;i<N;i++){
+    const s=pts[i].s;let env;
+    if(s<o.envIn)env=.35+s/o.envIn*.65;
+    else if(s>o.envOut)env=Math.max(.12,1-(s-o.envOut)/(1-o.envOut)*.88);
+    else env=1;
+    const press=1-(o.pressDepth??.4)*Math.pow(Math.max(0,Math.sin(s*Math.PI*(o.pressFreq??2)+.6)),2);
+    let w=Math.max(1.2,o.baseW*env*press*(.94+.1*Math.sin(i*.21+(o.seed||0))));
+    if(pw!==null)w=pw*.6+w*.4;pw=w;pts[i].w=w;
+  }
+  return pts;
+}
+function paintBands(ctx,pts,n,o){
+  const K=16;
+  for(let b=0;b<K;b++){
+    const sc=1.28-b*(.76/K);
+    let col=o.stops[0][1];
+    for(const [r,c] of o.stops) if(sc<=r) col=c;
+    const C=o.alpha*(sc>.8?Math.exp(-Math.pow((sc-.8)/.3,2)):1);
+    ctx.fillStyle=inkA(col,C);
+    ctx.beginPath();
+    for(let k=0;k<n;k++){const p=pts[k],hw=p.w*sc/2+(o.pad||0);k===0?ctx.moveTo(p.x+p.nx*hw,p.y+p.ny*hw):ctx.lineTo(p.x+p.nx*hw,p.y+p.ny*hw);}
+    for(let k=n-1;k>=0;k--){const p=pts[k],hw=p.w*sc/2+(o.pad||0);ctx.lineTo(p.x-p.nx*hw,p.y-p.ny*hw);}
+    ctx.closePath();ctx.fill();
+  }
+}
+const GRAY=[[1.3,'mist'],[1.12,'pale'],[.95,'silver'],[.72,'graphite'],[0,'slate']];
+function fitCanvas(cv){
+  const r=cv.parentElement.getBoundingClientRect(),dpr=Math.min(1.5,devicePixelRatio||1);
+  cv.width=r.width*dpr;cv.height=r.height*dpr;
+  const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);
+  return {ctx,W:r.width,H:r.height};
+}
+
+/* ── 方案A 纸缘行气：纵向一笔，自下而上 ── */
+let A;
+function initA(){
+  const cv=document.getElementById('cvA');
+  const {ctx,W,H}=fitCanvas(cv);
+  const L=H*.72, span=H*.02;
+  const p0=strokePts(L,span*2,{N:180,yK:.5,amps:[span*.9,span*.4,span*.18],f:[4.2,9.5,17],ph:.8,
+    baseW:9,envIn:.06,envOut:.9,pressFreq:1.4,pressDepth:.3,seed:5});
+  const mx=W*.032, y0=(H-L)/2;
+  const pts=p0.map(p=>({...p,x:mx+(p.y-span),y:y0+(L-p.x),nx:0,ny:0,w:p.w}));
+  // 重新算法线
+  for(let i=0;i<pts.length;i++){
+    const a=pts[Math.max(0,i-1)],b=pts[Math.min(pts.length-1,i+1)];
+    const tx=b.x-a.x,ty=b.y-a.y,l=Math.hypot(tx,ty)||1;
+    pts[i].nx=-ty/l;pts[i].ny=tx/l;
+  }
+  function draw(prog){
+    ctx.clearRect(0,0,W,H);
+    const n=Math.max(2,Math.floor(prog*pts.length));
+    paintBands(ctx,pts,n,{stops:GRAY,alpha:.4,pad:.4});
+    if(prog>.93){                                   // 枯锋散点，驻留
+      for(const [th,sd] of [[.95,1],[.975,2]]){
+        const idx=Math.floor(th*pts.length),p=pts[idx];
+        for(let k=0;k<3;k++){
+          const a=(hash(sd*9+k)-.5)*2,d=p.w*(.8+hash(sd+k)*2.2);
+          ctx.fillStyle=inkA('graphite',.42-.08*k);
+          ctx.beginPath();ctx.arc(p.x+Math.cos(a)*d,p.y+Math.sin(a)*d,1-hash(sd*3+k)*.5,0,7);ctx.fill();
+        }
+      }
+    }
+  }
+  A={draw};
+  if(SHOT||reduced)draw(1);
+  else animate(prog=>{draw(prog);},3400);
+}
+document.querySelector('[data-rp="A"]').onclick=()=>{ if(A)animate(p=>A.draw(p),3400); };
+
+/* ── 方案B 落印 ── */
+const sealB=document.getElementById('sealB');
+function playB(){
+  if(SHOT||reduced){sealB.style.opacity=1;sealB.style.transform='rotate(-2.5deg) scale(1)';return;}
+  sealB.style.transition='none';sealB.style.opacity=0;sealB.style.transform='rotate(-4deg) scale(1.3)';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    sealB.style.transition='opacity .3s ease,transform .38s cubic-bezier(.2,.9,.3,1.25)';
+    sealB.style.opacity=1;sealB.style.transform='rotate(-2.5deg) scale(1)';
+  }));
+}
+document.querySelector('[data-rp="B"]').onclick=playB;
+
+/* ── 方案C 墨泅标点 ── */
+let C;
+function initC(){
+  const cv=document.getElementById('cvC');
+  const {ctx,W,H}=fitCanvas(cv);
+  const halo=document.createElement('div');halo.className='soak-halo';
+  const stage=document.getElementById('stageC');
+  stage.appendChild(halo);
+  const anchor=document.getElementById('dotAnchor');
+  anchor.classList.add('ghost');
+  function place(){
+    const sr=stage.getBoundingClientRect(),ar=anchor.getBoundingClientRect();
+    const cx=ar.left-sr.left+ar.width/2, cy=ar.top-sr.top+ar.height*.62;
+    halo.style.left=cx+'px'; halo.style.top=cy+'px';
+    return {cx,cy};
+  }
+  function draw(prog){
+    const {cx,cy}=place();
+    ctx.clearRect(0,0,W,H);
+    const t1=Math.min(1,prog/.45), t2=Math.max(0,Math.min(1,(prog-.4)/.6));
+    const ease=x=>1-Math.pow(1-x,3);
+    ctx.beginPath();ctx.arc(cx,cy,3+15*ease(t1)*(1-t2*.5),0,7);
+    ctx.fillStyle=inkA('mist',.45*(1-t2*.6));ctx.fill();
+    const r=4.6*ease(t2);
+    const g=ctx.createRadialGradient(cx-r*.2,cy-r*.25,r*.1,cx,cy,r);
+    g.addColorStop(0,`rgba(178,58,44,${.9*ease(t2)})`);g.addColorStop(1,`rgba(155,43,31,${.88*ease(t2)})`);
+    ctx.beginPath();ctx.arc(cx,cy,r,0,7);ctx.fillStyle=g;ctx.fill();
+    const hs=ease(t1);
+    halo.style.opacity=hs*(1-ease(t2)*.5); halo.style.transform=`translate(-50%,-50%) scale(${hs*(1-ease(t2)*.3)})`;
+  }
+  C={draw};
+  if(SHOT||reduced)draw(1);
+  else animate(draw,1150);
+}
+document.querySelector('[data-rp="C"]').onclick=()=>{ if(C)animate(p=>C.draw(p),1150); };
+
+/* ── 方案D 润笔 ── */
+function initD(){
+  const cv=document.getElementById('cvD');
+  const {ctx,W,H}=fitCanvas(cv);
+  const trail=[];
+  function tick(){
+    ctx.clearRect(0,0,W,H);
+    const now=performance.now();
+    for(let i=trail.length-1;i>=0;i--){
+      const p=trail[i], age=(now-p.t)/2400;
+      if(age>=1){trail.splice(i,1);continue;}
+      const a=(1-age)*.10;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r*(1+age*.6),0,7);
+      ctx.fillStyle=inkA('graphite',a);ctx.fill();
+    }
+    requestAnimationFrame(tick);
+  }
+  const stage=document.getElementById('stageD');
+  let last=0;
+  function add(e){
+    const now=performance.now(); if(now-last<28)return; last=now;
+    const r=stage.getBoundingClientRect();
+    const x=(e.touches?e.touches[0].clientX:e.clientX)-r.left,
+          y=(e.touches?e.touches[0].clientY:e.clientY)-r.top;
+    trail.push({x,y,r:2.6+Math.random()*2.6,t:now});
+    if(trail.length>64)trail.shift();
+  }
+  stage.addEventListener('mousemove',add);
+  stage.addEventListener('touchmove',add,{passive:true});
+  document.querySelector('[data-rp="D"]').onclick=()=>trail.length=0;
+  if(!reduced)requestAnimationFrame(tick);
+}
+
+/* ── 方案E 墨泅+润笔 ── */
+let E;
+function initE(){
+  const cv=document.getElementById('cvE');
+  const {ctx,W,H}=fitCanvas(cv);
+  const halo=document.createElement('div');halo.className='soak-halo';
+  const stage=document.getElementById('stageE');
+  stage.appendChild(halo);
+  const anchor=document.getElementById('dotAnchorE');
+  anchor.classList.add('ghost');
+  function place(){
+    const sr=stage.getBoundingClientRect(),ar=anchor.getBoundingClientRect();
+    const cx=ar.left-sr.left+ar.width/2, cy=ar.top-sr.top+ar.height*.62;
+    halo.style.left=cx+'px'; halo.style.top=cy+'px';
+    return {cx,cy};
+  }
+  function soak(prog){
+    const {cx,cy}=place();
+    const t1=Math.min(1,prog/.45), t2=Math.max(0,Math.min(1,(prog-.4)/.6));
+    const ease=x=>1-Math.pow(1-x,3);
+    ctx.clearRect(0,0,W,H);
+    if(prog<1){
+      ctx.beginPath();ctx.arc(cx,cy,3+15*ease(t1)*(1-t2*.5),0,7);
+      ctx.fillStyle=inkA('mist',.45*(1-t2*.6));ctx.fill();
+    }
+    const r=4.6*ease(t2);
+    const g=ctx.createRadialGradient(cx-r*.2,cy-r*.25,r*.1,cx,cy,r);
+    g.addColorStop(0,`rgba(178,58,44,${.9*ease(t2)})`);g.addColorStop(1,`rgba(155,43,31,${.88*ease(t2)})`);
+    ctx.beginPath();ctx.arc(cx,cy,r,0,7);ctx.fillStyle=g;ctx.fill();
+    const hs=ease(t1);
+    halo.style.opacity=hs*(1-ease(t2)*.5); halo.style.transform=`translate(-50%,-50%) scale(${hs*(1-ease(t2)*.3)})`;
+  }
+  E={soak,clearDot:null};
+  // 润笔轨迹层（第二个 canvas 叠在上层，互不干扰）
+  const cvT=document.createElement('canvas');
+  cvT.style.cssText='position:absolute;inset:0;width:100%;height:100%;pointer-events:none';
+  stage.insertBefore(cvT,cv.nextSibling);
+  cvT.width=cv.width;cvT.height=cv.height;
+  const ctxT=cvT.getContext('2d');ctxT.setTransform(ctx.getTransform());
+  const trail=[]; let last=0;
+  function tick(){
+    ctxT.clearRect(0,0,W,H);
+    const now=performance.now();
+    for(let i=trail.length-1;i>=0;i--){
+      const p=trail[i], age=(now-p.t)/2400;
+      if(age>=1){trail.splice(i,1);continue;}
+      ctxT.beginPath();ctxT.arc(p.x,p.y,p.r*(1+age*.6),0,7);
+      ctxT.fillStyle=inkA('graphite',(1-age)*.10);ctxT.fill();
+    }
+    requestAnimationFrame(tick);
+  }
+  function add(e){
+    const now=performance.now(); if(now-last<28)return; last=now;
+    const r=stage.getBoundingClientRect();
+    const x=(e.touches?e.touches[0].clientX:e.clientX)-r.left,
+          y=(e.touches?e.touches[0].clientY:e.clientY)-r.top;
+    trail.push({x,y,r:2.6+Math.random()*2.6,t:now});
+    if(trail.length>64)trail.shift();
+  }
+  stage.addEventListener('mousemove',add);
+  stage.addEventListener('touchmove',add,{passive:true});
+  if(!reduced)requestAnimationFrame(tick);
+  if(SHOT||reduced)soak(1);
+  else animate(soak,1150);
+}
+document.querySelector('[data-rp="E"]').onclick=()=>{ if(E)animate(p=>E.soak(p),1150); };
+
+function animate(fn,dur){
+  if(reduced){fn(1);return;}
+  const t0=performance.now();
+  (function loop(){
+    const p=Math.min(1,(performance.now()-t0)/dur);
+    fn(easeIO(p));
+    if(p<1)requestAnimationFrame(loop);
+  })();
+}
+function boot(){initA();playB();initC();initD();initE();}
+if(SHOT)document.body.classList.add('shot');
+(reduced||SHOT)?boot():addEventListener('load',boot);
+</script>
+</body>
+</html>

@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>行气三意象 Demo · 龙 × 虎 × 鹤</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Noto+Sans+SC:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root { --paper: 250 250 249; --ink: 23 23 23; --line: 229 229 226; --cinnabar: 192 57 43; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: rgb(var(--paper)); color: rgb(var(--ink)); font-family: 'Noto Sans SC', -apple-system, 'PingFang SC', sans-serif;
+  -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+.wrap { max-width: 1360px; margin: 0 auto; padding: 0 clamp(20px, 3vw, 40px); }
+.stage { transition: max-width .5s cubic-bezier(.2,.7,.2,1), box-shadow .5s; margin: 0 auto; }
+.stage.mobile { max-width: 402px; box-shadow: 0 0 0 1px rgb(var(--line)), 0 24px 60px -30px rgb(var(--ink) / .25); }
+.stage.mobile .only-wide { display: none; }
+
+.nav { display: flex; align-items: baseline; justify-content: space-between; padding: 18px 0; border-bottom: 1px solid rgb(var(--line)); }
+.nav .brand { font-family: 'Noto Serif SC', serif; font-weight: 900; font-size: 19px; }
+.nav .brand small { font-family: 'IBM Plex Mono', monospace; font-weight: 400; font-size: 10px; letter-spacing: .22em; color: rgb(var(--ink) / .42); margin-left: 10px; }
+.nav .links { display: flex; gap: clamp(14px, 2.4vw, 30px); font-family: 'Noto Serif SC', serif; font-size: 14px; color: rgb(var(--ink) / .72); }
+
+.head { padding: clamp(36px, 6vh, 72px) 0 8px; }
+.head .kicker { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .3em; color: rgb(var(--cinnabar)); }
+.head h1 { font-family: 'Noto Serif SC', serif; font-weight: 900; font-size: clamp(1.9rem, 4.6vw, 3.4rem); letter-spacing: -.01em; margin-top: 14px; }
+.head .sub { margin-top: 16px; max-width: 44em; font-size: 14.5px; line-height: 1.95; color: rgb(var(--ink) / .68); }
+.head .sub b { color: rgb(var(--ink)); font-weight: 500; }
+
+.sect { margin-top: clamp(48px, 8vh, 90px); }
+.sect .tag { display: flex; align-items: baseline; gap: 14px; border-top: 1px solid rgb(var(--line)); padding-top: 22px; }
+.sect .tag .no { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .2em; color: rgb(var(--cinnabar)); }
+.sect .tag h2 { font-family: 'Noto Serif SC', serif; font-weight: 900; font-size: clamp(19px, 2.2vw, 26px); }
+.sect .tag .rec { margin-left: auto; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: .18em; padding: 4px 10px; border: 1px solid rgb(var(--cinnabar) / .5); color: rgb(var(--cinnabar)); white-space: nowrap; }
+.sect .lead { margin-top: 12px; font-size: 13.5px; line-height: 1.9; color: rgb(var(--ink) / .62); max-width: 46em; }
+
+.trio { display: grid; grid-template-columns: 1fr; gap: 22px; margin-top: 26px; }
+@media (min-width: 900px) { .trio { grid-template-columns: repeat(3, 1fr); } }
+.panel { border: 1px solid rgb(var(--line)); background: rgb(var(--paper)); display: flex; flex-direction: column; }
+.panel .cap { display: flex; align-items: baseline; gap: 10px; padding: 14px 16px 0; }
+.panel .cap .zh { font-family: 'Noto Serif SC', serif; font-weight: 900; font-size: 26px; }
+.panel .cap .fn { font-size: 12px; color: rgb(var(--ink) / .58); }
+.panel .cap .rh { margin-left: auto; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: .2em; color: rgb(var(--ink) / .4); }
+.panel .cv { position: relative; height: 340px; margin-top: 4px; }
+.panel .cv::before { content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: .05; mix-blend-mode: multiply;   /* 宣纸肌理 */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+.panel .cv canvas { z-index: 1; }
+.stage.mobile .panel .cv { height: 300px; }
+.panel .cv canvas { position: absolute; inset: 0; width: 100%; height: 100%; mix-blend-mode: multiply; }
+.panel .meta { padding: 10px 16px 14px; border-top: 1px dashed rgb(var(--line)); font-size: 12px; line-height: 1.85; color: rgb(var(--ink) / .6); }
+.panel .meta b { color: rgb(var(--ink) / .85); font-weight: 500; }
+
+.hiero { display: grid; grid-template-columns: 1fr; gap: 22px; margin-top: 26px; }
+@media (min-width: 900px) { .hiero { grid-template-columns: 1.9fr 1fr; } .hiero .side { display: grid; grid-template-rows: 1fr 1fr; gap: 22px; } }
+.hiero .panel .cv { height: 420px; }
+.stage.mobile .hiero .panel .cv { height: 300px; }
+@media (max-width: 899px) { .hiero .side .panel .cv { height: 240px; } }
+
+.states { margin-top: 26px; }
+.states .switch { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.states .switch button { font-family: 'IBM Plex Mono', 'Noto Sans SC', monospace; font-size: 11px; letter-spacing: .12em; padding: 7px 14px;
+  background: transparent; border: 1px solid rgb(var(--line)); color: rgb(var(--ink) / .6); cursor: pointer; transition: .25s; }
+.states .switch button:hover { border-color: rgb(var(--ink) / .4); color: rgb(var(--ink)); }
+.states .switch button.on { background: rgb(var(--ink)); color: rgb(var(--paper)); border-color: rgb(var(--ink)); }
+.states .panel .cv { height: 400px; }
+.stage.mobile .states .panel .cv { height: 320px; }
+
+.card { border: 1px solid rgb(var(--line)); padding: 16px 18px; }
+.card h3 { font-family: 'Noto Serif SC', serif; font-weight: 700; font-size: 15px; margin-bottom: 8px; }
+.card h3 small { font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: .18em; color: rgb(var(--ink) / .4); margin-left: 8px; }
+.card p, .card li { font-size: 12.5px; line-height: 1.9; color: rgb(var(--ink) / .62); }
+.card ul { padding-left: 1.1em; }
+.grid3 { display: grid; grid-template-columns: 1fr; gap: 14px; margin-top: 26px; }
+@media (min-width: 900px) { .grid3 { grid-template-columns: repeat(3, 1fr); } }
+
+table.mx { width: 100%; border-collapse: collapse; margin-top: 24px; font-size: 12.5px; }
+table.mx th, table.mx td { border: 1px solid rgb(var(--line)); padding: 9px 12px; text-align: left; vertical-align: top; line-height: 1.7; }
+table.mx th { font-family: 'Noto Serif SC', serif; font-weight: 700; background: rgb(var(--ink) / .03); }
+table.mx td:first-child { font-weight: 500; color: rgb(var(--ink) / .85); white-space: nowrap; }
+table.mx .d { color: rgb(var(--cinnabar)); font-weight: 700; }
+table.mx .t { color: rgb(var(--ink) / .55); }
+table.mx .h { color: rgb(var(--ink) / .4); }
+
+.map { display: grid; grid-template-columns: 1fr; gap: 14px; margin-top: 24px; }
+@media (min-width: 900px) { .map { grid-template-columns: repeat(3, 1fr); } }
+.map .card .pg { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: .16em; color: rgb(var(--ink) / .42); margin-top: 10px; }
+.map .card .pg span { display: inline-block; border: 1px solid rgb(var(--line)); padding: 2px 8px; margin: 2px 4px 2px 0; }
+
+.check { margin-top: 24px; columns: 1; column-gap: 34px; }
+@media (min-width: 900px) { .check { columns: 2; } }
+.check .it { break-inside: avoid; display: flex; gap: 10px; padding: 9px 0; border-bottom: 1px dashed rgb(var(--line)); font-size: 12.5px; line-height: 1.8; color: rgb(var(--ink) / .62); }
+.check .it b { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: .14em; color: rgb(var(--cinnabar)); white-space: nowrap; padding-top: 3px; }
+
+.foot { margin: clamp(46px, 8vh, 80px) 0 26px; padding-top: 18px; border-top: 1px solid rgb(var(--line));
+  font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: .16em; color: rgb(var(--ink) / .38); line-height: 2; }
+
+.atm-bar { position: fixed; top: 14px; right: 14px; z-index: 99; display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; max-width: 84vw; }
+.atm-bar button { font-family: 'IBM Plex Mono', 'Noto Sans SC', monospace; font-size: 11px; letter-spacing: .08em; padding: 7px 13px;
+  background: rgb(var(--paper) / .92); backdrop-filter: blur(8px); border: 1px solid rgb(var(--line)); color: rgb(var(--ink) / .6); cursor: pointer; transition: .3s; }
+.atm-bar button:hover { color: rgb(var(--ink)); border-color: rgb(var(--ink) / .4); }
+.atm-bar button.on { background: rgb(var(--ink)); color: rgb(var(--paper)); border-color: rgb(var(--ink)); }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+<div class="wrap">
+  <div class="nav">
+    <div class="brand">trading·lab <small>BY HSN</small></div>
+    <div class="links only-wide"><span>当下</span><span>世界</span><span>命题</span><span>日志</span><span>无为</span><span>HSN</span></div>
+  </div>
+
+  <header class="head">
+    <div class="kicker">DESIGN_AUDIT · 行气视觉体系 V2 · 隔离演示稿</div>
+    <h1>龙 × 虎 × 鹤：一套笔迹，三种力量</h1>
+    <div class="sub">
+      三种意象不是三幅国风插画，而是<b>同一套书写语言的功能分化</b>：龙以笔势表达<b>变化</b>，
+      虎以收束表达<b>纪律</b>，鹤以留白表达<b>观察</b>。共用同一引擎（笔锋／墨色／枯润飞白／墨点因果／种子化随机），
+      差异只来自曲率、线宽、起行收节奏与留白比例。<b>禁止写实器官</b>：第一眼感受势，第二眼见笔迹，第三眼才联想到动物。
+      主干墨色提供<b>亮黑</b>与<b>灰</b>双档（右上角可切换，URL 加 <code>?tone=gray</code> 直达灰档）：同结构、同透明度，仅换色谱，
+      适配「高对比品牌位」与「低干扰阅读位」两种语境。
+    </div>
+  </header>
+
+  <!-- A. 统一笔势 -->
+  <section class="sect">
+    <div class="tag"><span class="no">方向 A</span><h2>统一笔势 · 各司其职</h2><span class="rec">共享引擎 · 参数分化</span></div>
+    <p class="lead">三者同源一笔势，差异仅在参数矩阵。龙连续盘旋（曲率连续变化，线宽比约 3.5:1）；
+    虎沉着短促（局部急转收束，重顿挫，粗重突窄）；鹤修长疏朗（缓慢舒展，淡墨匀线，留白为主体）。
+    均无辅笔，主笔独行。各自进入视口时一次性行笔显现，随后静止驻留，不循环。</p>
+    <div class="trio">
+      <div class="panel">
+        <div class="cap"><span class="zh">龙</span><span class="fn">行气 · 变化 · 关系</span><span class="rh">动</span></div>
+        <div class="cv"><canvas data-scene="dragon"></canvas></div>
+        <div class="meta"><b>页面映射（假设）：</b>世界、周期、产业链关系、结构性变化。<br><b>笔势：</b>主笔连续有力，盘旋转折，聚散成势；无辅笔，一笔独行。</div>
+      </div>
+      <div class="panel">
+        <div class="cap"><span class="zh">虎</span><span class="fn">定势 · 边界 · 纪律</span><span class="rh">蓄</span></div>
+        <div class="cv"><canvas data-scene="tiger"></canvas></div>
+        <div class="meta"><b>页面映射（假设）：</b>系统、交易规则、风险约束、复盘纪律。<br><b>笔势：</b>按笔沉着，顿挫折锋，收笔急转枯出；一笔顿挑回锋作制衡，无辅笔。</div>
+      </div>
+      <div class="panel">
+        <div class="cap"><span class="zh">鹤</span><span class="fn">留白 · 观察 · 无为</span><span class="rh">静</span></div>
+        <div class="cv"><canvas data-scene="crane"></canvas></div>
+        <div class="meta"><b>页面映射（假设）：</b>首页留白、日志、观察记录、待证命题。<br><b>笔势：</b>一笔修长上扬，出画而去；无辅笔。</div>
+      </div>
+    </div>
+    <div class="grid3">
+      <div class="card"><h3>审美风险<small>RISK</small></h3><p>三者差异依赖参数微调，远看可能过于相近；需在真页面上验证「动／蓄／静」三态是否一眼可辨。</p></div>
+      <div class="card"><h3>品牌兼容性<small>FIT</small></h3><p>高。同一引擎即同一作者笔迹，天然满足「像同一位艺术家的作品」；接入成本低。</p></div>
+      <div class="card"><h3>实现复杂度<small>COST</small></h3><p>低。一套引擎 + 三组参数 + 三份人工主笔路径；无新增依赖。</p></div>
+    </div>
+  </section>
+
+  <!-- B. 主次 -->
+  <section class="sect">
+    <div class="tag"><span class="no">方向 B</span><h2>主次关系 · 龙主虎鹤辅</h2><span class="rec">★ 推荐主模式</span></div>
+    <p class="lead">龙承担全站品牌识别（与宣言「观察变化，而非预测未来」同源），虎与鹤不在每页出现，
+    只在系统／纪律与观察／留白类语义场景点题。品牌识别统一，但须防止虎鹤沦为偶尔闪过的装饰。</p>
+    <div class="hiero">
+      <div class="panel">
+        <div class="cap"><span class="zh">龙</span><span class="fn">全站主视觉 · 品牌识别</span><span class="rh">动</span></div>
+        <div class="cv"><canvas data-scene="dragon" data-hero="1"></canvas></div>
+        <div class="meta"><b>场景：</b>世界地图、周期七阶段、关系网络背景行气。</div>
+      </div>
+      <div class="side">
+        <div class="panel">
+          <div class="cap"><span class="zh">虎</span><span class="fn">点题 · 纪律场景</span><span class="rh">蓄</span></div>
+          <div class="cv"><canvas data-scene="tiger"></canvas></div>
+          <div class="meta"><b>场景：</b>系统页、风控说明、复盘纪律段落。</div>
+        </div>
+        <div class="panel">
+          <div class="cap"><span class="zh">鹤</span><span class="fn">点题 · 观察场景</span><span class="rh">静</span></div>
+          <div class="cv"><canvas data-scene="crane"></canvas></div>
+          <div class="meta"><b>场景：</b>首页留白、日志卷宗、待证命题。</div>
+        </div>
+      </div>
+    </div>
+    <div class="grid3">
+      <div class="card"><h3>审美风险<small>RISK</small></h3><p>龙占比过高时，虎鹤出现时更像「装饰彩蛋」而非功能语言；需限定虎鹤仅出现在语义吻合的页面。</p></div>
+      <div class="card"><h3>品牌兼容性<small>FIT</small></h3><p>高。主视觉唯一，识别度最强；虎鹤保持克制低频，不破坏极简。</p></div>
+      <div class="card"><h3>实现复杂度<small>COST</small></h3><p>中。引擎仍是一套，但需维护「哪页出现谁」的语义规则表。</p></div>
+    </div>
+  </section>
+
+  <!-- C. 三种状态 -->
+  <section class="sect">
+    <div class="tag"><span class="no">方向 C</span><h2>一套笔势，三种状态</h2><span class="rec">★ 推荐辅助模式</span></div>
+    <p class="lead">不把龙虎鹤当三种固定图形，而是同一笔迹的三态：<b>展开＝龙，收束＝虎，留白＝鹤</b>。
+    同一条主笔路径，依表达目的改变构图。三态同源，体系统一；风险是语义抽象，读者未必察觉「三态」。</p>
+    <div class="states">
+      <div class="switch">
+        <button data-state="expand" class="on">展开 · 龙</button>
+        <button data-state="contract">收束 · 虎</button>
+        <button data-state="void">留白 · 鹤</button>
+      </div>
+      <div class="panel">
+        <div class="cap"><span class="zh" id="stateZh">展开</span><span class="fn" id="stateFn">笔势尽展 · 流动转折 · 聚散成势</span><span class="rh" id="stateRh">动</span></div>
+        <div class="cv"><canvas data-scene="state"></canvas></div>
+        <div class="meta" id="stateMeta"><b>构图：</b>全段行笔，曲率连续变化，提按交替，辅笔追随。</div>
+      </div>
+    </div>
+    <div class="grid3">
+      <div class="card"><h3>审美风险<small>RISK</small></h3><p>收束与留白两态若参数不当，易被读作「没画完」；需要明确的场景语义支撑。</p></div>
+      <div class="card"><h3>品牌兼容性<small>FIT</small></h3><p>中。理论最统一，但对读者的书法感知要求最高。</p></div>
+      <div class="card"><h3>实现复杂度<small>COST</small></h3><p>中。引擎一套 + 三态参数，与方向 A 高度复用。</p></div>
+    </div>
+  </section>
+
+  <!-- 矩阵 -->
+  <section class="sect">
+    <div class="tag"><span class="no">矩阵</span><h2>统一规则 × 差异化表达</h2></div>
+    <table class="mx">
+      <tr><th>维度</th><th><span class="d">龙</span></th><th><span class="t">虎</span></th><th><span class="h">鹤</span></th></tr>
+      <tr><td>核心功能</td><td>变化与关系</td><td>边界与纪律</td><td>观察与留白</td></tr>
+      <tr><td>主笔形态</td><td>盘旋、连续、转折</td><td>沉着、短促、收束</td><td>修长、轻盈、疏朗</td></tr>
+      <tr><td>力量感</td><td>流动中的力量</td><td>收束中的力量</td><td>克制中的轻盈</td></tr>
+      <tr><td>曲率特征</td><td>连续变化</td><td>局部急转与收束</td><td>缓慢舒展</td></tr>
+      <tr><td>墨色节奏</td><td>浓淡变化明显</td><td>局部浓重、快速收锋</td><td>淡墨为主</td></tr>
+      <tr><td>线宽比</td><td>约 3.5 : 1</td><td>约 2.5 : 1（重顿挫）</td><td>约 2 : 1（匀）</td></tr>
+      <tr><td>辅笔关系</td><td>无辅笔，一笔成势</td><td>无辅笔，顿挑自制</td><td>无辅笔，一笔出画</td></tr>
+      <tr><td>留白</td><td>聚散之间形成空间</td><td>力量周围形成边界</td><td>留白本身成为主体</td></tr>
+      <tr><td>视觉节奏</td><td>动</td><td>蓄</td><td>静</td></tr>
+      <tr><td>适合场景</td><td>世界、周期、关系</td><td>系统、纪律、复盘</td><td>首页、日志、命题</td></tr>
+      <tr><td>不应出现</td><td>写实龙、角须鳞云</td><td>威吓猛虎、虎纹武侠</td><td>仙侠仙鹤、羽毛仙境</td></tr>
+    </table>
+
+    <div class="map">
+      <div class="card"><h3><span class="d">龙</span> · 世界与变化<small>假设映射</small></h3><p>动态、复杂、多变量的观察对象。</p><div class="pg"><span>世界地图</span><span>周期</span><span>产业链关系</span><span>市场结构变化</span><span>深层变量</span></div></div>
+      <div class="card"><h3><span class="t">虎</span> · 系统与纪律<small>假设映射</small></h3><p>约束、结构、规则与决策边界。</p><div class="pg"><span>交易系统</span><span>交易规则</span><span>风险约束</span><span>复盘纪律</span><span>执行边界</span></div></div>
+      <div class="card"><h3><span class="h">鹤</span> · 观察与无为<small>假设映射</small></h3><p>不急于判断，保留不确定性。</p><div class="pg"><span>首页留白</span><span>日志</span><span>观察记录</span><span>待证命题</span><span>无为知止</span></div></div>
+    </div>
+    <p class="lead" style="margin-top:16px">以上为待验证假设，非强制分配。不适合的页面保持纯净；不为三种意象增加页面、栏目、路由或实体——它们是视觉语言，不是信息架构。</p>
+  </section>
+
+  <!-- 验收 -->
+  <section class="sect">
+    <div class="tag"><span class="no">验收</span><h2>验收标准自检</h2></div>
+    <div class="check">
+      <div class="it"><b>A 统一性</b><span>三意象共用同一笔锋／墨色／飞白／墨点／留白规则，同源引擎，同一作者笔迹。</span></div>
+      <div class="it"><b>B 差异性</b><span>展开／收束／留白三态各自成立；即使不浮现动物联想，三种视觉状态仍可独立成立。</span></div>
+      <div class="it"><b>C 含蓄性</b><span>无写实器官、无鳞云火焰仙山、无国风模板；意象不凌驾笔迹本身。</span></div>
+      <div class="it"><b>D 品牌适配</b><span>multiply 混合纸上呈现，不影响信息层级与正文阅读，不像文化宣传站或游戏界面。</span></div>
+      <div class="it"><b>E 响应式</b><span>桌面横向构图，移动端自动切纵向主笔；prefers-reduced-motion 下直接呈现完成态；无循环动画。</span></div>
+      <div class="it"><b>F 克制</b><span>一次行笔、驻留静止；不是每页都必须出现意象，纯粹行气已足够的页面不必强行加入。</span></div>
+    </div>
+  </section>
+
+  <div class="foot">
+    DEMO ONLY · 隔离于 DESIGN_AUDIT · 未触碰业务代码 / 页面 / 素材 / 路由<br>
+    引擎复用 ink-wild-demo 机制（墨带填充 / 曲率提笔 / 飞白挖除 / 墨点因果 / 种子化）· 显式龙首与写实飞鸟已按 V1 决议退役 · 双端分别构图 · reduced-motion 降级为静止成迹
+  </div>
+</div>
+</div>
+
+<div class="atm-bar">
+  <button id="btnTone">墨色 · 亮黑</button>
+  <button id="btnReplay">重播行笔</button>
+  <button id="btnM">手机视角</button>
+</div>
+
+<script>
+'use strict';
+const Q = new URLSearchParams(location.search);
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const SHOT = Q.has('shot');                       // 截图模式：直接呈现完成态
+if (Q.has('m')) document.getElementById('stage').classList.add('mobile');
+let TONE = Q.get('tone') === 'gray' ? 'gray' : 'black';   // 主干墨色：亮黑 / 灰
+const ROUGH = Q.get('rough') !== '0';                     // 诊断：?rough=0 关闭缘部起伏
+const NOFX = Q.has('nofx'), NOMOT = Q.has('nomot'), NOSTR = Q.has('nostr');  // 诊断：分层剥离
+
+/* ── 基础：种子化随机 / Catmull-Rom ── */
+function hash(n) { const s = Math.sin(n * 127.1 + 311.7) * 43758.5453; return s - Math.floor(s); }
+/* 墨谱（Ink_Wash 规范 9 阶 + 中国色对位）：清→淡→灰→浓→焦 五层积墨 */
+const INK = {
+  concentrated: [13, 13, 13],   // Concentrated Ink #0D0D0D（焦）
+  rich: [26, 26, 26],           // Rich Ink #1A1A1A（浓，≈中国色玄色）
+  warm: [96, 78, 58],           // Warm Ink（松烟暖调偏亮，防读成灰带）
+  medium: [107, 107, 107],      // Medium Wash #6B6B6B（灰底）
+  soot: [60, 60, 60],           // Soot（灰黑桥梁，介于 medium 与 rich 之间，防色阶硬跳）
+  mist: [220, 220, 220],        // Mist Wash #DCDCDC（清墨 soak）
+  pale: [170, 170, 170],        // Pale Wash（灰档外层）
+  silver: [135, 135, 135],      // Silver Wash（灰档底墨，介于 pale 与 graphite 之间）
+  graphite: [94, 94, 94],       // Graphite（灰档笔肚）
+  slate: [52, 52, 52]           // Slate（灰档笔心）
+};
+const inkA = (c, a) => `rgba(${INK[c][0]},${INK[c][1]},${INK[c][2]},${Math.max(0, Math.min(1, a)).toFixed(3)})`;
+function catmull(raw, n, W, H) {
+  const P = raw.map(p => ({ x: p[0] * W, y: p[1] * H }));
+  const out = [];
+  for (let i = 0; i < P.length - 1; i++) {
+    const p0 = P[Math.max(0, i - 1)], p1 = P[i], p2 = P[i + 1], p3 = P[Math.min(P.length - 1, i + 2)];
+    const seg = Math.max(6, Math.round(n / (P.length - 1)));
+    for (let j = 0; j < seg; j++) {
+      const t = j / seg, t2 = t * t, t3 = t2 * t;
+      out.push({
+        x: .5 * ((2*p1.x) + (-p0.x+p2.x)*t + (2*p0.x-5*p1.x+4*p2.x-p3.x)*t2 + (-p0.x+3*p1.x-3*p2.x+p3.x)*t3),
+        y: .5 * ((2*p1.y) + (-p0.y+p2.y)*t + (2*p0.y-5*p1.y+4*p2.y-p3.y)*t2 + (-p0.y+3*p1.y-3*p2.y+p3.y)*t3)
+      });
+    }
+  }
+  out.push({ x: P[P.length-1].x, y: P[P.length-1].y });
+  return out;
+}
+
+/* ── 几何构建：路径 + 法向 + 曲率 + 笔宽 + 飞白/毛刺/墨点（全部种子化）── */
+function buildGeom(raw, o, W, H, seed) {
+  const base = catmull(raw, o.samples || 300, W, H);
+  const fvn = i => {                                       // 平滑值噪声（波长~9点）：行笔颤动须连续，白噪声会咬边
+    const u = i / 9, i0 = Math.floor(u), f = u - i0, s = f * f * (3 - 2 * f);
+    return hash(i0 * 3.71 + seed * 1.3) * (1 - s) + hash((i0 + 1) * 3.71 + seed * 1.3) * s;
+  };
+  const pts = [];
+  for (let i = 0; i < base.length; i++) {
+    const s = i / (base.length - 1);
+    const pP = base[Math.max(0, i - 1)], pN = base[Math.min(base.length - 1, i + 1)];
+    const tx = pN.x - pP.x, ty = pN.y - pP.y, len = Math.hypot(tx, ty) || 1;
+    const nx = -ty / len, ny = tx / len;
+    const flick = o.flick ? o.flick.reduce((a, f) => a + Math.exp(-Math.pow((s - f[0]) / f[1], 2)), 0) : 0;
+    const amp = (o.jA * Math.sin(s * o.jF1 + 1.7) + o.jB * Math.sin(s * o.jF2) + o.jC * flick * (fvn(i) - .5));
+    pts.push({ x: base[i].x + nx * amp, y: base[i].y + ny * amp, tx: tx/len, ty: ty/len, nx, ny, s });
+  }
+  // 曲率用 ±4 点长基线估计：抖动的细微波折不触发提笔（防竹节串珠）
+  const KB = 4;
+  for (let i = 0; i < pts.length; i++) {
+    const i0 = Math.max(0, i - KB), i1 = Math.min(pts.length - 1, i + KB);
+    const a1 = Math.atan2(pts[i].y - pts[i0].y, pts[i].x - pts[i0].x);
+    const a2 = Math.atan2(pts[i1].y - pts[i].y, pts[i1].x - pts[i].x);
+    let d = Math.abs(a2 - a1); if (d > Math.PI) d = 2 * Math.PI - d;
+    pts[i].kappa = d / (i1 - i0);
+  }
+  // 笔宽：入纸渐按 → 行笔提按 → 收笔出锋（可急停）；转角提笔
+  let prevW = null;
+  for (let i = 0; i < pts.length; i++) {
+    const s = pts[i].s;
+    let env;
+    const inEnd = o.inEnd ?? .06, outStart = o.outStart ?? .9;
+    if (s < inEnd) env = (o.inBase ?? .4) + s / inEnd * (1 - (o.inBase ?? .4));
+    else if (s > outStart) env = Math.max(o.outMin ?? .16, 1 - (s - outStart) / (.96 - outStart) * (1 - (o.outMin ?? .16)));
+    else env = 1;
+    const press = 1 - (o.pressDepth ?? .5) * Math.pow(Math.max(0, Math.sin(s * Math.PI * (o.pressFreq ?? 3) + .6)), 2);
+    const jn = Math.sin(i * .31 + seed) * .5 + Math.sin(i * .073 + seed * 2.4) * .5;  // 低频缓变，如墨量呼吸
+    const jitter = .92 + .14 * jn;
+    const turn = 1 / (1 + (pts[i].kappa || 0) * (o.turnLift ?? 4));
+    let w = Math.max(1.4, (o.baseW ?? 24) * env * press * jitter * turn);
+    if (prevW !== null) w = prevW * .55 + w * .45;                // 平滑去串珠（更绵）
+    prevW = w; pts[i].w = w;
+  }
+  // 飞白候选：干笔细段才允许（低墨量高速），种子决定哪几段枯；
+  // 转折腰处墨正浓（绞转裹锋），禁用飞白——否则轮廓呈啃噬锯齿
+  for (let i = 0; i < pts.length; i++) {
+    pts[i].dry = o.dryRate > 0 && pts[i].w < o.dryThresh && (pts[i].kappa || 0) < .12 && hash(i * 1.71 + seed) < o.dryRate;
+  }
+  // 燥润斑块：边缘炸毫的疏密节奏（真迹中枯润段交替出现）
+  for (let i = 0; i < pts.length; i++) pts[i].fuzz = fvn(i * .55 + 40);
+  // 因果墨迹：按笔峰值溅点 / 甩锋散点 / 转折震点
+  const fx = { hairs: [], dots: [], stains: [] };
+  if (o.fx !== false) for (let i = 0; i < pts.length; i++) {
+    const p = pts[i], s = p.s;
+    const flicking = s > (o.flickZone ?? .85);
+    const turning = p.kappa > .22;
+    const pressing = Math.abs(Math.sin(s * Math.PI * (o.pressFreq ?? 3) + .6)) < .18;
+    // 炸毫：沿笔两侧边缘的纤丝簇（祭侄文稿实测）——短促细密、以法线方向为主±50°散开，
+    // 长短幂律分布（多短少长），饱墨处疏而短、枯笔/转折/出锋处密而长，低透明如笔毫擦出的毛边
+    if ((i & 1) === 0) {
+      const nA = Math.atan2(p.ny, p.nx);
+      const fz = p.fuzz ?? .5;                                 // 燥润斑块：0..1 疏密节奏
+      for (const side of [-1, 1]) {
+        const dryHere = p.dry || (turning && hash(i * .91 + seed) < .4);
+        let rate = (o.hairBase ?? .028) * 10 * (.3 + 1.8 * fz) * (dryHere ? 2.2 : 1) + (turning ? (o.hairTurn ?? .2) * .3 : 0);
+        if (flicking) rate += (o.hairFlick ?? .3) * .3;
+        if (hash(i * 13.13 + side * 3.77 + seed) < rate) {
+          const nF = 1 + ((dryHere || fz > .6) ? Math.floor(hash(i * 7.7 + side * 5.1 + seed) * 2.4) : 0);   // 簇内 1–3 枚
+          for (let k = 0; k < nF; k++) {
+            const sd = i * 5.5 + side * 11.3 + k * 31.7 + seed;
+            const ang = nA + (side < 0 ? Math.PI : 0) + (hash(sd) - .5) * 1.75;   // 法线为主，大幅散开
+            const len = (1.5 + Math.pow(hash(sd + 1), 2.1) * (dryHere ? 8.5 : 3.2))
+                      * (.6 + .9 * fz) * (p.w > 16 ? 1.3 : 1) * (flicking ? 1.5 : 1);   // 幂律：多短少长
+            const rt = (hash(sd + 2) - .5) * p.w * .3;                            // 根部沿边滑动
+            fx.hairs.push({ i,
+              x: p.x + p.nx * side * p.w * .46 + p.tx * rt, y: p.y + p.ny * side * p.w * .46 + p.ty * rt,
+              ang, cur: (hash(sd + 3) - .5) * .5,
+              len, w0: .5 + hash(sd + 4) * .55, a: .13 + hash(sd + 5) * (dryHere ? .3 : .22) });
+          }
+        }
+        // 出锋甩毫：仅行笔尽头偶发 1 枚长纤，顺出锋方向甩出
+        if (flicking && hash(i * 3.3 + side * 7.9 + seed) < (o.hairFlick ?? .3) * .22) {
+          const tA = Math.atan2(p.ty, p.tx);
+          fx.hairs.push({ i, x: p.x + p.nx * side * p.w * .4, y: p.y + p.ny * side * p.w * .4,
+            ang: tA + side * (.15 + hash(i * 1.7 + seed) * .5), cur: (hash(i * 2.9 + seed) - .5) * .8,
+            len: 9 + hash(i * 4.3 + seed) * 15, w0: .8 + hash(i * 6.1 + seed) * .7, a: .38 });
+        }
+      }
+    }
+    if ((pressing && hash(i * 9.7 + seed) < (o.dotPress ?? .1)) || (flicking && hash(i * 7.3 + seed) < (o.dotFlick ?? .22)) || (turning && hash(i * 4.9 + seed) < .12)) {
+      const n = 2 + Math.floor(hash(i * 11.9 + seed) * 4);
+      for (let k = 0; k < n; k++) {
+        const a = hash(i * 17.7 + k * 31 + seed) * Math.PI * 2, d = p.w * (.6 + hash(i + k * 7 + seed) * 2.2);
+        fx.dots.push({ i, x: p.x + Math.cos(a) * d, y: p.y + Math.sin(a) * d, r: .6 + hash(i * 2.3 + k + seed) * 1.9, a: .45 });
+      }
+      if (hash(i * 23.3 + seed) < .3) fx.stains.push({ i, x: p.x, y: p.y, r: p.w * (1.2 + hash(i + seed) * 1.6), a: .05 });
+    }
+  }
+  return { pts, fx };
+}
+
+/* ── 三意象规格：同源引擎，参数分化 ── */
+const DRAGON_RAW = {
+  h: [[-.05,.62],[.09,.4],[.23,.64],[.37,.34],[.51,.6],[.65,.28],[.79,.5],[.92,.3],[1.08,.16]],
+  v: [[.6,-.06],[.44,.14],[.62,.34],[.4,.54],[.62,.74],[.46,.92],[.58,1.08]]
+};
+function dragonSpec(narrow, state) {
+  const expand = !state || state === 'expand';
+  const contract = state === 'contract';
+  const sparse = state === 'void';
+  return {
+    raws: [{ raw: (narrow ? DRAGON_RAW.v : DRAGON_RAW.h), o: {
+      baseW: (contract ? 30 : 26), inEnd: .05, outStart: contract ? .52 : .9, outMin: contract ? .2 : .16,
+      pressFreq: 3, pressDepth: .5, turnLift: 3,
+      jA: 8, jB: 2.5, jC: 6, jF1: 17.3, jF2: 41.9,
+      flick: expand ? [[.33,.075],[.71,.065]] : [[.5,.05]],
+      dryThresh: 8.5, dryRate: expand ? .18 : .14,
+      hairBase: .028, hairTurn: .15, hairFlick: .24, dotPress: .08, dotFlick: .18,
+      cut: contract ? .56 : 0, sparse
+    }}],
+    followers: []                                   // 辅笔已删：主笔独行，杜绝灰色重影
+  };
+}
+const TIGER_RAW = {
+  h: [
+    [[.02,.72],[.3,.68],[.56,.72],[.73,.62]],       // 按笔横势：沉、直、重的卧身
+    [[.73,.62],[.76,.52],[.775,.38],[.76,.24]],     // 折后挺起：短、直、枯锋收尖
+    [[.76,.24],[.72,.3],[.66,.28]],                 // 顿挑回锋：一笔短促制衡
+    [[.2,.94],[.2,.83]],                             // 辅笔 ①（短竖如支）
+    [[.5,.96],[.5,.85]]                             // 辅笔 ②
+  ],
+  v: [
+    [[.62,.04],[.55,.26],[.62,.46]],
+    [[.62,.46],[.58,.6],[.55,.74],[.56,.9]],
+    [[.56,.9],[.51,.84],[.46,.86]],
+    [[.82,.18],[.73,.28]],
+    [[.84,.48],[.75,.55]]
+  ]
+};
+function tigerSpec(narrow) {
+  const R = narrow ? TIGER_RAW.v : TIGER_RAW.h;
+  const main = { pressFreq: 1.2, pressDepth: .18, turnLift: 7, jA: 1.8, jB: .8, jC: 4, jF1: 9.1, jF2: 23, dryThresh: 9.5, dryRate: .22, hairBase: .028, hairFlick: .18, hairTurn: .15, dotPress: .08, dotFlick: .18 };
+  return { raws: [
+    { raw: R[0], o: { ...main, baseW: 34, inEnd: .1, outStart: .94, outMin: .4, samples: 200, bodyA: .68, coreA: .58 } },
+    { raw: R[1], o: { ...main, baseW: 30, inEnd: .06, inBase: .85, outStart: .72, outMin: .1, dryRate: .42, flick: [[.42,.07]], samples: 140 } },
+    { raw: R[2], o: { ...main, baseW: 9, inEnd: .12, inBase: .9, outStart: .68, outMin: .2, dryRate: .2, samples: 60 } }
+  ], followers: [] };
+}
+const CRANE_RAW = {
+  h: [[-.07,.92],[.15,.76],[.3,.54],[.37,.32],[.52,.14],[.74,-.03]],
+  v: [[.32,1.08],[.44,.88],[.36,.66],[.52,.46],[.44,.26],[.58,.05],[.5,-.12]]
+};
+function craneSpec(narrow) {
+  return { raws: [{ raw: (narrow ? CRANE_RAW.v : CRANE_RAW.h), o: {
+    baseW: 9, inEnd: .1, inBase: .55, outStart: .92, outMin: .3,
+    pressFreq: .8, pressDepth: .16, turnLift: 2.5,
+    jA: 2.2, jB: .9, jC: 2, jF1: 6.3, jF2: 17,
+    dryThresh: 7.5, dryRate: .14,
+    hairBase: .012, hairFlick: .06, dotPress: .05, dotFlick: .05,
+    bodyA: .44, coreA: .26                                  // 鹤：淡墨清笔，近乎灰
+  }}], followers: [] };                            // 辅笔已删：一笔独行
+}
+const STATE_INFO = {
+  expand:   { zh: '展开', fn: '笔势尽展 · 流动转折 · 聚散成势', rh: '动', meta: '<b>构图：</b>全段行笔，曲率连续变化，提按交替。对应意象：龙。' },
+  contract: { zh: '收束', fn: '按笔沉着 · 顿挫折锋 · 急停知止', rh: '蓄', meta: '<b>构图：</b>行笔至中段戛然收住，收笔枯锋上折，一笔重按制衡。对应意象：虎。' },
+  void:     { zh: '留白', fn: '笔断意连 · 首尾相望 · 余皆空白', rh: '静', meta: '<b>构图：</b>仅现起笔与收笔两段淡墨，中段全留。对应意象：鹤。' }
+};
+
+/* ── 场景：一次行笔 → 驻留静止 ── */
+class Scene {
+  constructor(canvas, specFn) {
+    this.cv = canvas; this.ctx = canvas.getContext('2d');
+    this.ink = document.createElement('canvas'); this.ictx = this.ink.getContext('2d');  // 离屏墨层
+    this.specFn = specFn; this.prog = 0; this.playing = false; this.done = false;
+    this.resize();
+  }
+  resize() {
+    const r = this.cv.parentElement.getBoundingClientRect();
+    this.W = Math.max(60, r.width); this.H = Math.max(60, r.height);
+    const dpr = Math.min(1.5, devicePixelRatio || 1);
+    this.cv.width = this.W * dpr; this.cv.height = this.H * dpr;
+    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    this.ink.width = this.W * dpr; this.ink.height = this.H * dpr;
+    this.ictx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    this.build(); if (this.done) this.draw(1);
+  }
+  build() {
+    const narrow = this.cv.closest('.stage').classList.contains('mobile') || this.W / this.H < .82;
+    const spec = this.specFn(narrow);
+    this.strokes = []; this.followerGeoms = [];
+    let total = 0;
+    spec.raws.forEach((r, si) => {
+      const g = buildGeom(r.raw, r.o, this.W, this.H, 17.3 + si * 7.7);
+      g.o = r.o;                                  // 供渲染层取墨色参数
+      if (r.o.sparse) {                                   // 留白态：只留首尾两段，并重排墨迹索引
+        const n = g.pts.length;
+        g.pts = g.pts.filter((p, i) => (i < n * .13 || i > n * .87));
+        const reIdx = old => {
+          let j = 0, cnt = 0;
+          for (let i = 0; i < n; i++) { if (i < n * .13 || i > n * .87) { if (i === old) return cnt; cnt++; } }
+          return -1;
+        };
+        g.fx.hairs = g.fx.hairs.map(f => ({ ...f, i: reIdx(f.i) })).filter(f => f.i >= 0);
+        g.fx.dots = g.fx.dots.map(f => ({ ...f, i: reIdx(f.i) })).filter(f => f.i >= 0);
+        g.fx.stains = g.fx.stains.map(f => ({ ...f, i: reIdx(f.i) })).filter(f => f.i >= 0);
+      }
+      const cutN = r.o.cut ? Math.floor(g.pts.length * r.o.cut) : g.pts.length;
+      g.cutPts = g.pts.slice(0, cutN);
+      g.dur = Math.max(30, g.cutPts.length); total += g.dur;
+      this.strokes.push(g);
+    });
+    // 辅笔：主笔第一条的延迟偏移回声
+    const main = this.strokes[0];
+    (spec.followers || []).forEach((f, fi) => {
+      const pts = main.cutPts.map((p, i) => {
+        const src = main.cutPts[Math.max(0, i - f.lag)];
+        return { x: src.x + src.nx * f.off * src.w, y: src.y + src.ny * f.off * src.w,
+          nx: src.nx, ny: src.ny, w: Math.max(1.2, src.w * f.wScale), s: src.s, dry: false };
+      });
+      this.followerGeoms.push({ pts, a: f.a, lagN: f.lag });
+    });
+    this.total = total;
+  }
+  start() { this.prog = 0; this.playing = true; this.t0 = 0; this.done = false; }
+  draw(prog) {
+    const ctx = this.ctx, W = this.W, H = this.H, ic = this.ictx;
+    ic.clearRect(0, 0, W, H);
+    // 主干墨色双档：亮黑档（焦心）/ 灰档（slate 心），同结构同透明度，仅换色谱
+    const GRAY = TONE === 'gray';
+    const TC = { l2: GRAY ? 'pale' : 'warm', base: GRAY ? 'graphite' : 'rich', core: GRAY ? 'slate' : 'concentrated' };
+    // 进度 → 每条主笔的可见点数（辅笔延迟）
+    let budget = prog * this.total;
+    const vis = this.strokes.map(g => Math.max(0, Math.min(g.cutPts.length, Math.floor(budget))));
+    this.strokes.forEach(g => budget -= g.dur);
+    const a = easeMid(prog);
+    // 1) 辅笔：淡墨双影（渗化外晕 + 细主体），在主笔之下
+    for (const f of this.followerGeoms) {
+      const n = Math.max(0, Math.min(f.pts.length, Math.floor(prog * this.total - f.lagN * .6)));
+      if (n < 2) continue;
+      const al = f.a * a;
+      bandGrad(ic, f.pts, n, TC.l2, al * .26, [1.14, 1.24, 1.34, 1.44], 1.2, false);    // 渗晕
+      bandGrad(ic, f.pts, n, TC.l2, al * .5, [.64, .71, .78], 0, true);                  // 辅笔淡影
+    }
+    // 2) 渗化斑（按笔洇开）
+    this.strokes.forEach((g, si) => {
+      for (const st of g.fx.stains) {
+        if (st.i >= vis[si]) continue;
+        const gg = ic.createRadialGradient(st.x, st.y, 0, st.x, st.y, st.r);
+        gg.addColorStop(0, inkA(TC.l2, st.a * 1.4 * a)); gg.addColorStop(1, inkA(TC.l2, 0));
+        ic.fillStyle = gg; ic.beginPath(); ic.arc(st.x, st.y, st.r, 0, 7); ic.fill();
+      }
+    });
+    // 3) 主笔：渗化 → 笔肚 → 笔心 → 蚕丝飞白 → 出锋纤丝 → 炸毫/墨点
+    this.strokes.forEach((g, si) => {
+      const n = vis[si]; if (n < 2) return;
+      const P = g.cutPts, seed = 17.3 + si * 7.7, o = g.o || {};
+      const bodyA = (o.bodyA ?? .62) * a, coreA = (o.coreA ?? .5) * a;
+      let avgW = 0; for (let k = 0; k < n; k++) avgW += P[k].w; avgW /= n;
+      const bleedPad = Math.min(1.6, Math.max(.5, avgW * .16));                       // 细笔晕窄、粗笔晕宽
+      // 径向墨剖面：直接建模合成浓度曲线（smoothstep），每道透明度反解——构造上无阶
+      bandProf(ic, P, n, inkCurve(o, GRAY, a), bleedPad);
+      // 墨云：颜料沉降的浓淡云斑（朦胧感来自云絮，不来自模糊）
+      if (!NOMOT) {
+        ic.save(); strokeClip(ic, P, n);
+        const M = 2 + Math.floor(hash(seed + 3.7) * 2);           // 疏：每笔 2–3 团
+        for (let m = 0; m < M; m++) {
+          // 锚定全程参数位置：云斑随墨一起「生成」，不在行笔中漂移
+          const si = Math.min(P.length - 1, Math.floor(hash(seed + m * 7.77) * P.length));
+          const p = P[si]; if (!p) continue;
+          const dark = hash(seed + m * 3.31) < .4;
+          const r = Math.max(8, p.w * (.9 + hash(seed + m * 1.13) * 1.4));
+          const al = .07 * a;                                      // 漏白与墨潭同为 0.07
+          const gg = ic.createRadialGradient(p.x, p.y, r * .1, p.x, p.y, r);
+          gg.addColorStop(0, dark ? inkA(TC.core, al) : inkA('mist', al * 1.2));
+          gg.addColorStop(1, dark ? inkA(TC.core, 0) : inkA('mist', 0));
+          ic.fillStyle = gg; ic.beginPath(); ic.arc(p.x, p.y, r, 0, 7); ic.fill();
+        }
+        ic.restore();
+      }
+      if (!NOSTR) { dryStreaks(ic, P, n, seed); tipFibers(ic, P, n, seed); }       // 飞白 / 出锋
+      // 端头：起笔藏锋圆浑 + 当前笔锋圆补
+      ic.fillStyle = inkA(TC.base, Math.min(1, bodyA + .1));
+      ic.beginPath(); ic.arc(P[0].x, P[0].y, Math.max(.8, P[0].w * .3), 0, 7); ic.fill();
+      const tip = P[n - 1];
+      ic.beginPath(); ic.arc(tip.x, tip.y, Math.max(.7, tip.w * .28), 0, 7); ic.fill();
+      // 炸毫：锥形纤丝（基部粗、端部尖，微弯顺势），墨层之上
+      for (const h of (NOFX ? [] : g.fx.hairs)) {
+        if (h.i >= n) continue;
+        const ex = h.x + Math.cos(h.ang) * h.len, ey = h.y + Math.sin(h.ang) * h.len;
+        const mx = h.x + Math.cos(h.ang + h.cur * .5) * h.len * .55, my = h.y + Math.sin(h.ang + h.cur * .5) * h.len * .55;
+        const nx = -Math.sin(h.ang), ny = Math.cos(h.ang);
+        ic.fillStyle = Q.has('redhair') ? 'rgba(255,0,0,.95)' : inkA(TC.base, h.a * a);   // redhair：诊断标红
+        ic.beginPath();
+        ic.moveTo(h.x + nx * h.w0 * .5, h.y + ny * h.w0 * .5);
+        ic.quadraticCurveTo(mx + nx * h.w0 * .26, my + ny * h.w0 * .26, ex, ey);
+        ic.quadraticCurveTo(mx - nx * h.w0 * .26, my - ny * h.w0 * .26, h.x - nx * h.w0 * .5, h.y - ny * h.w0 * .5);
+        ic.closePath(); ic.fill();
+      }
+      // 墨点
+      for (const d of g.fx.dots) {
+        if (d.i >= n) continue;
+        ic.fillStyle = inkA(TC.base, d.a * a);
+        ic.beginPath(); ic.arc(d.x, d.y, d.r, 0, 7); ic.fill();
+      }
+    });
+    // 4) 合成：不模糊——朦胧感已由墨云与纸肌理承担，再模糊即成「失焦感」
+    ctx.clearRect(0, 0, W, H);
+    ctx.drawImage(this.ink, 0, 0, W, H);
+  }
+}
+function easeMid(p) { return p < .12 ? p / .12 * .85 : .85 + .15 * Math.min(1, (p - .12) / .2); }
+/* 渐进墨带：一层硬边色带 → K 阶「外淡内浓」子带，叠成连续径向衰减（如墨晕开） */
+function bandGrad(ic, P, n, color, baseA, scales, pad, rough, minW) {
+  const K = scales.length, sum = K * (K + 1) / 2;
+  for (let i = 0; i < K; i++) {
+    const w = (i + 1) / sum;                        // 最外子带最淡
+    band(ic, P, n, inkA(color, baseA * w), scales[K - 1 - i], pad, rough, minW);
+  }
+}
+/* 径向墨剖面 · 直接建模合成浓度：
+   目标曲线 C(r) = T · smoothstep(t)，r 自纸面(1.5)向笔心(0.52)；
+   每道子带透明度由叠层公式反解 a_i = (C_i - C_{i-1})/(1 - C_{i-1}) ——
+   合成结果严格等于目标曲线，色阶由构造保证连续，无环无阶。 */
+function inkCurve(o, GRAY, a) {
+  const T = Math.min(.96, .55 + .5 * (o.bodyA ?? .62)) * a;    // 峰值合成浓度（淡墨浅、浓墨深）
+  const R_OUT = 1.35, R_IN = .55, N = 48;
+  /* 合成浓度曲线：笔肚平台 T（r≤.80），湿边高斯衰减 C=T·e^-(((r-.80)/.135)²)。
+     关键约束：ΔC 增量必须落在深色区——故颜色过渡（mist→暖→soot→rich→焦）整体
+     领先浓度坡约 0.2r：浅色环带只承担 ~2% 的增量权重，笔身颜色由坡区深色决定。 */
+  const C_at = r => r > .80 ? T * Math.exp(-Math.pow((r - .80) / .135, 2)) : T;
+  const STOPS = GRAY
+    ? [[1.30,'mist'],[1.10,'pale'],[.98,'silver'],[.88,'graphite'],[.62,'slate']]
+    : [[1.30,'mist'],[1.10,'warm'],[.98,'soot'],[.88,'rich'],[.62,'concentrated']];
+  const rgbAt = r => {
+    if (r >= STOPS[0][0]) return INK[STOPS[0][1]];
+    for (let i = 0; i < STOPS.length - 1; i++) {
+      const [r1, n1] = STOPS[i], [r2, n2] = STOPS[i + 1];
+      if (r <= r1 && r >= r2) {
+        const t = (r1 - r) / (r1 - r2), c1 = INK[n1], c2 = INK[n2];
+        return [0, 1, 2].map(j => Math.round(c1[j] + (c2[j] - c1[j]) * t));
+      }
+    }
+    return INK[STOPS[STOPS.length - 1][1]];
+  };
+  const out = [];
+  let prevC = 0;
+  for (let i = 0; i <= N; i++) {
+    const r = R_OUT - (R_OUT - R_IN) * (i / N);                 // 1.35 → 0.55 自外向内
+    const C = C_at(r);
+    const alpha = (C - prevC) / (1 - prevC);                   // 反解本层透明度
+    prevC = C;
+    out.push({ sc: r, rgb: rgbAt(r), a: alpha });
+  }
+  return out;
+}
+/* 剖面落纸：全程毛糙纸边（笔身边缘天然不齐），极细笔（w<6.5）自动隐去笔心 */
+function bandProf(ic, P, n, prof, pad) {
+  for (const s of prof) {
+    const c = `rgba(${s.rgb[0]},${s.rgb[1]},${s.rgb[2]},${Math.max(0, Math.min(1, s.a)).toFixed(3)})`;
+    band(ic, P, n, c, s.sc, pad, true, s.sc < .62 ? 6.5 : 0);
+  }
+}
+/* 墨带：轮廓可为毛糙纸边（rough），wScale 缩放 + pad 外扩；断口与细于 minW 处自动拆带 */
+function band(ctx, pts, n, style, wScale, pad, rough, minW) {
+  ctx.fillStyle = style;
+  let run = 0;
+  const ph = (pts.length % 97) * .37;                     // 每笔不同相位
+  const wRaw = k => {                                      // 双八度平滑值噪声：如真迹笔缘——长缓波浪为主，
+    const u1 = (k + ph) / 15, i1 = Math.floor(u1), f1 = u1 - i1, s1 = f1 * f1 * (3 - 2 * f1);   // 波长~15，±0.9
+    const u2 = (k + ph) / 4.1, i2 = Math.floor(u2), f2 = u2 - i2, s2 = f2 * f2 * (3 - 2 * f2); // 细波~4.1，±0.3
+    return (hash(i1 + pts.length) * (1 - s1) + hash(i1 + 1 + pts.length) * s1 - .5) * 1.8
+         + (hash(i2 * 7 + pts.length) * (1 - s2) + hash(i2 * 7 + 1 + pts.length) * s2 - .5) * .6;
+  };                                                          // 绝少锯齿：祭侄文稿实测缘偏差 1–3px、波长远大于幅
+  const wobA = new Float32Array(n);                        // 3  tap 平滑去 polygon 折痕：缘呈连续缓变
+  for (let k = 0; k < n; k++) wobA[k] = wRaw(k);
+  const wTmp = new Float32Array(n);
+  for (let k = 1; k < n - 1; k++) wTmp[k] = (wobA[k - 1] + 2 * wobA[k] + wobA[k + 1]) * .25;
+  for (let k = 1; k < n - 1; k++) wobA[k] = wTmp[k];
+  const flush = (end) => {
+    if (end - run < 2) return;
+    ctx.beginPath();
+    for (let k = run; k < end; k++) {
+      const p = pts[k];
+      const hw = p.w * wScale / 2 + pad + (rough && ROUGH ? wobA[k] : 0);
+      k === run ? ctx.moveTo(p.x + p.nx * hw, p.y + p.ny * hw) : ctx.lineTo(p.x + p.nx * hw, p.y + p.ny * hw);
+    }
+    for (let k = end - 1; k >= run; k--) {
+      const p = pts[k];
+      const hw = p.w * wScale / 2 + pad + (rough && ROUGH ? wobA[k] : 0);
+      ctx.lineTo(p.x - p.nx * hw, p.y - p.ny * hw);
+    }
+    ctx.closePath(); ctx.fill();
+  };
+  for (let k = 1; k < n; k++) {
+    const A = pts[k - 1], b = pts[k];
+    const gap = Math.hypot(b.x - A.x, b.y - A.y) > 52 || (minW && (b.w < minW || A.w < minW));
+    if (gap) { flush(k); run = k; }
+  }
+  flush(n);
+}
+/* 以笔肚轮廓（scale 1）建立裁剪区，供内部肌理（墨云等）使用 */
+function strokeClip(ic, P, n) {
+  ic.beginPath();
+  for (let k = 0; k < n; k++) {
+    const p = P[k], hw = p.w / 2;
+    k === 0 ? ic.moveTo(p.x + p.nx * hw, p.y + p.ny * hw) : ic.lineTo(p.x + p.nx * hw, p.y + p.ny * hw);
+  }
+  for (let k = n - 1; k >= 0; k--) {
+    const p = P[k], hw = p.w / 2;
+    ic.lineTo(p.x - p.nx * hw, p.y - p.ny * hw);
+  }
+  ic.closePath(); ic.clip();
+}
+/* 飞白：干笔段内剔出纸色细丝——沿行笔方向的锥形长缝，两端渐消 */
+function dryStreaks(ic, P, n, seed) {
+  let runs = [], s0 = -1;
+  for (let k = 0; k < n; k++) {
+    if (P[k].dry) { if (s0 < 0) s0 = k; }
+    else if (s0 >= 0) { runs.push([s0, k]); s0 = -1; }
+  }
+  if (s0 >= 0) runs.push([s0, n]);
+  ic.save(); ic.globalCompositeOperation = 'destination-out'; ic.fillStyle = '#000';
+  runs.forEach(([r0, r1], ri) => {
+    const L = r1 - r0; if (L < 3) return;
+    let avgW = 0; for (let j = 0; j < L; j++) avgW += P[r0 + j].w; avgW /= L;
+    const thin = avgW < 8.5;
+    const nStreak = thin ? 1 : Math.min(5, 1 + Math.floor(L / 8));
+    for (let st = 0; st < nStreak; st++) {
+      const sd = seed * 13.7 + ri * 7.1 + st * 3.3;
+      const o = (hash(sd) - .5) * .6 * avgW;
+      const swMax = Math.max(.4, avgW * (.08 + .12 * hash(sd + 1)) * (thin ? .65 : 1));
+      ic.beginPath();
+      for (let j = 0; j < L; j++) {
+        const q = P[r0 + j], t = j / (L - 1);
+        const wob = (hash(sd * 3 + j * 1.7) - .5) * q.w * .16;
+        const hw = swMax * Math.sin(Math.PI * t) + .35;
+        const cxp = q.x + q.nx * (o + wob), cyp = q.y + q.ny * (o + wob);
+        j === 0 ? ic.moveTo(cxp + q.nx * hw, cyp + q.ny * hw) : ic.lineTo(cxp + q.nx * hw, cyp + q.ny * hw);
+      }
+      for (let j = L - 1; j >= 0; j--) {
+        const q = P[r0 + j], t = j / (L - 1);
+        const wob = (hash(sd * 3 + j * 1.7) - .5) * q.w * .16;
+        const hw = swMax * Math.sin(Math.PI * t) + .35;
+        ic.lineTo(q.x + q.nx * (o + wob - hw), q.y + q.ny * (o + wob - hw));
+      }
+      ic.closePath(); ic.fill();
+    }
+  });
+  ic.restore();
+}
+/* 出锋：笔锋尽头纸色纤丝分叉（笔毫分裂） */
+function tipFibers(ic, P, n, seed) {
+  const tip = P[n - 1];
+  if (tip.s < .84) return;
+  const p2 = P[Math.max(0, n - 6)];
+  const ang0 = Math.atan2(tip.y - p2.y, tip.x - p2.x);
+  const cnt = 2 + Math.floor(hash(seed + n) * 2);
+  ic.save(); ic.globalCompositeOperation = 'destination-out'; ic.fillStyle = '#000';
+  for (let k = 0; k < cnt; k++) {
+    const sd = seed * 3.1 + k * 17.7;
+    const ang = ang0 + (hash(sd) - .5) * 1.1;
+    const len = 8 + hash(sd + 2) * 20;
+    const bx = tip.x + Math.cos(ang0) * tip.w * .2, by = tip.y + Math.sin(ang0) * tip.w * .2;
+    const ex = bx + Math.cos(ang) * len, ey = by + Math.sin(ang) * len;
+    const nx = -Math.sin(ang), ny = Math.cos(ang);
+    const hw0 = Math.max(.5, tip.w * .1), hw1 = .15;
+    ic.beginPath();
+    ic.moveTo(bx + nx * hw0, by + ny * hw0);
+    ic.lineTo(ex + nx * hw1, ey + ny * hw1);
+    ic.lineTo(ex - nx * hw1, ey - ny * hw1);
+    ic.lineTo(bx - nx * hw0, by - ny * hw0);
+    ic.closePath(); ic.fill();
+  }
+  ic.restore();
+}
+
+/* ── 装配 ── */
+const scenes = [];
+let currentState = 'expand';                      // 必须先声明，spec 闭包在构建期即读取
+function mount(cv, specFn) {
+  const s = new Scene(cv, specFn); scenes.push(s); return s;
+}
+document.querySelectorAll('canvas[data-scene]').forEach(cv => {
+  const kind = cv.dataset.scene;
+  if (kind === 'dragon') mount(cv, narrow => dragonSpec(narrow));
+  if (kind === 'tiger') mount(cv, narrow => tigerSpec(narrow));
+  if (kind === 'crane') mount(cv, narrow => craneSpec(narrow));
+  if (kind === 'state') mount(cv, narrow => dragonSpec(narrow, currentState));
+});
+const stateScene = scenes.find(s => s.cv.dataset.scene === 'state');
+if (Q.has('state')) setTimeout(() => {           // 截图/深链：直达某三态（推迟到脚本求值完成后）
+  const b = document.querySelector(`.states .switch button[data-state="${Q.get('state')}"]`);
+  if (b) b.click();
+}, 0);
+if (Q.has('debug')) setTimeout(() => {           // 诊断：输出各场景几何统计
+  document.title = 'DBG ' + JSON.stringify(scenes.map(s => s.strokes.map(g => g.cutPts.length)));
+}, 400);
+if (Q.has('prog')) setTimeout(() => {            // 诊断：定格任意行笔进度
+  const p = Math.max(0, Math.min(1, parseFloat(Q.get('prog')) || 0));
+  scenes.forEach(s => { io.unobserve(s.cv); s.playing = false; s.done = false; s.draw(p); });
+}, 600);
+if (Q.has('probe')) setTimeout(() => {           // 诊断：直笔剖面像素实测（验证合成浓度曲线）
+  const prof = inkCurve({ bodyA: .62 }, false, 1);
+  const cv = document.createElement('canvas'); cv.width = 400; cv.height = 200;
+  const cx = cv.getContext('2d');
+  const P = []; for (let i = 0; i <= 200; i++) P.push({ x: 20 + i * 1.8, y: 100, nx: 0, ny: -1, w: 40, s: i / 200, dry: false });
+  bandProf(cx, P, 201, prof, 0);
+  const col = cx.getImageData(200, 0, 1, 200).data;      // 中心纵列：径向 d=|y-100|
+  const px = d => { const o = (100 + d) * 4; return [col[o], col[o+1], col[o+2], col[o+3]]; };
+  document.title = 'PROBE ' + JSON.stringify({
+    n: prof.length, sa: Math.round(prof.reduce((x, s) => x + s.a, 0) * 100) / 100,
+    a0: prof[0].a, amid: prof[24].a, alast: prof[prof.length-1].a,
+    in5: px(5), in10: px(10), in15: px(15), in18: px(18), in21: px(21), in25: px(25), in30: px(30)
+  });
+}, 400);
+
+/* 三态切换 */
+document.querySelectorAll('.states .switch button').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.states .switch button').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    currentState = btn.dataset.state;
+    const info = STATE_INFO[currentState];
+    document.getElementById('stateZh').textContent = info.zh;
+    document.getElementById('stateFn').textContent = info.fn;
+    document.getElementById('stateRh').textContent = info.rh;
+    document.getElementById('stateMeta').innerHTML = info.meta;
+    stateScene.specFn = narrow => dragonSpec(narrow, currentState);
+    stateScene.build(); play(stateScene, 120);
+  };
+});
+
+/* 播放控制：入视口一次性行笔 */
+const DUR = 2400;
+function play(s, delay) {
+  if (reduced || SHOT) { s.prog = 1; s.done = true; s.draw(1); return; }
+  s.playing = true; s.t0 = performance.now() + delay;
+}
+const io = new IntersectionObserver(es => {
+  es.forEach(e => {
+    if (!e.isIntersecting) return;
+    const s = scenes.find(x => x.cv === e.target); if (!s || s.done || s.playing) return;
+    play(s, 150); io.unobserve(e.target);
+  });
+}, { threshold: .35 });
+scenes.forEach(s => io.observe(s.cv));
+if (SHOT) setTimeout(() => {                              // 诊断：统计各笔纤丝/墨点生成量
+  document.title = 'H=' + scenes.map(s => s.strokes.map(g => `${g.fx.hairs.length}/${g.fx.dots.length}`).join('|')).join(' ');
+}, 300);
+(function loop() {
+  const now = performance.now();
+  for (const s of scenes) {
+    if (!s.playing) continue;
+    const p = Math.min(1, Math.max(0, (now - s.t0) / DUR));
+    if (p > 0 || now >= s.t0) s.draw(p);
+    if (p >= 1) { s.playing = false; s.done = true; }
+  }
+  requestAnimationFrame(loop);
+})();
+
+/* 控件 */
+const btnTone = document.getElementById('btnTone');
+function paintToneBtn() { btnTone.textContent = '墨色 · ' + (TONE === 'gray' ? '灰' : '亮黑'); }
+paintToneBtn();
+btnTone.onclick = () => {
+  TONE = TONE === 'gray' ? 'black' : 'gray';
+  paintToneBtn();
+  scenes.forEach(s => { if (s.done || SHOT || reduced) { s.prog = 1; s.done = true; s.draw(1); } });
+};
+document.getElementById('btnReplay').onclick = () => scenes.forEach((s, i) => { s.build(); play(s, i * 160); });
+document.getElementById('btnM').onclick = e => {
+  document.getElementById('stage').classList.toggle('mobile');
+  e.target.classList.toggle('on');
+  setTimeout(() => scenes.forEach(s => s.resize()), 520);
+};
+addEventListener('resize', () => scenes.forEach(s => s.resize()));
+</script>
+</body>
+</html>

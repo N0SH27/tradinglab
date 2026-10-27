@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { NAV, SITE, ARCHIVE_TREE } from '../data/content'
 import { Label } from './Bits'
 import { HSNSeal, HSNSymbol } from './Brand'
+import { EdgeStroke } from '../ink/brush'
 
 /* 视觉 lockup「trading·lab BY HSN」= Founder Signature（V2-06-00 裁决 A）：
    与 canonical brand（SITE.name = 'TradingLabb'）正式解耦——
@@ -172,9 +173,25 @@ function Footer() {
   )
 }
 
+/* 行气题眼字（2026-10-27 裁决 · 结合版定案）：一页一字，皆出道家语系——
+   世界=观、周期=复（「万物并作，吾以观复」《道德经》十六章，与日志落款同源）、
+   日志=记、论点=证、无为=无、首页=观。巨字＋点景＋朱点，落 canvas z-[-1]。
+   必须渲染在 #page-root 之内：page-root 的 relative+z-[1]+bg-paper 构成层叠上下文，
+   画布以 z-[-1] 置于其背景之上、内容之下；挂在外面会被这层纸色整个盖住。 */
+function edgeChar(path: string): string | null {
+  if (path === '/map') return '观'
+  if (path === '/cycle') return '复'
+  if (path === '/journal') return '记'
+  if (path === '/thesis') return '证'
+  if (path === '/wuwei') return '无'
+  if (path === '/') return '观'
+  return null
+}
+
 export default function Layout({ path, children }: { path: string; children: React.ReactNode }) {
   return (
     <div id="page-root" className="min-h-screen flex flex-col relative z-[1] bg-paper">
+      {edgeChar(path) && <EdgeStroke ch={edgeChar(path)!} />}
       <Header path={path} />
       <main className="flex-1">{children}</main>
       <Footer />

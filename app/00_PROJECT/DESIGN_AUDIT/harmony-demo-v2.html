@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>开拓版 Demo · 行气 × 笔迹分隔 v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+<svg width="0" height="0" style="position:absolute"><defs>
+  <filter id="inkRough" x="-20%" y="-20%" width="140%" height="140%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="3" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="16"/>
+  </filter>
+  <filter id="inkRough2" x="-20%" y="-20%" width="140%" height="140%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="2" seed="21" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="9"/>
+  </filter>
+</defs></svg>
+<style>
+  :root{
+    --paper:#f7f5f0; --ivory:#fbfaf7; --ink:#1a1a1a; --ink2:#4a4a48; --ink3:#8a8a86;
+    --line:rgba(26,26,26,.14); --cinnabar:#c0392b;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--paper);color:var(--ink);
+    font-family:'Noto Serif SC','Songti SC','STSong',serif;
+    padding:56px 40px 120px;}
+  .wrap{max-width:1240px;margin:0 auto}
+  .eyebrow{font-size:12px;letter-spacing:.35em;color:var(--ink3);font-family:'IBM Plex Mono',monospace;margin-bottom:14px}
+  h1{font-size:32px;font-weight:700;letter-spacing:.04em}
+  .lede{margin-top:14px;font-size:14.5px;line-height:2;color:var(--ink2);max-width:680px}
+  .study{margin-top:26px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .study .s{background:var(--ivory);border:1px solid var(--line);padding:16px 18px}
+  .study .s .src{font-size:10.5px;letter-spacing:.25em;color:var(--cinnabar);font-family:'IBM Plex Mono',monospace;margin-bottom:8px}
+  .study .s p{font-size:12.5px;line-height:1.95;color:var(--ink2)}
+  .sect{margin-top:72px}
+  .sect-h{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:8px}
+  .sect-h .no{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--cinnabar);letter-spacing:.2em}
+  .sect-h h2{font-size:22px;letter-spacing:.06em}
+  .sect-h .note{margin-left:auto;font-size:12px;color:var(--ink3);letter-spacing:.1em}
+  .row{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:26px}
+  .row.b{grid-template-columns:repeat(4,1fr)}
+  .card{background:var(--ivory);border:1px solid var(--line);padding:12px 12px 16px;position:relative}
+  .card .tag{position:absolute;top:-1px;left:-1px;background:var(--ink);color:var(--paper);
+    font-size:10.5px;letter-spacing:.25em;padding:4px 10px;font-family:'IBM Plex Mono',monospace}
+  .card .tag.now{background:var(--cinnabar)}
+  .card .name{font-size:15px;font-weight:700;letter-spacing:.08em;margin:30px 4px 4px}
+  .card .pos{font-size:12.5px;color:var(--ink2);line-height:1.8;margin:0 4px}
+  .card .ref{font-size:11px;color:var(--ink3);margin-top:6px;line-height:1.7;margin:6px 4px 0}
+  .frame{width:100%;height:480px;background:var(--paper);position:relative;overflow:hidden;
+    border:1px solid var(--line)}
+  .frame canvas{position:absolute;left:0;top:0;z-index:0}
+  .frame .content{position:absolute;inset:0;z-index:1;padding:34px 62px 34px 30px}
+  .frame .foot{z-index:1}
+  .frame h3{font-size:19px;letter-spacing:.1em;margin-bottom:10px}
+  .frame .sub{font-size:10.5px;letter-spacing:.25em;color:var(--ink3);font-family:'IBM Plex Mono',monospace;margin-bottom:22px}
+  .frame p{font-size:12.5px;line-height:2.05;color:var(--ink2);margin-bottom:12px;text-align:justify}
+  .frame .foot{position:absolute;bottom:20px;left:30px;font-size:10px;letter-spacing:.3em;color:var(--ink3);font-family:'IBM Plex Mono',monospace}
+  canvas{display:block}
+  .divider-demo{background:var(--paper);border:1px solid var(--line);padding:30px 28px;height:480px;overflow:hidden;position:relative}
+  .divider-demo h4{font-size:16px;letter-spacing:.12em}
+  .divider-demo .meta{font-size:10px;letter-spacing:.22em;color:var(--ink3);font-family:'IBM Plex Mono',monospace;margin:6px 0 14px}
+  .divider-demo p{font-size:12.5px;line-height:2.05;color:var(--ink2);text-align:justify;margin-bottom:12px}
+  .divider-demo .ctx{margin-top:22px}
+  .divider-demo .ctx .lab{font-size:10px;letter-spacing:.25em;color:var(--cinnabar);font-family:'IBM Plex Mono',monospace;margin-bottom:8px}
+  .divider-slot{height:22px;margin:2px 0 10px;position:relative}
+  .divider-slot.heavy{height:30px}
+  .footer-note{margin-top:56px;font-size:12px;color:var(--ink3);line-height:2;border-top:1px solid var(--line);padding-top:18px}
+  @media (max-width:900px){
+    .row,.row.b,.study{grid-template-columns:1fr}
+    body{padding:36px 18px 80px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">TRADINGLABB · DESIGN AUDIT · 2026-10-27 · V2</div>
+  <h1>开拓版：行气 × 笔迹分隔</h1>
+  <p class="lede">上一版三方向被否——问题不在参数，在思路：还在「把笔迹改小改淡」。这次回到你给过的网站上学：<b>字即气韵、敢于不放、边角聚气</b>。三组建新表达，从「笔迹」转向<b>字、章、晕、圈</b>——笔迹少的地方，画意就要多（你的平衡原则）。</p>
+
+  <div class="study">
+    <div class="s"><div class="src">lizheng.ai</div><p>深底之上一个<b>巨型书法字</b>「立」贯穿全屏——字本身就是气韵与品牌，不做边缘装饰。学：<b>字即行气</b>。</p></div>
+    <div class="s"><div class="src">ashton.is</div><p>整屏只有一句话，其余全让位。<b>敢于不放</b>——氛围感不来自元素数量，来自单一元素的笃定。学：<b>减即是增</b>。</p></div>
+    <div class="s"><div class="src">g2.ltfc.net 中华珍宝馆</div><p>真水墨的构图是<b>边角聚气</b>：笔意聚在画面一角成「小景」（马一角、夏半边），沿边拉通反而匠气。学：<b>角落成画，边缘让纸</b>。</p></div>
+  </div>
+
+  <!-- ══ A · 行气 ══ -->
+  <div class="sect">
+    <div class="sect-h"><span class="no">A</span><h2>行气 · 结合版</h2><span class="note">一字为主 · 点景为辅 · 朱点作押</span></div>
+    <div class="row">
+      <div class="card">
+        <span class="tag now">现状</span>
+        <div class="frame"><div class="content">
+          <h3>观察变化</h3><div class="sub">EDGE · AS-IS</div>
+          <p>通高笔迹纵贯视口，灰阶色带外扩，与滚动内容同框时彼此争抢。笔意完整但过于「在场」。</p>
+          <p>读者视线在缘边与正文之间往返，行气从「纸的气韵」退化为「页面装饰条」。</p>
+        </div><canvas class="edge" data-v="now" data-kind="crane"></canvas><div class="foot"> TradingLabb · 2026</div></div>
+        <div class="name">现状 · 通高行气</div>
+        <p class="pos">满幅纵贯、三色带，与内容同框对立。</p>
+        <p class="ref">诊断：笔迹是「元素」，不是「气」。</p>
+      </div>
+      <div class="card">
+        <span class="tag">结合 · 观</span>
+        <div class="frame"><div class="content">
+          <h3>观察变化</h3><div class="sub">EDGE · CALLI · 观</div>
+          <p>右缘落一个<b>毛笔写就的巨字</b>「观」——笔画由 brush 引擎逐笔写出：藏锋起、顿笔收、行笔带飞白。</p>
+          <p>字为构图之主，右上角短斜笔与散点为景，字下一粒朱点作押——书画款识的三段构成。</p>
+        </div><canvas class="edge" data-v="g4" data-ch="观"></canvas><div class="foot"> TradingLabb · 2026</div></div>
+        <div class="name">结合版 · 此页题眼「观」</div>
+        <p class="pos">毛笔字逐笔渲染（非字体），每页一字：世界=观／周期=复／日志=记／论点=证／无为=无。</p>
+        <p class="ref">类比 lizheng.ai 的「立」＋ltfc 边角构图；五字皆出道家语系，与日志落款「观复」同源。</p>
+      </div>
+      <div class="card">
+        <span class="tag">结合 · 复</span>
+        <div class="frame"><div class="content">
+          <h3>观察变化</h3><div class="sub">EDGE · CALLI · 复</div>
+          <p>同一笔意，换一字即换一页的气质：此页「复」——万物并作，吾以观复。</p>
+          <p>字的骨架是楷书，行笔带行书欹侧；同一引擎、同一参数，只换笔画数据。</p>
+        </div><canvas class="edge" data-v="g4" data-ch="复"></canvas><div class="foot"> TradingLabb · 2026</div></div>
+        <div class="name">结合版 · 此页题眼「复」</div>
+        <p class="pos">与「观」同引擎同参数，仅笔画数据不同——证明五字可批量产出。</p>
+        <p class="ref">「复」为周期页题眼：往复循环，正是周期之义。</p>
+      </div>
+      <div class="card">
+        <span class="tag">新路三</span>
+        <div class="frame"><div class="content">
+          <h3>观察变化</h3><div class="sub">EDGE · MIST</div>
+          <p>连墨戏也收起。只在纸的右上角、左下角各留一团<b>极淡的积墨云雾</b>——没有笔迹，只有气的痕迹。</p>
+          <p>它是纸张本身的呼吸：你感觉不到「设计」，只感觉到纸是活的。</p>
+        </div><canvas class="edge" data-v="g3"></canvas><div class="foot"> TradingLabb · 2026</div></div>
+        <div class="name">满纸云烟 · 气不行笔</div>
+        <p class="pos">两团水墨云斑 α .03–.05，无轮廓；与纸纹融为一体。</p>
+        <p class="ref">类比 ashton.is 的减法胆识：不放，是最难的放。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ B · 笔迹分隔 ══ -->
+  <div class="sect">
+    <div class="sect-h"><span class="no">B</span><h2>笔迹分隔 · 三新路</h2><span class="note">从划线到盖章 · 到晕水 · 到圈点</span></div>
+    <div class="row b">
+      <div class="card">
+        <span class="tag now">现状</span>
+        <div class="divider-demo">
+          <h4>算力的尽头是电力</h4><div class="meta">THESIS · 2026.08 · AS-IS</div>
+          <div class="divider-slot heavy"><canvas class="div" data-v="now" data-t="heavy"></canvas></div>
+          <p>当所有人盯着芯片，电力指标正成为智算中心选址的第一约束。通道建好，水还没来。</p>
+          <div class="ctx"><div class="lab">小节语境 · 淡痕</div>
+            <p>报告链继续展开，逐层验证上游约束如何向中游价格传导。</p>
+            <div class="divider-slot"><canvas class="div" data-v="now" data-t="light"></canvas></div>
+            <p>分隔线横贯整栏，将文本栏切成两段，阅读流被一笔「划断」。</p>
+          </div>
+        </div>
+        <div class="name">现状 · 通栏波线</div>
+        <p class="pos">整栏横贯，heavy baseW 5 浓划压标题。</p>
+        <p class="ref">诊断：像批改划痕。</p>
+      </div>
+      <div class="card">
+        <span class="tag">新路一</span>
+        <div class="divider-demo">
+          <h4>算力的尽头是电力</h4><div class="meta">THESIS · 2026.08</div>
+          <div class="divider-slot heavy"><canvas class="div" data-v="d1" data-t="heavy"></canvas></div>
+          <p>当所有人盯着芯片，电力指标正成为智算中心选址的第一约束。通道建好，水还没来。</p>
+          <div class="ctx"><div class="lab">小节语境 · 淡痕</div>
+            <p>报告链继续展开，逐层验证上游约束如何向中游价格传导。</p>
+            <div class="divider-slot"><canvas class="div" data-v="d1" data-t="light"></canvas></div>
+            <p>两节交界处盖一方<b>骑缝章</b>——上一节与下一节各压半印，节止而档成。</p>
+          </div>
+        </div>
+        <div class="name">骑缝章 · 节上盖章</div>
+        <p class="pos">小节交界处落 18–22px 朱文小印（「节」「续」「讫」随语境），骑缝半压。</p>
+        <p class="ref">类比档案骑缝章——「活着的档案」最贴身的分隔语言，与印章体系同源。</p>
+      </div>
+      <div class="card">
+        <span class="tag">新路二</span>
+        <div class="divider-demo">
+          <h4>算力的尽头是电力</h4><div class="meta">THESIS · 2026.08</div>
+          <div class="divider-slot heavy"><canvas class="div" data-v="d2" data-t="heavy"></canvas></div>
+          <p>当所有人盯着芯片，电力指标正成为智算中心选址的第一约束。通道建好，水还没来。</p>
+          <div class="ctx"><div class="lab">小节语境 · 淡痕</div>
+            <p>报告链继续展开，逐层验证上游约束如何向中游价格传导。</p>
+            <div class="divider-slot"><canvas class="div" data-v="d2" data-t="light"></canvas></div>
+            <p>不划线，只在节起之处落一滴<b>水墨晕染</b>——纸在此处洇开，新节自此而生。</p>
+          </div>
+        </div>
+        <div class="name">墨晕为界 · 水滴洇纸</div>
+        <p class="pos">节首后方/下方一枚横向墨晕 α .05–.08，无轮廓，与纸纹相渗。</p>
+        <p class="ref">类比水墨写生纸上的水痕；分节不靠「线」，靠「纸的记忆」。</p>
+      </div>
+      <div class="card">
+        <span class="tag">新路三</span>
+        <div class="divider-demo">
+          <h4>算力的尽头是电力</h4><div class="meta">THESIS · 2026.08</div>
+          <div class="divider-slot heavy"><canvas class="div" data-v="d3" data-t="heavy"></canvas></div>
+          <p>当所有人盯着芯片，电力指标正成为智算中心选址的第一约束。通道建好，水还没来。</p>
+          <div class="ctx"><div class="lab">小节语境 · 淡痕</div>
+            <p>报告链继续展开，逐层验证上游约束如何向中游价格传导。</p>
+            <div class="divider-slot"><canvas class="div" data-v="d3" data-t="light"></canvas></div>
+            <p>回到古人的<b>圈点</b>：节首字旁一圈一点，如批阅者圈出佳处——分节即批点。</p>
+          </div>
+        </div>
+        <div class="name">圈点佳处 · 批点为界</div>
+        <p class="pos">节首标题左（或尾字右）落毛边小圈/点；heavy 语境加一朱点。</p>
+        <p class="ref">类比刻本圈点批校；「可圈可点」成为网站的分节语法。</p>
+      </div>
+    </div>
+  </div>
+
+  <p class="footer-note">全部方案沿用现有 brush 引擎；新路一（巨字）与落墨成字共用字形渲染，新路一（骑缝章）与印章体系共用 Seal 组件。选定后落到 Layout / InkDivider / PageHead。PLUM_STATE 联动仍待看板数据源。</p>
+</div>
+
+<script>
+/* ── brush 引擎（与 src/ink/brush.tsx 同源） ── */
+function hash(n){const s=Math.sin(n*127.1+311.7)*43758.5453;return s-Math.floor(s)}
+function vnoise(x,seed){const i0=Math.floor(x),f=x-i0,s=f*f*(3-2*f);
+  return hash(i0*3.7+seed)*(1-s)+hash((i0+1)*3.7+seed)*s}
+const INK={concentrated:[13,13,13],rich:[26,26,26],soot:[60,60,60],graphite:[84,84,84],
+  slate:[52,52,52],silver:[135,135,135],pale:[170,170,170],mist:[220,220,220]};
+const inkA=(c,a)=>`rgba(${INK[c][0]},${INK[c][1]},${INK[c][2]},${Math.max(0,Math.min(1,a)).toFixed(3)})`;
+function strokePts(W,H,o){
+  const N=o.N||220,pts=[];
+  for(let i=0;i<N;i++){
+    const s=i/(N-1),x=s*W;
+    const y=H*o.yK+o.amps[0]*Math.sin(s*o.f[0]+o.ph)+o.amps[1]*Math.sin(s*o.f[1]+o.ph)+o.amps[2]*Math.sin(s*o.f[2]+o.ph);
+    pts.push({x,y,s,nx:0,ny:0,w:1});
+  }
+  for(let i=0;i<N;i++){
+    const a=pts[Math.max(0,i-1)],b=pts[Math.min(N-1,i+1)];
+    const tx=b.x-a.x,ty=b.y-a.y,l=Math.hypot(tx,ty)||1;
+    pts[i].nx=-ty/l;pts[i].ny=tx/l;
+  }
+  let pw=null;
+  for(let i=0;i<N;i++){
+    const s=pts[i].s;let env;
+    if(s<o.envIn)env=.35+(s/o.envIn)*.65;
+    else if(s>o.envOut)env=Math.max(.12,1-((s-o.envOut)/(1-o.envOut))*.88);
+    else env=1;
+    const press=1-o.pressDepth*Math.pow(Math.max(0,Math.sin(s*Math.PI*o.pressFreq+.6)),2);
+    let w=Math.max(1.2,o.baseW*env*press*(.94+.1*Math.sin(i*.21+o.seed)));
+    if(pw!==null)w=pw*.6+w*.4;pw=w;pts[i].w=w;
+  }
+  return pts;
+}
+function paintBands(ctx,pts,n,o){
+  const K=18;
+  for(let b=0;b<K;b++){
+    const sc=1.3-b*(.78/K);let col=o.stops[0][1];
+    for(const[r,c]of o.stops)if(sc<=r)col=c;
+    const C=o.alpha*(sc>.8?Math.exp(-Math.pow((sc-.8)/.3,2)):1);
+    ctx.fillStyle=inkA(col,C);ctx.beginPath();
+    for(let k=0;k<n;k++){const p=pts[k];let ex=0;
+      if(o.tipDry&&k>n-7&&n>8)ex=-(1-(n-k)/7)*p.w*.22;
+      const hw=p.w*sc/2+(o.pad||0)+ex+(o.wob?o.wob(k):0);
+      k===0?ctx.moveTo(p.x+p.nx*hw,p.y+p.ny*hw):ctx.lineTo(p.x+p.nx*hw,p.y+p.ny*hw);}
+    for(let k=n-1;k>=0;k--){const p=pts[k];let ex=0;
+      if(o.tipDry&&k>n-7&&n>8)ex=-(1-(n-k)/7)*p.w*.22;
+      const hw=p.w*sc/2+(o.pad||0)+ex+(o.wob?o.wob(k):0);
+      ctx.lineTo(p.x-p.nx*hw,p.y-p.ny*hw);}
+    ctx.closePath();ctx.fill();
+  }
+}
+const GRAY=[[1.3,'mist'],[1.12,'pale'],[.95,'silver'],[.72,'graphite'],[0,'slate']];
+const DARK=[[1.3,'mist'],[1.1,'graphite'],[.95,'soot'],[.7,'rich'],[0,'concentrated']];
+const PALE=[[1.3,'mist'],[.9,'pale'],[0,'silver']];
+const wobStd=(N)=>(k)=>{const u=((k%89)*.37)/6,i0=Math.floor(u),f=u-i0,s=f*f*(3-2*f);
+  return(hash(i0+N)*(1-s)+hash(i0+1+N)*s-.5)*1.5};
+/* 墨点团 */
+function inkDots(ctx,list,col){list.forEach(([x,y,r],i)=>{
+  for(let b=0;b<9;b++){const a=hash(i*13+b)*6.283,rr=r*(.5+hash(b*5+i*2)*.65);
+    ctx.fillStyle=inkA(col,.26+hash(b*7+i)*.22);
+    ctx.beginPath();ctx.arc(x+Math.cos(a)*rr*.45,y+Math.sin(a)*rr*.38,rr*.52,0,7);ctx.fill()}
+})}
+/* 毛边小圈（圈点） */
+function roughCircle(ctx,cx,cy,r,col,alpha){
+  ctx.fillStyle=inkA(col,alpha);ctx.beginPath();
+  for(let i=0;i<=36;i++){const a=i/36*6.283;
+    const rr=r*(1+(hash(i*7.3)-.5)*.28);
+    const x=cx+Math.cos(a)*rr,y=cy+Math.sin(a)*rr*.92;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)}
+  ctx.closePath();ctx.fill();
+}
+
+/* 书法字形渲染见 drawCalli（文件底部）：字体取骨架 + 湍流炸毫 + 洇墨分层 + 刻丝飞白。 */
+function smooth(a,b,s){const t=Math.max(0,Math.min(1,(s-a)/(b-a)));return t*t*(3-2*t)}
+/* 整字渲染：书法字体取字形 + 湍流置换出毛边 + 多层洇墨 + 刻丝飞白。
+ * 比程序化描边更真——骨架来自真毛笔字库（Ma Shan Zheng 楷行），
+ * 边缘交给 feTurbulence 炸毫，飞白用 destination-out 刻纸色细丝。 */
+function drawCalli(ctx,ch,x,y,size,seed){
+  ctx.save();
+  ctx.translate(x+size/2,y+size/2);ctx.rotate(-.018);ctx.translate(-size/2,-size/2);
+  const F=`${size}px "Ma Shan Zheng","Noto Serif SC","Kaiti SC","STKaiti",serif`;
+  ctx.font=F;ctx.textAlign='center';ctx.textBaseline='middle';
+  const cx=size/2,cy=size/2+size*.03;
+  /* 底层洇晕：模糊大雾 */
+  ctx.save();ctx.filter='blur(3px)';
+  ctx.fillStyle=inkA('mist',.6);ctx.fillText(ch,cx,cy);ctx.restore();
+  /* 中层淡墨：粗置换（炸毫大起伏） */
+  ctx.save();ctx.filter='url(#inkRough)';
+  ctx.fillStyle=inkA('silver',.5);ctx.fillText(ch,cx,cy);ctx.restore();
+  /* 主墨：细置换（笔缘毛刺）＋淡浓度 */
+  ctx.save();ctx.filter='url(#inkRough2)';
+  ctx.fillStyle=inkA('graphite',.62);ctx.fillText(ch,cx,cy);
+  ctx.fillStyle=inkA('slate',.5);ctx.fillText(ch,cx,cy);ctx.restore();
+  /* 骨：极小核，立神 */
+  ctx.save();ctx.filter='url(#inkRough2)';
+  ctx.fillStyle=inkA('soot',.34);ctx.fillText(ch,cx,cy);ctx.restore();
+  /* 飞白：destination-out 刻纸色丝，沿横向行笔 */
+  ctx.save();ctx.globalCompositeOperation='destination-out';
+  ctx.lineCap='round';
+  for(let i=0;i<6;i++){
+    const yy=size*(.18+hash(seed+i*7)*.64);
+    const x0=size*(.08+hash(seed+i*13)*.2),x1=size*(.72+hash(seed+i*17)*.2);
+    ctx.lineWidth=size*.006+hash(seed+i*3)*size*.01;
+    ctx.strokeStyle=`rgba(0,0,0,${.25+hash(seed+i*5)*.3})`;
+    ctx.beginPath();ctx.moveTo(x0,yy);
+    ctx.bezierCurveTo(size*.3,yy+(hash(seed+i)*8-4),size*.6,yy+(hash(seed+i*2)*8-4),x1,yy+(hash(seed+i*4)*6-3));
+    ctx.stroke();
+  }
+  /* 边缘干笔擦痕 */
+  for(let i=0;i<3;i++){
+    const xx=size*(.15+hash(seed+i*29)*.7);
+    ctx.lineWidth=size*.008;
+    ctx.strokeStyle=`rgba(0,0,0,${.2+hash(seed+i*31)*.2})`;
+    ctx.beginPath();ctx.moveTo(xx,size*.14);
+    ctx.lineTo(xx+(hash(seed+i*37)*10-5),size*.86);ctx.stroke();
+  }
+  ctx.restore();
+  ctx.restore();
+}
+
+/* ── 行气 ── */
+const EDGE_CFG={
+  crane:{yK:.5,amps:[12,4,1.5],f:[3.4,8,15],ph:.6,baseW:4.5,envIn:.1,envOut:.93,pressFreq:.9,pressDepth:.2,seed:33,stops:PALE,alpha:.6}
+};
+function drawEdge(cv){
+  const v=cv.dataset.v;
+  const dpr=Math.min(window.devicePixelRatio||1,1.5);
+  const frame=cv.parentElement;
+  const W=frame.clientWidth,H=frame.clientHeight;
+  cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';
+  const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);
+  if(v==='now'){
+    const cfg=EDGE_CFG.crane,span=H*.72,y0=(H-span)/2,L=span,mx=W*.78;
+    const p0=strokePts(L,40,{...cfg,N:200});
+    const pts=p0.map(p=>({...p,x:mx+(p.y-20)*1.1,y:y0+(L-p.x)}));
+    for(let i=0;i<pts.length;i++){const a=pts[Math.max(0,i-1)],b=pts[Math.min(pts.length-1,i+1)];
+      const tx=b.x-a.x,ty=b.y-a.y,l=Math.hypot(tx,ty)||1;pts[i].nx=-ty/l;pts[i].ny=tx/l}
+    paintBands(ctx,pts,pts.length,{stops:PALE,alpha:.6,pad:.4,tipDry:false,wob:wobStd(pts.length)});
+    return;
+  }
+  if(v==='g1'){ /* 巨字裁影 */
+    const ch=cv.dataset.ch||'观';
+    const size=H*.62,x=W-size*.34,y=H*.5+size*.36;
+    ctx.save();
+    ctx.font=`700 ${size}px 'Noto Serif SC','Songti SC',serif`;
+    ctx.textBaseline='alphabetic';
+    /* 洇墨三层：雾—淡—骨 */
+    ctx.fillStyle=inkA('mist',.5);ctx.fillText(ch,x-3,y+3);
+    ctx.fillStyle=inkA('pale',.55);ctx.fillText(ch,x,y);
+    ctx.globalAlpha=.9;ctx.fillStyle=inkA('silver',.5);ctx.fillText(ch,x,y);
+    ctx.restore();
+    /* 字周散点 */
+    inkDots(ctx,[[x+size*.55,y-size*.72,2.2],[x+size*.8,y-size*.2,1.6],[x-size*.06,y-size*.86,1.4]],'pale');
+    return;
+  }
+  if(v==='g2'){ /* 边角墨戏：右上短斜笔+散点+朱点 */
+    const bx=W-46,by=44;
+    const p0=strokePts(120,26,{N:110,yK:.5,amps:[2.2,1,.5],f:[2.4,6,11],ph:1.3,baseW:4.6,envIn:.1,envOut:.86,pressFreq:.9,pressDepth:.22,seed:51});
+    const pts=p0.map(p=>({...p,x:bx-14-(p.y-13)*.9-p.x*.35,y:by+p.x*.55+(p.y-13)*.5}));
+    for(let i=0;i<pts.length;i++){const a=pts[Math.max(0,i-1)],b=pts[Math.min(pts.length-1,i+1)];
+      const tx=b.x-a.x,ty=b.y-a.y,l=Math.hypot(tx,ty)||1;pts[i].nx=-ty/l;pts[i].ny=tx/l}
+    paintBands(ctx,pts,pts.length,{stops:DARK,alpha:.5,pad:.35,tipDry:true,wob:wobStd(pts.length)});
+    inkDots(ctx,[[bx+16,by+30,2.4],[bx+34,by+14,1.7],[bx+50,by+38,1.3],[bx-22,by+52,1.5]],'slate');
+    /* 朱点作押 */
+    ctx.fillStyle='rgba(192,57,43,.8)';ctx.beginPath();ctx.arc(bx+30,by+52,2.6,0,7);ctx.fill();
+    return;
+  }
+  if(v==='g4'){ /* 结合版：毛笔巨字 ＋ 边角点景 ＋ 朱点作押
+     层级纪律：画布 z0 在内容 z1 之下；字只露左缘约 1/3，
+     主体待在右缘沟，微量渗入文字栏底缘也保持淡墨不碍读。 */
+    const ch=cv.dataset.ch||'观';
+    const seed=[...ch].reduce((a,c)=>a+c.charCodeAt(0),0);
+    const size=H*.58,cx=W-size*.34,cy=(H-size)/2;
+    drawCalli(ctx,ch,cx,cy,size,seed);
+    /* 点景一：字左上一记短斜笔（淡墨，余光档，不抢阅读） */
+    {
+      const p0=strokePts(110,24,{N:100,yK:.5,amps:[2,1,.5],f:[2.4,6,11],ph:1.3,baseW:3.6,envIn:.1,envOut:.86,pressFreq:.9,pressDepth:.22,seed:seed+71});
+      const bx=cx-40,by=cy+size*.16;
+      const pts=p0.map(p=>({...p,x:bx-14-(p.y-12)*.9-p.x*.35,y:by+p.x*.55+(p.y-12)*.5}));
+      for(let i=0;i<pts.length;i++){const a=pts[Math.max(0,i-1)],b=pts[Math.min(pts.length-1,i+1)];
+        const tx=b.x-a.x,ty=b.y-a.y,l=Math.hypot(tx,ty)||1;pts[i].nx=-ty/l;pts[i].ny=tx/l}
+      paintBands(ctx,pts,pts.length,{stops:PALE,alpha:.3,pad:.25,tipDry:true,wob:wobStd(pts.length)});
+    }
+    /* 点景二：字周散点（silver 淡灰，余光档） */
+    ctx.globalAlpha=.6;
+    inkDots(ctx,[
+      [cx-24,cy+size*.42,2],[cx-40,cy+size*.6,1.4],
+      [cx+size*.7,cy+size*.06,1.9],[cx+size*.82,cy+size*.3,1.3],
+    ],'silver');
+    /* 朱点作押：字左下（也降一档） */
+    ctx.fillStyle='rgba(192,57,43,.6)';
+    ctx.beginPath();ctx.arc(cx-30,cy+size*.82,2.8,0,7);ctx.fill();
+    ctx.beginPath();ctx.arc(cx-16,cy+size*.86,1.4,0,7);ctx.fill();
+    ctx.globalAlpha=1;
+    return;
+  }
+  if(v==='g3'){ /* 满纸云烟：两团积墨云雾 */
+    const mist=(cx,cy,r,a)=>{const g=ctx.createRadialGradient(cx,cy,r*.1,cx,cy,r);
+      g.addColorStop(0,`rgba(70,70,70,${a})`);g.addColorStop(.55,`rgba(120,120,120,${a*.45})`);
+      g.addColorStop(1,'rgba(170,170,170,0)');ctx.fillStyle=g;
+      ctx.beginPath();ctx.ellipse(cx,cy,r,r*.72,hash(cx)*.8-.4,0,7);ctx.fill()};
+    mist(W-90,84,120,.05);mist(W-150,150,90,.035);mist(70,H-90,130,.045);mist(150,H-160,80,.03);
+    return;
+  }
+}
+
+/* ── 分隔 ── */
+function drawSealMini(ctx,cx,cy,s,ch){ /* 骑缝章：朱文小印 */
+  ctx.save();ctx.translate(cx,cy);ctx.rotate(-.04);
+  /* 印面 */
+  ctx.fillStyle='rgba(192,57,43,.82)';
+  ctx.beginPath();
+  const r=s/2;
+  for(let i=0;i<=24;i++){const a=i/24*6.283,rr=r*(1+(hash(i*3.1)-.5)*.1);
+    const x=Math.cos(a)*rr,y=Math.sin(a)*rr;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)}
+  ctx.closePath();ctx.fill();
+  /* 字 */
+  ctx.fillStyle='#f7f5f0';ctx.font=`700 ${s*.62}px 'Noto Serif SC','Songti SC',serif`;
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(ch,0,1);
+  ctx.restore();
+}
+function drawDiv(cv){
+  const v=cv.dataset.v,t=cv.dataset.t,heavy=t==='heavy';
+  const dpr=Math.min(window.devicePixelRatio||1,1.5);
+  const slot=cv.parentElement,W=slot.clientWidth,H=slot.clientHeight;
+  cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';
+  const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);
+  const mk=(len,cfg,stops,alpha)=>{const p0=strokePts(len,H-4,cfg);
+    const pts=p0.map(p=>({...p,x:p.x+2,y:p.y+2}));
+    for(let i=0;i<pts.length;i++){const a=pts[Math.max(0,i-1)],b=pts[Math.min(pts.length-1,i+1)];
+      const tx=b.x-a.x,ty=b.y-a.y,l=Math.hypot(tx,ty)||1;pts[i].nx=-ty/l;pts[i].ny=tx/l}
+    paintBands(ctx,pts,pts.length,{stops,alpha,pad:.3,tipDry:true})};
+  if(v==='now'){
+    if(heavy)mk(W,{N:200,yK:.5,amps:[2.4,1,.4],f:[3.4,8,15],ph:2.2,baseW:5,envIn:.22,envOut:.78,pressFreq:1,pressDepth:.15,seed:11},DARK,.55);
+    else mk(W,{N:220,yK:.5,amps:[1.6,.7,.3],f:[2.6,6.5,12],ph:.9,baseW:2.4,envIn:.12,envOut:.85,pressFreq:.8,pressDepth:.2,seed:17},GRAY,.4);
+    return;
+  }
+  if(v==='d1'){ /* 骑缝章：章骑在交界处中央 */
+    drawSealMini(ctx,26,H/2,heavy?22:18,heavy?'讫':'节');
+    return;
+  }
+  if(v==='d2'){ /* 墨晕：节起处横向洇开 */
+    const cx=heavy?W*.5:60,cy=H/2;
+    const g=ctx.createRadialGradient(cx,cy,2,cx,cy,heavy?110:70);
+    g.addColorStop(0,`rgba(60,60,60,${heavy?.07:.05})`);
+    g.addColorStop(.6,`rgba(110,110,110,${heavy?.04:.03})`);
+    g.addColorStop(1,'rgba(160,160,160,0)');
+    ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(cx,cy,heavy?110:70,heavy?13:10,0,0,7);ctx.fill();
+    if(heavy)inkDots(ctx,[[cx+58,cy-2,1.4],[cx-64,cy+1,1.2]],'pale');
+    return;
+  }
+  if(v==='d3'){ /* 圈点：节首毛边小圈+点 */
+    roughCircle(ctx,14,H/2,heavy?6.5:5,heavy?'slate':'graphite',heavy?.5:.42);
+    ctx.fillStyle=inkA(heavy?'slate':'graphite',.5);
+    ctx.beginPath();ctx.arc(30,H/2+2,heavy?2:1.6,0,7);ctx.fill();
+    if(heavy){ctx.fillStyle='rgba(192,57,43,.75)';ctx.beginPath();ctx.arc(42,H/2-2,2.2,0,7);ctx.fill()}
+    return;
+  }
+}
+function drawAll(){document.querySelectorAll('canvas.edge').forEach(drawEdge);
+  document.querySelectorAll('canvas.div').forEach(drawDiv)}
+window.addEventListener('load',()=>{drawAll();
+  /* 书法字体载入后重绘（字库来自 Google Fonts，异步） */
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>drawAll());
+  if(document.fonts&&document.fonts.load){
+    Promise.all([document.fonts.load('100px "Ma Shan Zheng"','观复记证无')]).catch(()=>{});
+  }
+});
+window.addEventListener('resize',()=>{clearTimeout(window.__rz);window.__rz=setTimeout(drawAll,200)});
+if(document.readyState!=='loading')drawAll();
+</script>
+</body>
+</html>

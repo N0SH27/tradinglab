@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>分隔对决 · 墨晕 × 圈点</title>
+<style>
+  :root{
+    --paper:#f7f5f0; --ivory:#fbfaf7; --ink:#1a1a1a; --ink2:#4a4a48; --ink3:#8a8a86;
+    --line:rgba(26,26,26,.14); --cinnabar:#c0392b;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--paper);color:var(--ink);
+    font-family:'Noto Serif SC','Songti SC','STSong',serif;padding:56px 40px 120px;}
+  .wrap{max-width:1240px;margin:0 auto}
+  .eyebrow{font-size:12px;letter-spacing:.35em;color:var(--ink3);font-family:'IBM Plex Mono',monospace;margin-bottom:14px}
+  h1{font-size:32px;font-weight:700;letter-spacing:.04em}
+  .lede{margin-top:14px;font-size:14.5px;line-height:2;color:var(--ink2);max-width:680px}
+  .duel{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:40px}
+  .side{background:var(--ivory);border:1px solid var(--line);position:relative;padding:14px}
+  .side .tag{position:absolute;top:-1px;left:-1px;background:var(--ink);color:var(--paper);
+    font-size:11px;letter-spacing:.3em;padding:5px 14px;font-family:'IBM Plex Mono',monospace}
+  .side .tag em{font-style:normal;color:#e8b4a8}
+  .side h2{font-size:18px;letter-spacing:.1em;margin:26px 8px 6px}
+  .side .def{font-size:12.5px;color:var(--ink2);line-height:1.9;margin:0 8px 8px}
+  .ctx{background:var(--paper);border:1px solid var(--line);margin:16px 8px;padding:28px 30px;position:relative}
+  .ctx .clab{font-size:10px;letter-spacing:.28em;color:var(--cinnabar);font-family:'IBM Plex Mono',monospace;margin-bottom:14px}
+  .ctx h4{font-size:17px;letter-spacing:.12em}
+  .ctx .meta{font-size:10px;letter-spacing:.22em;color:var(--ink3);font-family:'IBM Plex Mono',monospace;margin:6px 0 12px}
+  .ctx p{font-size:13.5px;line-height:2.1;color:var(--ink2);text-align:justify;margin-bottom:10px}
+  .slot{position:relative;height:26px;margin:4px 0 12px}
+  .slot.tall{height:34px}
+  .verdict{margin-top:60px;border-top:1px solid var(--line);padding-top:22px;
+    display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  .verdict .v h3{font-size:15px;letter-spacing:.1em;margin-bottom:10px}
+  .verdict .v ul{list-style:none}
+  .verdict .v li{font-size:12.5px;color:var(--ink2);line-height:1.9;padding-left:16px;position:relative;margin-bottom:6px}
+  .verdict .v li::before{content:'·';position:absolute;left:2px;color:var(--cinnabar)}
+  canvas{display:block}
+  @media (max-width:900px){.duel,.verdict{grid-template-columns:1fr}body{padding:36px 18px 80px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">TRADINGLABB · DESIGN AUDIT · 2026-10-27 · 分隔对决</div>
+  <h1>墨晕 × 圈点 · 细节对比</h1>
+  <p class="lede">两个思路同屏同语境对比：左「墨晕为界」——不划线，节起处一滴水墨在纸上洇开；右「圈点佳处」——回到古人批校，节首落一圈一点。下方附我的研判，最终由你定夺。</p>
+
+  <div class="duel">
+    <!-- ══ 墨晕 ══ -->
+    <div class="side">
+      <span class="tag">思路二 · <em>墨晕为界</em></span>
+      <h2>水滴洇纸，无笔无画</h2>
+      <p class="def">分隔不是「画」上去的，是「渗」出来的——纸在此处被一滴水墨洇过，新节自此开始。阅读流零切断。</p>
+
+      <div class="ctx">
+        <div class="clab">语境 A · 论点题眼下（heavy）</div>
+        <h4>算力的尽头是电力</h4>
+        <div class="meta">THESIS · 2026.08</div>
+        <div class="slot tall"><canvas class="div" data-v="d2" data-t="heavy"></canvas></div>
+        <p>当所有人盯着芯片，电力指标正成为智算中心选址的第一约束。通道建好，水还没来。</p>
+      </div>
+      <div class="ctx">
+        <div class="clab">语境 B · 小节之间（light）</div>
+        <p>报告链继续展开，逐层验证上游约束如何向中游价格传导。</p>
+        <div class="slot"><canvas class="div" data-v="d2" data-t="light"></canvas></div>
+        <p>分隔退为氛围：节与节之间是纸的呼吸，不是线。</p>
+      </div>
+      <div class="ctx">
+        <div class="clab">语境 C · 页尾落款处</div>
+        <p>所有内容都是活着的档案，而非一次性结论。</p>
+        <div class="slot"><canvas class="div" data-v="d2" data-t="foot"></canvas></div>
+        <p style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.3em;color:var(--ink3)">丙午年 · 癸酉日</p>
+      </div>
+    </div>
+
+    <!-- ══ 圈点 ══ -->
+    <div class="side">
+      <span class="tag">思路三 · <em>圈点佳处</em></span>
+      <h2>批点为界，可圈可点</h2>
+      <p class="def">分隔即古人圈点：节首标题旁落一个毛边小圈、一粒墨点，浓语境加一粒朱点——如批阅者圈出佳处，分节自带「此处值得停」的意味。</p>
+
+      <div class="ctx">
+        <div class="clab">语境 A · 论点题眼下（heavy）</div>
+        <h4>算力的尽头是电力</h4>
+        <div class="meta">THESIS · 2026.08</div>
+        <div class="slot tall"><canvas class="div" data-v="d3" data-t="heavy"></canvas></div>
+        <p>当所有人盯着芯片，电力指标正成为智算中心选址的第一约束。通道建好，水还没来。</p>
+      </div>
+      <div class="ctx">
+        <div class="clab">语境 B · 小节之间（light）</div>
+        <p>报告链继续展开，逐层验证上游约束如何向中游价格传导。</p>
+        <div class="slot"><canvas class="div" data-v="d3" data-t="light"></canvas></div>
+        <p>分节即批点：读者视线被一圈轻轻勾住，然后继续下行。</p>
+      </div>
+      <div class="ctx">
+        <div class="clab">语境 C · 页尾落款处</div>
+        <p>所有内容都是活着的档案，而非一次性结论。</p>
+        <div class="slot"><canvas class="div" data-v="d3" data-t="foot"></canvas></div>
+        <p style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.3em;color:var(--ink3)">丙午年 · 癸酉日</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="verdict">
+    <div class="v">
+      <h3>墨晕的性格</h3>
+      <ul>
+        <li>更接近「无为」——它甚至不像一个设计决定，像纸本身的状态</li>
+        <li>与全站「纸的呼吸」语言一脉相承（水痕、墨泅同源）</li>
+        <li>风险：太隐晦，分节信号弱——读者可能意识不到「新节开始了」</li>
+        <li>heavy 语境（题眼下）力量偏弱，镇不住标题</li>
+      </ul>
+    </div>
+    <div class="v">
+      <h3>圈点的性格</h3>
+      <ul>
+        <li>分节信号明确——圈一出，新节立判；且带「批阅档案」的口吻，贴网站叙事</li>
+        <li>与印章、朱笔圈点、落款同属「批校语言」，体系上自洽</li>
+        <li>可扩展：小圈圈点、朱点可以随语境变化（题眼处可放大）</li>
+        <li>风险：比墨晕「更像设计」，反复出现需控制密度</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+function hash(n){const s=Math.sin(n*127.1+311.7)*43758.5453;return s-Math.floor(s)}
+function vnoise(x,seed){const i0=Math.floor(x),f=x-i0,s=f*f*(3-2*f);
+  return hash(i0*3.7+seed)*(1-s)+hash((i0+1)*3.7+seed)*s}
+const INK={concentrated:[13,13,13],rich:[26,26,26],soot:[60,60,60],graphite:[84,84,84],
+  slate:[52,52,52],silver:[135,135,135],pale:[170,170,170],mist:[220,220,220]};
+const inkA=(c,a)=>`rgba(${INK[c][0]},${INK[c][1]},${INK[c][2]},${Math.max(0,Math.min(1,a)).toFixed(3)})`;
+function strokePts(W,H,o){
+  const N=o.N||220,pts=[];
+  for(let i=0;i<N;i++){
+    const s=i/(N-1),x=s*W;
+    const y=H*o.yK+o.amps[0]*Math.sin(s*o.f[0]+o.ph)+o.amps[1]*Math.sin(s*o.f[1]+o.ph)+o.amps[2]*Math.sin(s*o.f[2]+o.ph);
+    pts.push({x,y,s,nx:0,ny:0,w:1});
+  }
+  for(let i=0;i<N;i++){
+    const a=pts[Math.max(0,i-1)],b=pts[Math.min(N-1,i+1)];
+    const tx=b.x-a.x,ty=b.y-a.y,l=Math.hypot(tx,ty)||1;
+    pts[i].nx=-ty/l;pts[i].ny=tx/l;
+  }
+  let pw=null;
+  for(let i=0;i<N;i++){
+    const s=pts[i].s;let env;
+    if(s<o.envIn)env=.35+(s/o.envIn)*.65;
+    else if(s>o.envOut)env=Math.max(.12,1-((s-o.envOut)/(1-o.envOut))*.88);
+    else env=1;
+    const press=1-o.pressDepth*Math.pow(Math.max(0,Math.sin(s*Math.PI*o.pressFreq+.6)),2);
+    let w=Math.max(1.2,o.baseW*env*press*(.94+.1*Math.sin(i*.21+o.seed)));
+    if(pw!==null)w=pw*.6+w*.4;pw=w;pts[i].w=w;
+  }
+  return pts;
+}
+function paintBands(ctx,pts,n,o){
+  const K=18;
+  for(let b=0;b<K;b++){
+    const sc=1.3-b*(.78/K);let col=o.stops[0][1];
+    for(const[r,c]of o.stops)if(sc<=r)col=c;
+    const C=o.alpha*(sc>.8?Math.exp(-Math.pow((sc-.8)/.3,2)):1);
+    ctx.fillStyle=inkA(col,C);ctx.beginPath();
+    for(let k=0;k<n;k++){const p=pts[k];let ex=0;
+      if(o.tipDry&&k>n-7&&n>8)ex=-(1-(n-k)/7)*p.w*.22;
+      const hw=p.w*sc/2+(o.pad||0)+ex+(o.wob?o.wob(k):0);
+      k===0?ctx.moveTo(p.x+p.nx*hw,p.y+p.ny*hw):ctx.lineTo(p.x+p.nx*hw,p.y+p.ny*hw);}
+    for(let k=n-1;k>=0;k--){const p=pts[k];let ex=0;
+      if(o.tipDry&&k>n-7&&n>8)ex=-(1-(n-k)/7)*p.w*.22;
+      const hw=p.w*sc/2+(o.pad||0)+ex+(o.wob?o.wob(k):0);
+      ctx.lineTo(p.x-p.nx*hw,p.y-p.ny*hw);}
+    ctx.closePath();ctx.fill();
+  }
+}
+const GRAY=[[1.3,'mist'],[1.12,'pale'],[.95,'silver'],[.72,'graphite'],[0,'slate']];
+const DARK=[[1.3,'mist'],[1.1,'graphite'],[.95,'soot'],[.7,'rich'],[0,'concentrated']];
+function inkDots(ctx,list,col,mul=1){list.forEach(([x,y,r],i)=>{
+  for(let b=0;b<9;b++){const a=hash(i*13+b)*6.283,rr=r*(.5+hash(b*5+i*2)*.65);
+    ctx.fillStyle=inkA(col,(.26+hash(b*7+i)*.22)*mul);
+    ctx.beginPath();ctx.arc(x+Math.cos(a)*rr*.45,y+Math.sin(a)*rr*.38,rr*.52,0,7);ctx.fill()}
+})}
+function roughCircle(ctx,cx,cy,r,col,alpha){
+  ctx.fillStyle=inkA(col,alpha);ctx.beginPath();
+  for(let i=0;i<=40;i++){const a=i/40*6.283;
+    const rr=r*(1+(hash(i*7.3+cx)-.5)*.3);
+    const x=cx+Math.cos(a)*rr,y=cy+Math.sin(a)*rr*.9;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)}
+  ctx.closePath();ctx.fill();
+  /* 圈口飞白 */
+  ctx.save();ctx.globalCompositeOperation='destination-out';
+  ctx.strokeStyle='rgba(0,0,0,.4)';ctx.lineWidth=r*.16;
+  ctx.beginPath();ctx.arc(cx,cy,r*.8,hash(cx)*3,hash(cx)*3+1.8);ctx.stroke();
+  ctx.restore();
+}
+function drawSealMini(ctx,cx,cy,s,ch){
+  ctx.save();ctx.translate(cx,cy);ctx.rotate(-.04);
+  ctx.fillStyle='rgba(192,57,43,.82)';
+  ctx.beginPath();
+  const r=s/2;
+  for(let i=0;i<=24;i++){const a=i/24*6.283,rr=r*(1+(hash(i*3.1)-.5)*.1);
+    const x=Math.cos(a)*rr,y=Math.sin(a)*rr;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)}
+  ctx.closePath();ctx.fill();
+  ctx.fillStyle='#f7f5f0';ctx.font=`700 ${s*.6}px 'Noto Serif SC','Songti SC',serif`;
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(ch,0,1);
+  ctx.restore();
+}
+function drawDiv(cv){
+  const v=cv.dataset.v,t=cv.dataset.t,heavy=t==='heavy';
+  const dpr=Math.min(window.devicePixelRatio||1,1.5);
+  const slot=cv.parentElement,W=slot.clientWidth,H=slot.clientHeight;
+  cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';
+  const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);
+  if(v==='d2'){ /* 墨晕 */
+    if(t==='heavy'){
+      const cx=W*.5,cy=H/2;
+      const g=ctx.createRadialGradient(cx,cy,2,cx,cy,150);
+      g.addColorStop(0,'rgba(60,60,60,.08)');
+      g.addColorStop(.55,'rgba(110,110,110,.045)');
+      g.addColorStop(1,'rgba(160,160,160,0)');
+      ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(cx,cy,150,15,0,0,7);ctx.fill();
+      inkDots(ctx,[[cx+80,cy-2,1.5],[cx-88,cy+2,1.3],[cx+40,cy+6,1]],'pale');
+    }else if(t==='light'){
+      const cx=64,cy=H/2;
+      const g=ctx.createRadialGradient(cx,cy,2,cx,cy,80);
+      g.addColorStop(0,'rgba(70,70,70,.055)');
+      g.addColorStop(.6,'rgba(120,120,120,.03)');
+      g.addColorStop(1,'rgba(170,170,170,0)');
+      ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(cx,cy,80,11,0,0,7);ctx.fill();
+      inkDots(ctx,[[cx+46,cy+1,1.2]],'pale');
+    }else{ /* foot：落款上方一小晕 */
+      const cx=W*.5,cy=H/2;
+      const g=ctx.createRadialGradient(cx,cy,1,cx,cy,56);
+      g.addColorStop(0,'rgba(80,80,80,.05)');
+      g.addColorStop(1,'rgba(150,150,150,0)');
+      ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(cx,cy,56,8,0,0,7);ctx.fill();
+    }
+    return;
+  }
+  if(v==='d3'){ /* 圈点 */
+    if(t==='heavy'){
+      roughCircle(ctx,20,H/2,7.5,'slate',.5);
+      ctx.fillStyle=inkA('slate',.5);
+      ctx.beginPath();ctx.arc(40,H/2+2.5,2.2,0,7);ctx.fill();
+      ctx.fillStyle='rgba(192,57,43,.72)';
+      ctx.beginPath();ctx.arc(54,H/2-2.5,2.6,0,7);ctx.fill();
+    }else if(t==='light'){
+      roughCircle(ctx,16,H/2,5.5,'graphite',.42);
+      ctx.fillStyle=inkA('graphite',.45);
+      ctx.beginPath();ctx.arc(33,H/2+2,1.7,0,7);ctx.fill();
+    }else{
+      roughCircle(ctx,16,H/2,4.5,'graphite',.36);
+      ctx.fillStyle='rgba(192,57,43,.6)';
+      ctx.beginPath();ctx.arc(30,H/2-1,1.8,0,7);ctx.fill();
+    }
+    return;
+  }
+}
+function drawAll(){document.querySelectorAll('canvas.div').forEach(drawDiv)}
+window.addEventListener('load',drawAll);
+window.addEventListener('resize',()=>{clearTimeout(window.__rz);window.__rz=setTimeout(drawAll,200)});
+if(document.readyState!=='loading')drawAll();
+</script>
+</body>
+</html>

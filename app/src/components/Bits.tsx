@@ -1,4 +1,5 @@
 import React from 'react'
+import { InkTitle } from '../ink/brush'
 
 /* 标签：小字号、宽字距、等宽数字 */
 export function Label({ children, className = '' }: { children: React.ReactNode; className?: string }) {
@@ -76,7 +77,7 @@ export function PageHead({
         <Label>{en}</Label>
       </div>
       <h1 className="font-serif-sc font-black leading-none tracking-tight text-[clamp(3rem,10vw,7.5rem)]">
-        {zh}
+        <InkTitle text={zh} />
       </h1>
       {intro && (
         <p className="mt-8 md:mt-10 max-w-2xl text-base md:text-lg leading-relaxed ink-2">{intro}</p>

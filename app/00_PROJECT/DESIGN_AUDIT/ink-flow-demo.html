@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>笔墨轨迹 Demo · 行气 / 书写 / 跨页适配</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Noto+Sans+SC:wght@400;500&family=IBM+Plex+Mono:wght@400;500&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+<style>
+:root { --paper: 250 250 249; --ink: 23 23 23; --line: 229 229 226; --cinnabar: 192 57 43; --water: 61 90 108; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: rgb(var(--paper)); color: rgb(var(--ink)); font-family: 'Noto Sans SC', -apple-system, 'PingFang SC', sans-serif;
+  -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+.serif { font-family: 'Noto Serif SC', 'Songti SC', serif; }
+.mono { font-family: 'IBM Plex Mono', 'Noto Sans SC', monospace; font-variant-numeric: tabular-nums; }
+.label-sm { font-family: 'IBM Plex Mono', 'Noto Sans SC', monospace; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: rgb(var(--ink) / .42); }
+.wrap { max-width: 1400px; margin: 0 auto; padding: 0 clamp(20px, 3vw, 40px); }
+
+.atm-bar { position: fixed; top: 14px; right: 14px; z-index: 99; display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; max-width: 82vw; }
+.atm-bar button { font-family: 'IBM Plex Mono', 'Noto Sans SC', monospace; font-size: 11px; letter-spacing: .08em; padding: 7px 13px;
+  background: rgb(var(--paper) / .92); backdrop-filter: blur(8px); border: 1px solid rgb(var(--line)); color: rgb(var(--ink) / .6); cursor: pointer; transition: .3s; }
+.atm-bar button:hover { color: rgb(var(--ink)); border-color: rgb(var(--ink) / .4); }
+.atm-bar button.on { background: rgb(var(--ink)); color: rgb(var(--paper)); border-color: rgb(var(--ink)); }
+.atm-note { position: fixed; bottom: 12px; left: 14px; z-index: 99; font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: .16em; color: rgb(var(--ink) / .38); }
+
+.nav { display: flex; align-items: baseline; justify-content: space-between; padding: 18px 0; border-bottom: 1px solid rgb(var(--line)); }
+.nav .brand { font-family: 'Noto Serif SC', serif; font-weight: 900; font-size: 19px; }
+.nav .brand small { font-family: 'IBM Plex Mono', monospace; font-weight: 400; font-size: 10px; letter-spacing: .22em; color: rgb(var(--ink) / .42); margin-left: 10px; }
+.nav .links { display: flex; gap: clamp(14px, 2.4vw, 30px); font-family: 'Noto Serif SC', serif; font-size: 14px; color: rgb(var(--ink) / .72); }
+
+.hero { min-height: 88vh; display: flex; flex-direction: column; padding-top: clamp(40px, 7vh, 90px); position: relative; }
+.hero h1 { font-family: 'Noto Serif SC', serif; font-weight: 900; letter-spacing: -0.01em; line-height: 1.12; font-size: clamp(2.6rem, 8vw, 7rem); position: relative; z-index: 2; }
+.hero .desc { margin-top: clamp(30px, 4vw, 48px); max-width: 34em; position: relative; z-index: 2; }
+.hero .desc p { font-size: clamp(14px, 1.2vw, 17px); line-height: 1.9; color: rgb(var(--ink) / .72); }
+.void { position: relative; flex: 1; min-height: 34vh; }
+#inkCanvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; mix-blend-mode: multiply; z-index: 1; }
+.hero .motto { text-align: center; font-family: 'Noto Serif SC', serif; font-weight: 700; font-size: clamp(17px, 1.6vw, 22px); letter-spacing: .06em; position: relative; z-index: 2; }
+.taiji { margin: 30px auto 0; width: 46px; height: 46px; border-radius: 50%; border: 1.5px solid rgb(var(--ink)); position: relative; opacity: .85; }
+.taiji::before { content: ''; position: absolute; left: 50%; top: 0; width: 50%; height: 50%; border-radius: 50%; background: rgb(var(--ink)); }
+.taiji::after { content: ''; position: absolute; left: 0; top: 50%; width: 50%; height: 50%; border-radius: 50%; background: rgb(var(--ink)); }
+.taiji i { position: absolute; left: 25%; top: 25%; width: 50%; height: 50%; border-radius: 50%; background: rgb(var(--paper)); z-index: 1; }
+
+/* 方案B · 书写舞台 */
+.write-stage { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; z-index: 1; pointer-events: none; }
+.write-word { font-family: 'Ma Shan Zheng', 'Noto Serif SC', serif; font-size: clamp(64px, 9vw, 130px); color: rgb(var(--ink) / .8);
+  clip-path: inset(-20% 105% -20% -5%); filter: url(#rough); position: relative; }
+.write-dot { position: absolute; width: 15px; height: 15px; border-radius: 50%; background: radial-gradient(circle, rgb(var(--ink) / .55), transparent 70%);
+  opacity: 0; transform: translate(-50%, -50%); }
+body[data-mode="b"] .write-stage { display: flex; }
+
+/* 方案C · 跨页适配 */
+.panels { display: none; padding: 70px 0 40px; }
+body[data-mode="c"] .panels { display: block; }
+body[data-mode="c"] #heroWrap { display: none; }
+.panel { margin-bottom: 34px; }
+.panel .cap { display: flex; align-items: baseline; gap: 14px; margin-bottom: 10px; }
+.panel .cap .rule { font-size: 12px; color: rgb(var(--ink) / .45); font-family: 'Noto Sans SC', sans-serif; letter-spacing: .05em; }
+.frame { position: relative; border: 1px solid rgb(var(--line)); background: rgb(var(--paper)); height: 300px; overflow: hidden; }
+.frame canvas { position: absolute; inset: 0; width: 100%; height: 100%; mix-blend-mode: multiply; pointer-events: none; }
+.frame .mock { position: relative; z-index: 2; padding: 22px 26px; height: 100%; overflow: hidden; }
+.mock .big { font-family: 'Noto Serif SC', serif; font-weight: 900; font-size: 30px; margin-bottom: 8px; }
+.mock .rowline { display: grid; grid-template-columns: 110px 1fr auto; gap: 16px; padding: 10px 0; border-bottom: 1px solid rgb(var(--line));
+  font-size: 12.5px; color: rgb(var(--ink) / .72); align-items: baseline; }
+.mock .rowline b { font-family: 'Noto Serif SC', serif; font-size: 14px; color: rgb(var(--ink)); font-weight: 700; }
+.mock .rowline .n { font-family: 'IBM Plex Mono', monospace; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; }
+}
+</style>
+</head>
+<body data-mode="a">
+<svg width="0" height="0" style="position:absolute">
+  <filter id="rough"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="n"/>
+  <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2"/></filter>
+</svg>
+
+<div class="atm-bar">
+  <button data-mode="a" class="on">方案 A · 行气（轨迹笔）</button>
+  <button data-mode="b">方案 B · 落墨成字</button>
+  <button data-mode="c">方案 C · 跨页适配示意</button>
+</div>
+
+<div class="wrap" id="heroWrap">
+  <div class="nav">
+    <div class="brand">trading·lab <small>BY HSN</small></div>
+    <div class="links"><span>当下</span><span>世界</span><span>命题</span><span>日志</span><span>无为</span><span>HSN</span></div>
+  </div>
+  <section class="hero">
+    <h1 class="serif">观察变化，<br><span style="white-space:nowrap">而非预测未来<span style="color:rgb(var(--cinnabar))">。</span></span></h1>
+    <div class="desc">
+      <p>HSN 的交易探索实验室，</p>
+      <p>一部分是对产业与世界的长期观察，</p>
+      <p>一部分是多年交易沉淀下来的系统、纪律与心法。</p>
+      <p>所有内容都是活着的档案，而非一次性结论。</p>
+    </div>
+    <div class="void">
+      <canvas id="inkCanvas"></canvas>
+      <div class="write-stage">
+        <span class="write-word" id="writeWord">观察</span>
+        <span class="write-dot" id="writeDot"></span>
+      </div>
+    </div>
+    <div class="motto serif">玄之又玄，众妙之门。</div>
+    <div class="taiji"><i></i></div>
+  </section>
+</div>
+
+<div class="wrap panels" id="panels">
+  <div class="panel">
+    <div class="cap"><span class="label-sm cinnabar">首页</span><span class="rule">大幅轨迹在虚空游走，不触碰宣言与正文（文字区 z-index 更高 + 轨迹避开左半区）</span></div>
+    <div class="frame"><canvas data-zone="void"></canvas>
+      <div class="mock"><div class="big serif">观察变化，而非预测未来。</div><p class="ink-2" style="font-size:13px;color:rgb(var(--ink)/.65)">所有内容都是活着的档案，而非一次性结论。</p></div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="cap"><span class="label-sm cinnabar">命题 / 日志 · 列表页</span><span class="rule">轨迹收进顶部一条带（高约 90px），行与行之间零穿越</span></div>
+    <div class="frame"><canvas data-zone="top"></canvas>
+      <div class="mock" style="padding-top:64px">
+        <div class="rowline"><span class="mono" style="font-size:11px;color:rgb(var(--ink)/.4)">命题一</span><b>国产算力：从"可用"到"必须用"</b><span class="n">72%</span></div>
+        <div class="rowline"><span class="mono" style="font-size:11px;color:rgb(var(--ink)/.4)">命题二</span><b>AI 应用层：模型平权之后，价值向场景与数据回流</b><span class="n">58%</span></div>
+        <div class="rowline"><span class="mono" style="font-size:11px;color:rgb(var(--ink)/.4)">命题三</span><b>存储周期：价格还在涨，股价已经不跟了</b><span class="n">68%</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="cap"><span class="label-sm cinnabar">单篇 / 地图 · 阅读页</span><span class="rule">轨迹只在左右页缘游走（宽度 ≤8%），内容区完全干净，保住情景意识</span></div>
+    <div class="frame"><canvas data-zone="edge"></canvas>
+      <div class="mock">
+        <div class="big serif" style="font-size:22px">算力的尽头是电力。</div>
+        <p style="font-size:12.5px;line-height:2;color:rgb(var(--ink)/.72);max-width:34em;margin-top:8px">当所有人盯着芯片，电力指标正成为智算中心选址的第一约束。选址逻辑从"靠近人才与资本"转向"靠近瓦特"——这是评价体系本身的迁移，而非一时的供给紧张。跟踪这一变量，比争论谁的芯片更快更接近收益的来源。</p>
+        <p style="font-size:12.5px;line-height:2;color:rgb(var(--ink)/.72);max-width:34em;margin-top:10px">电力约束不是新问题，但 AI 把它从成本项改写为准入项：谁有电，谁才有资格谈算力。观察的核心从"技术领先"转向"资源锁定"——变化本身，比结论更重要。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="atm-note">DEMO ONLY · 笔墨轨迹三方案 · 全部 mix-blend:multiply · reduced-motion 下静止</div>
+
+<script>
+/* ── 笔墨引擎：沿路径的毛笔拖尾 ──
+   速度→笔宽（慢则饱、快则枯），拖尾按时消隐，随机飞白 */
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function makePath(zone, W, H) {
+  // 返回 [{x,y}...] 密采样折线；不同 zone 约束轨迹活动范围
+  let pts = [];
+  const add = (x, y) => pts.push({ x, y });
+  if (zone === 'void') {
+    // logo 的 ∫ 形放大：从左下起笔，一道 S 甩到右上，藏锋收笔
+    const raw = [[.06,.72],[.2,.55],[.3,.7],[.45,.42],[.55,.62],[.7,.3],[.8,.45],[.93,.2]];
+    catmull(raw, add, W, H, 220);
+  } else if (zone === 'top') {
+    // 顶部浅带里小幅蛇行（严格收在首行之上）
+    for (let i = 0; i <= 200; i++) {
+      const s = i / 200;
+      add(W * (0.04 + 0.92 * s), H * (0.075 + 0.038 * Math.sin(s * Math.PI * 3)));
+    }
+  } else { // edge：左缘下、右缘上，沿页边走
+    for (let i = 0; i <= 100; i++) { const s = i / 100; add(W * (0.035 + 0.02 * Math.sin(s * 6)), H * (0.06 + 0.88 * s)); }
+    add(W * 0.5, H * 0.97);
+    for (let i = 0; i <= 100; i++) { const s = i / 100; add(W * (0.965 + 0.02 * Math.sin(s * 6)), H * (0.94 - 0.88 * s)); }
+  }
+  return pts;
+}
+function catmull(raw, add, W, H, n) {
+  const P = raw.map(p => ({ x: p[0] * W, y: p[1] * H }));
+  for (let i = 0; i < P.length - 1; i++) {
+    const p0 = P[Math.max(0, i - 1)], p1 = P[i], p2 = P[i + 1], p3 = P[Math.min(P.length - 1, i + 2)];
+    const seg = Math.max(6, Math.round(n / (P.length - 1)));
+    for (let j = 0; j < seg; j++) {
+      const t = j / seg, t2 = t * t, t3 = t2 * t;
+      add(
+        .5 * ((2*p1.x) + (-p0.x+p2.x)*t + (2*p0.x-5*p1.x+4*p2.x-p3.x)*t2 + (-p0.x+3*p1.x-3*p2.x+p3.x)*t3),
+        .5 * ((2*p1.y) + (-p0.y+p2.y)*t + (2*p0.y-5*p1.y+4*p2.y-p3.y)*t2 + (-p0.y+3*p1.y-3*p2.y+p3.y)*t3)
+      );
+    }
+  }
+  add(P[P.length-1].x, P[P.length-1].y);
+}
+
+class Brush {
+  constructor(canvas, zone) {
+    this.cv = canvas; this.ctx = canvas.getContext('2d'); this.zone = zone;
+    // 不同页面约束下的笔墨轻重：列表/阅读页更细更淡
+    this.wMul = zone === 'top' ? 0.4 : zone === 'edge' ? 0.55 : 1;
+    this.aMul = zone === 'void' ? 1 : 0.66;
+    this.running = false; this.pts = []; this.loop = 0; this.pauseUntil = 0;
+    this.resize(); addEventListener('resize', () => this.resize());
+  }
+  resize() {
+    const r = this.cv.parentElement.getBoundingClientRect();
+    this.W = r.width; this.H = r.height;
+    const dpr = Math.min(1.5, devicePixelRatio || 1);
+    this.cv.width = r.width * dpr; this.cv.height = r.height * dpr;
+    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    this.path = makePath(this.zone, this.W, this.H);
+  }
+  start() {
+    this.resize(); // 面板可能刚从 display:none 展开，须重新量尺寸
+    if (this.running || reduced) { this.drawStatic(); return; }
+    this.running = true; this.pts = []; this.lastIdx = 0; this.lastEased = 0;
+    this.t0 = performance.now(); this.pauseUntil = this.t0 + 900; this.tick();
+  }
+  stop() { this.running = false; cancelAnimationFrame(this.raf); this.ctx.clearRect(0, 0, this.W, this.H); }
+  drawStatic() { // reduced-motion：直接铺一道完成的笔迹
+    this.ctx.clearRect(0, 0, this.W, this.H);
+    this.plot(0, this.path.length - 1, .16, 1);
+  }
+  tick() {
+    if (!this.running) return;
+    const now = performance.now(), el = now - this.t0;
+    const total = this.path.length, DUR = 5600, TTL = 2600;
+    let s = 0;
+    if (now > this.pauseUntil) s = Math.min(1, (now - this.pauseUntil) / DUR);
+    // 行笔节奏：首尾藏锋（慢），中段畅快
+    const eased = s < .5 ? 2*s*s : 1 - Math.pow(-2*s + 2, 2) / 2;
+    const headIdx = Math.floor(eased * (total - 1));
+    const speed = s <= 0 || s >= 1 ? 0 : (eased - (this.lastEased || 0)) * total / 16.7;
+    this.lastEased = eased;
+    const w = Math.max(2, Math.min(26 * this.wMul, (24 - speed * 2.2) * this.wMul));
+    if (headIdx > (this.lastIdx || 0)) {
+      for (let i = this.lastIdx || 0; i <= headIdx; i++) {
+        this.pts.push({ x: this.path[i].x, y: this.path[i].y, w, t: now });
+      }
+      this.lastIdx = headIdx;
+    }
+    this.pts = this.pts.filter(p => now - p.t < TTL);
+    this.ctx.clearRect(0, 0, this.W, this.H);
+    this.plotSegment(now, TTL);
+    if (s >= 1 && now - this.pauseUntil - DUR > TTL + 600) {
+      this.loop++; this.pts = []; this.lastIdx = 0; this.lastEased = 0;
+      this.pauseUntil = now + 3200; // 留白喘息，再起一笔
+    }
+    this.raf = requestAnimationFrame(() => this.tick());
+  }
+  plotSegment(now, TTL) {
+    const c = this.ctx;
+    c.lineCap = 'round'; c.lineJoin = 'round';
+    for (let i = 1; i < this.pts.length; i++) {
+      const p = this.pts[i], q = this.pts[i - 1];
+      const fade = 1 - (now - p.t) / TTL;
+      // 飞白：快笔随机断墨
+      if (((i * 7919 + this.loop * 104729) % 97) < 9 && p.w < 14) continue;
+      c.strokeStyle = `rgba(23,23,23,${(.5 * fade * this.aMul).toFixed(3)})`;
+      c.lineWidth = Math.max(1.2, p.w * (.55 + .45 * fade));
+      c.beginPath(); c.moveTo(q.x, q.y); c.lineTo(p.x, p.y); c.stroke();
+    }
+  }
+  plot(from, to, alpha, wMul) {
+    const c = this.ctx; c.lineCap = 'round'; c.lineJoin = 'round';
+    for (let i = from + 1; i <= to; i++) {
+      if ((i % 89) < 8) continue;
+      const p = this.path[i], q = this.path[i - 1];
+      c.strokeStyle = `rgba(23,23,23,${alpha})`; c.lineWidth = 14 * wMul;
+      c.beginPath(); c.moveTo(q.x, q.y); c.lineTo(p.x, p.y); c.stroke();
+    }
+  }
+}
+
+/* ── 方案B：落墨成字 ── */
+const WORDS = ['观察', '变化', '守常', '知白守黑'];
+function playWrite() {
+  const word = document.getElementById('writeWord'), dot = document.getElementById('writeDot');
+  word.style.transition = 'clip-path 1.15s cubic-bezier(.35,.05,.25,1), opacity 1.5s ease';
+  dot.style.transition = 'left 1.15s cubic-bezier(.35,.05,.25,1), top .5s ease, opacity .4s ease';
+  let i = 0;
+  function once() {
+    word.textContent = WORDS[i % WORDS.length]; i++;
+    const stage = word.parentElement, sr = stage.getBoundingClientRect(), wr = word.getBoundingClientRect();
+    const y = wr.top - sr.top + wr.height * 0.62;
+    const x0 = wr.left - sr.left - 14, x1 = wr.left - sr.left + wr.width + 14;
+    // 起势：笔在字前
+    word.style.transition = 'none'; dot.style.transition = 'none';
+    word.style.clipPath = 'inset(-20% 104% -20% -4%)';
+    word.style.opacity = 1;
+    dot.style.left = x0 + 'px'; dot.style.top = y + 'px'; dot.style.opacity = 0;
+    void word.offsetWidth; // 强制 reflow，重启动画
+    const D = reduced ? 0 : 1;
+    setTimeout(() => {
+      word.style.transition = 'clip-path 1.15s cubic-bezier(.35,.05,.25,1), opacity 1.5s ease';
+      dot.style.transition = 'left 1.15s cubic-bezier(.35,.05,.25,1), opacity .4s ease';
+      word.style.clipPath = 'inset(-20% -4% -20% -4%)';   // 落墨书写
+      dot.style.left = x1 + 'px'; dot.style.opacity = 1;
+    }, 60 * D);
+    setTimeout(() => dot.style.opacity = .35, 1500 * D);            // 驻笔
+    setTimeout(() => { word.style.opacity = 0; dot.style.opacity = 0; }, 3400 * D); // 淡去
+    setTimeout(once, 5300 * D + 400);
+  }
+  once();
+}
+
+/* ── 模式切换 ── */
+const heroBrush = new Brush(document.getElementById('inkCanvas'), 'void');
+const panelBrushes = [...document.querySelectorAll('.frame canvas')].map(c => new Brush(c, c.dataset.zone));
+let writeStarted = false;
+function setMode(m) {
+  document.body.dataset.mode = m;
+  heroBrush.stop(); panelBrushes.forEach(b => b.stop());
+  if (m === 'a') heroBrush.start();
+  if (m === 'b' && !writeStarted) { writeStarted = true; playWrite(); }
+  if (m === 'c') panelBrushes.forEach(b => b.start());
+}
+document.querySelectorAll('.atm-bar button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.atm-bar button').forEach(x => x.classList.toggle('on', x === b));
+  setMode(b.dataset.mode);
+}));
+setMode('a');
+</script>
+</body>
+</html>

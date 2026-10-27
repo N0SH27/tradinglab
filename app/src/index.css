@@ -2,6 +2,16 @@
 /* 本地 @import 必须位于文件顶部（@tailwind 之前），否则构建时会被整条丢弃 */
 @import './ink/ink.css';
 
+/* 行气巨字用毛笔字体（2026-10-27 结合版定案）：仅含 观复记证无 五字的子集，
+   本地加载避免国内访问 Google Fonts 不稳。骨架为书法家马善正楷书。 */
+@font-face {
+  font-family: 'MaShanZheng';
+  src: url('/fonts/mashanzheng-subset.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -165,14 +175,14 @@
      命名注意：行级用 .ink-seep，勿用 .ink-row——那是 ink.css 里目录行的
      「底线墨迹推进」语言（Research/Journal/Essays 在用），两者不可混挂。 */
   .paper-card {
+    /* 2026-10-27 Human 裁决：卡级墨迹边框（InkFrame）上线后，悬停不再加矩形
+       边框（旧 border-color 加深会与墨迹框叠成「两个框」）。悬停只留上浮+晕影。 */
     transition:
       transform .22s var(--ease-touch),
-      border-color .22s var(--ease-touch),
       box-shadow .22s var(--ease-touch);
   }
   .paper-card:hover {
     transform: translateY(-2px);
-    border-color: rgb(var(--ink) / .5);
     box-shadow: 0 14px 28px -22px rgb(var(--ink) / .35);
   }
   @media (prefers-reduced-motion: reduce) {
@@ -217,6 +227,9 @@
   .rack-slot:disabled .qn, .rack-slot:disabled .cnt { color: rgb(var(--ink-3)); }
   .rack-slot:disabled:hover { transform: none; box-shadow: none; }
   .rack-slot:disabled .q { font-size: 18px; }
+  /* 空函寒梅：含苞一枝自右缘生出，淡墨不争 */
+  .rack-slot .slot-plum { position: absolute; right: -8px; bottom: -10px; width: 78px; height: auto;
+    opacity: .78; pointer-events: none; filter: saturate(.9); }
   .rack-slot-open, .rack-slot-open:hover { background: rgb(var(--ink)); color: rgb(var(--paper)); border-color: rgb(var(--ink)); transform: none; box-shadow: none; }
   .rack-slot-open .qn, .rack-slot-open .cnt { color: rgb(var(--paper) / .62); }
   .rack-slot-open .marks { color: rgb(var(--paper)); }
@@ -230,7 +243,7 @@
   @keyframes dos-fade { from { opacity: 0; } }
   .dos-panel { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
     width: min(1100px, 93vw); max-height: 86vh; background: rgb(var(--paper));
-    border: 1px solid rgb(var(--ink) / .3); box-shadow: 0 70px 130px -45px rgb(var(--ink) / .5);
+    border: 1px solid transparent; box-shadow: 0 70px 130px -45px rgb(var(--ink) / .5);
     display: flex; flex-direction: column; animation: dos-in .6s var(--ease-touch) both; }
   @keyframes dos-in { from { opacity: 0; transform: translate(-50%, -46.5%) scale(.96); } }
   .dos-head { display: flex; align-items: baseline; justify-content: space-between; gap: 20px; padding: 24px 30px 0; }

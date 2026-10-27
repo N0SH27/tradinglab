@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>首页首屏 · 全量 Demo · 静态排版 + 方案五 + 寒梅持仓</title>
+<style>
+  :root{
+    --paper:250 250 249; --ink:10 10 10; --ink-2:64 64 64; --ink-3:117 117 115;
+    --line:229 229 226; --cinnabar:192 57 43;
+    --serif:"Songti SC","STSong","Noto Serif CJK SC",serif;
+    --mono:"SF Mono","JetBrains Mono",ui-monospace,monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:rgb(var(--paper));color:rgb(var(--ink));font-family:var(--serif)}
+  /* ── 顶栏（复刻 Layout） ── */
+  header{position:sticky;top:0;z-index:40;background:rgba(250,250,249,.9);backdrop-filter:blur(6px);
+    border-bottom:1px solid rgb(var(--line))}
+  .h-in{max-width:1400px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
+  .wordmark{font-size:13px;letter-spacing:.14em;font-weight:700}
+  .wordmark i{font-style:normal;color:rgb(var(--ink-3));font-weight:400}
+  nav{display:flex;gap:26px;font-family:var(--mono);font-size:10.5px;letter-spacing:.22em;color:rgb(var(--ink-2))}
+  nav span{cursor:default}
+  nav .dim{color:rgb(var(--ink-3))}
+  /* ── 首屏 ── */
+  .hero{position:relative;max-width:1400px;margin:0 auto;padding:0 24px;
+    min-height:calc(100vh - 57px);display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+  .hero canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+  h1{font-weight:900;leading:1.08;line-height:1.08;letter-spacing:-0.01em;
+    font-size:clamp(2.8rem,8.5vw,7.5rem);position:relative;z-index:2}
+  h1 .cinnabar{color:rgb(var(--cinnabar));visibility:hidden}   /* 由墨泅凝出 */
+  .desc{margin-top:56px;max-width:36rem}
+  .desc p{font-size:17px;line-height:1.75;color:rgb(var(--ink-2))}
+  .gate{margin-top:56px;text-align:center;font-size:22px;font-weight:700;letter-spacing:.06em}
+  .logo-row{margin-top:40px;display:flex;justify-content:center;position:relative;z-index:2}
+  /* ── 寒梅 · 持仓表态 ── */
+  .plum{position:absolute;right:0;bottom:36px;z-index:3;cursor:pointer;
+    user-select:none;-webkit-user-select:none}
+  .plum img{display:block;height:150px;width:auto;
+    filter:drop-shadow(0 1px 1px rgba(10,10,10,.06))}
+  .rp{position:absolute;right:24px;top:24px;z-index:5;font-family:var(--mono);font-size:10px;
+    letter-spacing:.2em;padding:5px 12px;border:1px solid rgb(var(--line));border-radius:3px;
+    background:transparent;color:rgb(var(--ink-3));cursor:pointer}
+  .rp:hover{color:rgb(var(--cinnabar));border-color:rgb(var(--cinnabar))}
+  @media (max-width:900px){ .plum img{height:104px} nav{display:none} }
+  body.shot *,body.shot *::before,body.shot *::after{transition:none!important;animation:none!important}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="h-in">
+    <div class="wordmark">trading·lab <i>BY HSN</i></div>
+    <nav>
+      <span>NOW</span><span>WORLD ▾</span><span>THESIS ▾</span><span>JOURNAL ▾</span><span class="dim">WUWEI</span><span class="dim">HSN</span>
+    </nav>
+  </div>
+</header>
+
+<!-- 首屏全量：排版 = 现站（未动一字），方案五动画，寒梅持仓 -->
+<section class="hero" id="hero">
+  <canvas id="soakCv"></canvas>
+  <canvas id="trailCv"></canvas>
+  <button class="rp" id="rpBtn">重泅</button>
+
+  <h1 id="motto">观察变化，<br>而非预测未来<span class="cinnabar" id="dotAnchor">。</span></h1>
+
+  <div class="desc">
+    <p>HSN 的交易探索实验室，</p>
+    <p>一部分是对产业与世界的长期观察，</p>
+    <p>一部分是多年交易沉淀下来的系统、纪律与心法。</p>
+    <p>所有内容都是活着的档案，而非一次性结论。</p>
+  </div>
+
+  <p class="gate">玄之又玄，众妙之门。</p>
+
+  <div class="logo-row">
+    <!-- HSNSymbol 复刻：川 · 标点 -->
+    <svg width="72" height="72" viewBox="0 0 120 120" role="img" aria-label="HSN 符号">
+      <rect width="120" height="120" fill="rgb(var(--ink))"/>
+      <path d="M60 24 C 84 44 36 76 60 96" stroke="rgb(var(--paper))" stroke-width="10" fill="none" stroke-linecap="round"/>
+      <circle cx="60" cy="24" r="5" fill="rgb(var(--paper))"/>
+      <circle cx="60" cy="96" r="5" fill="rgb(var(--paper))"/>
+    </svg>
+  </div>
+
+  <!-- 寒梅：当前市场多空表态（点击切换演示） -->
+  <div class="plum" id="plum" title="点击切换状态（演示）">
+    <img id="plumImg" src="assets/plum-sparse.png" alt="寒梅 · 疏放">
+  </div>
+</section>
+
+<script>
+const SHOT=new URLSearchParams(location.search).has('shot');
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const hero=document.getElementById('hero');
+const CIN='192,57,43';
+
+/* ── 墨泅标点（方案三）：朱砂句号自己凝住 ── */
+const soakCv=document.getElementById('soakCv');
+function soak(prog){
+  const r=hero.getBoundingClientRect(), ar=document.getElementById('dotAnchor').getBoundingClientRect();
+  const cx=ar.left-r.left+ar.width/2, cy=ar.top-r.top+ar.height*.6;
+  const dpr=Math.min(1.5,devicePixelRatio||1);
+  if(soakCv.width!==Math.round(r.width*dpr)){soakCv.width=r.width*dpr;soakCv.height=r.height*dpr;}
+  const ctx=soakCv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,r.width,r.height);
+  const t1=Math.min(1,prog/.45), t2=Math.max(0,Math.min(1,(prog-.4)/.6));
+  const ease=x=>1-Math.pow(1-x,3);
+  if(prog<1){
+    ctx.beginPath();ctx.arc(cx,cy,3+16*ease(t1)*(1-t2*.5),0,7);
+    ctx.fillStyle=`rgba(64,64,64,${.3*(1-t2*.6)})`;ctx.fill();
+  }
+  const rad=Math.max(4.4,ar.height*.11)*ease(t2);
+  const g=ctx.createRadialGradient(cx-rad*.2,cy-rad*.25,rad*.1,cx,cy,rad);
+  g.addColorStop(0,`rgba(${CIN},${.92*ease(t2)})`);g.addColorStop(1,`rgba(${CIN},${.9*ease(t2)})`);
+  ctx.beginPath();ctx.arc(cx,cy,rad,0,7);ctx.fillStyle=g;ctx.fill();
+}
+function animate(fn,dur){
+  if(reduced){fn(1);return;}
+  const t0=performance.now();
+  (function loop(){
+    const p=Math.min(1,(performance.now()-t0)/dur);
+    const e=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;
+    fn(e);
+    if(p<1)requestAnimationFrame(loop);
+  })();
+}
+
+/* ── 润笔（方案四）：光标游走留淡痕 ── */
+const trailCv=document.getElementById('trailCv');
+const trail=[]; let lastT=0;
+function trailTick(){
+  const r=hero.getBoundingClientRect(), dpr=Math.min(1.5,devicePixelRatio||1);
+  if(trailCv.width!==Math.round(r.width*dpr)){trailCv.width=r.width*dpr;trailCv.height=r.height*dpr;}
+  const ctx=trailCv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,r.width,r.height);
+  const now=performance.now();
+  for(let i=trail.length-1;i>=0;i--){
+    const p=trail[i], age=(now-p.t)/2400;
+    if(age>=1){trail.splice(i,1);continue;}
+    ctx.beginPath();ctx.arc(p.x,p.y,p.r*(1+age*.6),0,7);
+    ctx.fillStyle=`rgba(64,64,64,${(1-age)*.09})`;ctx.fill();
+  }
+  requestAnimationFrame(trailTick);
+}
+hero.addEventListener('mousemove',e=>{
+  const now=performance.now(); if(now-lastT<30)return; lastT=now;
+  const r=hero.getBoundingClientRect();
+  trail.push({x:e.clientX-r.left,y:e.clientY-r.top,r:2.4+Math.random()*2.4,t:now});
+  if(trail.length>56)trail.shift();
+});
+hero.addEventListener('touchmove',e=>{
+  const now=performance.now(); if(now-lastT<30)return; lastT=now;
+  const r=hero.getBoundingClientRect(), t0=e.touches[0];
+  trail.push({x:t0.clientX-r.left,y:t0.clientY-r.top,r:2.4+Math.random()*2.4,t:now});
+  if(trail.length>56)trail.shift();
+},{passive:true});
+
+/* ── 寒梅三态 · 多空表态 ── */
+const STATES=[
+  {img:'assets/plum-bud.png'},
+  {img:'assets/plum-sparse.png'},
+  {img:'assets/plum-bloom.png'},
+];
+let stIdx=1;
+const plumImg=document.getElementById('plumImg');
+function setState(i){
+  stIdx=i;
+  plumImg.style.opacity=0;
+  setTimeout(()=>{plumImg.src=STATES[i].img;
+    plumImg.style.transition='opacity .5s';plumImg.style.opacity=1;},200);
+}
+document.getElementById('plum').addEventListener('click',()=>setState((stIdx+1)%3));
+
+/* ── 启动 ── */
+function boot(){
+  if(SHOT||reduced)soak(1); else setTimeout(()=>animate(soak,1150),350);
+  if(!reduced)requestAnimationFrame(trailTick);
+}
+document.getElementById('rpBtn').onclick=()=>animate(soak,1150);
+if(SHOT)document.body.classList.add('shot');
+(reduced||SHOT)?boot():addEventListener('load',boot);
+</script>
+</body>
+</html>

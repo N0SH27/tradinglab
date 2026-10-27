@@ -4,6 +4,7 @@ import {
   CYCLE_RESONANCE, THEME_LIFECYCLE, THEME_LEVELS, FACE_WEIGHTS,
 } from '../data/content'
 import { Label, PageHead, SectionHead, Taiji } from '../components/Bits'
+import { InkDivider } from '../ink/brush'
 
 /* 阶段卡：note 为多段「；」分隔的时序记录时，默认只展示最新一段（最新结论），
    点击卡片展开完整证据链；单段短结论原样展示。 */
@@ -83,6 +84,9 @@ export default function Cycle() {
 
       {/* ── 三层共振 ─────────────────────── */}
       <section className="pb-20 md:pb-28">
+        <div className="mb-8 md:mb-10 opacity-80">
+          <InkDivider variant="light" />
+        </div>
         <SectionHead no="Ⅱ" zh="三层共振" en="TRIPLE RESONANCE" note="必须 ≥2 层共振，禁止 3 层逆向" />
         <div className="grid md:grid-cols-3 gap-px bg-[rgb(var(--line))] border border-[rgb(var(--line))]">
           {CYCLE_RESONANCE.map((r, i) => (
@@ -97,6 +101,9 @@ export default function Cycle() {
 
       {/* ── 题材生命周期 ──────────────────── */}
       <section className="pb-20 md:pb-28">
+        <div className="mb-8 md:mb-10 opacity-80">
+          <InkDivider variant="light" />
+        </div>
         <SectionHead no="Ⅲ" zh="题材的生命" en="LIFECYCLE OF A THEME" note="在启动点抓住机会，在退潮期规避风险" />
         <div className="grid lg:grid-cols-12 gap-10">
           <div className="lg:col-span-7">
@@ -132,6 +139,9 @@ export default function Cycle() {
 
       {/* ── 四面权重 ─────────────────────── */}
       <section className="pb-8">
+        <div className="mb-8 md:mb-10 opacity-80">
+          <InkDivider variant="light" />
+        </div>
         <SectionHead no="Ⅳ" zh="四面权重" en="FOUR FACES, WEIGHTED" note="按市场状态分配四面的权重" />
         <div className="border border-[rgb(var(--line))] overflow-x-auto">
           <div className="min-w-[640px]">

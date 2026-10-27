@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>日志密度 Demo · 改前 / 改后</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Noto+Sans+SC:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root { --paper: 250 250 249; --ink: 23 23 23; --line: 229 229 226; --cinnabar: 192 57 43; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: rgb(var(--paper)); color: rgb(var(--ink)); font-family: 'Noto Sans SC', sans-serif; -webkit-font-smoothing: antialiased; }
+.mono { font-family: 'IBM Plex Mono', 'Noto Sans SC', monospace; font-variant-numeric: tabular-nums; }
+.label-sm { font-family: 'IBM Plex Mono', 'Noto Sans SC', monospace; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: rgb(var(--ink) / .42); }
+.bar { position: fixed; top: 14px; right: 14px; z-index: 9; display: flex; gap: 6px; }
+.bar button { font-family: 'IBM Plex Mono','Noto Sans SC',monospace; font-size: 11px; padding: 7px 13px; background: rgb(var(--paper)/.92); border: 1px solid rgb(var(--line)); color: rgb(var(--ink)/.6); cursor: pointer; }
+.bar button.on { background: rgb(var(--ink)); color: rgb(var(--paper)); border-color: rgb(var(--ink)); }
+.note { position: fixed; bottom: 12px; left: 14px; font-family: 'IBM Plex Mono',monospace; font-size: 9.5px; letter-spacing: .16em; color: rgb(var(--ink)/.38); }
+
+.split { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; }
+.pane { padding: clamp(24px, 3.5vw, 56px); }
+.pane.before { border-right: 1px solid rgb(var(--line)); }
+.pane .tag { display: inline-block; font-family: 'IBM Plex Mono',monospace; font-size: 10px; letter-spacing: .22em; padding: 4px 10px; border: 1px solid rgb(var(--line)); color: rgb(var(--ink)/.5); margin-bottom: 40px; }
+.pane.after .tag { border-color: rgb(var(--cinnabar)/.5); color: rgb(var(--cinnabar)); }
+
+.row { padding: 26px 4px; border-bottom: 1px solid rgb(var(--line)); display: grid; gap: 12px; }
+.row .meta { display: flex; gap: 18px; align-items: baseline; }
+.row .date { font-family: 'IBM Plex Mono',monospace; font-size: 12px; letter-spacing: .12em; color: rgb(var(--ink)/.42); }
+.row .num { font-family: 'IBM Plex Mono',monospace; font-size: clamp(20px, 1.9vw, 26px); }
+.row .num .up { color: rgb(var(--cinnabar)); font-size: 13px; margin-left: 6px; }
+.row .title { font-family: 'Noto Serif SC',serif; font-weight: 700; font-size: clamp(17px, 1.6vw, 22px); line-height: 1.4; }
+
+/* 改前：现状——长行铺满 */
+.before .row .why { font-size: 13.5px; line-height: 1.8; color: rgb(var(--ink)/.72); }
+/* 改后：案头笔记——行长收敛、行距松、灰一点、与数字分栏 */
+.after .row { grid-template-columns: minmax(0,1fr) auto; gap: 8px 28px; align-items: baseline; }
+.after .row .meta { grid-column: 1 / -1; }
+.after .row .why { grid-column: 1; max-width: 30em; font-size: 13.5px; line-height: 1.95; color: rgb(var(--ink)/.62); }
+.after .row .num { grid-column: 2; grid-row: 2; justify-self: end; }
+@media (max-width: 900px) {
+  body[data-view="split"] .split { grid-template-columns: 1fr; }
+  body[data-view="split"] .pane.before { border-right: 0; border-bottom: 1px solid rgb(var(--line)); }
+}
+body:not([data-view="split"]) .split { grid-template-columns: 1fr; }
+body:not([data-view="split"]) .pane.before { display: none; }
+body:not([data-view="split"]) .pane.after { border-right: 0; }
+</style>
+</head>
+<body data-view="split">
+<div class="bar">
+  <button data-v="split" class="on">左右对比</button>
+  <button data-v="after">只看改后</button>
+</div>
+<div class="split">
+  <div class="pane before">
+    <span class="tag">改前 · 现状</span>
+    <div class="row">
+      <div class="meta"><span class="date">2026.09.21</span></div>
+      <div class="title">机器人：硬件的"iPhone 时刻"尚未到来，但供应链已开始定价</div>
+      <span class="num">46 → 50<i class="up">+4</i></span>
+      <p class="why">9.04 下调的两个前提双反向移动：估值端情绪定价已挤出（宇树较峰值腰斩、监管收紧 IPO），产业端量产斜率兑现（周产 600+、T 链数千台级订单、京东五年 300 万台）。解禁与首份季报未验，不全额回调。</p>
+    </div>
+    <div class="row">
+      <div class="meta"><span class="date">2026.08.30</span></div>
+      <div class="title">存储周期：价格还在涨，股价已经不跟了</div>
+      <span class="num">65 → 68<i class="up">+3</i></span>
+      <p class="why">"上涨失效"从股价蔓延到产品配置：Rubin Ultra 的 HBM 从 12 层降配至 8 层、存储约占整机 BoM 70%、买方自 7 月起抵制涨价；英伟达以存储极端定价为由把下季度毛利率指引降至 71-72%。</p>
+    </div>
+  </div>
+  <div class="pane after">
+    <span class="tag">改后 · 案头笔记</span>
+    <div class="row">
+      <div class="meta"><span class="date">2026.09.21</span></div>
+      <div class="title">机器人：硬件的"iPhone 时刻"尚未到来，但供应链已开始定价</div>
+      <span class="num">46 → 50<i class="up">+4</i></span>
+      <p class="why">9.04 下调的两个前提双反向移动：估值端情绪定价已挤出（宇树较峰值腰斩、监管收紧 IPO），产业端量产斜率兑现（周产 600+、T 链数千台级订单、京东五年 300 万台）。解禁与首份季报未验，不全额回调。</p>
+    </div>
+    <div class="row">
+      <div class="meta"><span class="date">2026.08.30</span></div>
+      <div class="title">存储周期：价格还在涨，股价已经不跟了</div>
+      <span class="num">65 → 68<i class="up">+3</i></span>
+      <p class="why">"上涨失效"从股价蔓延到产品配置：Rubin Ultra 的 HBM 从 12 层降配至 8 层、存储约占整机 BoM 70%、买方自 7 月起抵制涨价；英伟达以存储极端定价为由把下季度毛利率指引降至 71-72%。</p>
+    </div>
+  </div>
+</div>
+<div class="note">DEMO ONLY · 改后：行长收敛 30em · 行距 1.95 · 数字右栏分置 · 正文灰度降到 .62</div>
+<script>
+document.querySelectorAll('.bar button').forEach(b => b.addEventListener('click', () => {
+  document.body.dataset.view = b.dataset.v;
+  document.querySelectorAll('.bar button').forEach(x => x.classList.toggle('on', x === b));
+}));
+</script>
+</body>
+</html>

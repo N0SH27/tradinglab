@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>氛围感 Demo · 纸墨的温度与呼吸</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+/* ── 基底 = 站点现状（冷纸 + 纯黑 + 发丝线） ── */
+:root {
+  --paper: 250 250 249;
+  --ink: 10 10 10;
+  --ink-2: 10 10 10;
+  --ink-3: 10 10 10;
+  --line: 229 229 226;
+  --cinnabar: 192 57 43;
+  --water: 61 90 108;
+  --ivory: 243 240 233;
+  --grain-op: 0;
+  --glow-op: 0;
+  --canvas-op: 0;
+  --warm-shadow: 120 80 30;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { --ink-2: rgb(var(--ink) / .72); --ink-3: rgb(var(--ink) / .42); }
+body {
+  background: rgb(var(--paper));
+  color: rgb(var(--ink));
+  font-family: 'Noto Sans SC', -apple-system, 'PingFang SC', sans-serif;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  transition: background .8s ease, color .8s ease;
+}
+.serif { font-family: 'Noto Serif SC', 'Songti SC', 'SimSun', serif; }
+.mono { font-family: 'IBM Plex Mono', 'Noto Sans SC', monospace; font-variant-numeric: tabular-nums; }
+.label-sm { font-family: 'IBM Plex Mono', 'Noto Sans SC', monospace; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: rgb(var(--ink) / .42); }
+.ink-2 { color: rgb(var(--ink) / .72); }
+.ink-3 { color: rgb(var(--ink) / .42); }
+.cinnabar { color: rgb(var(--cinnabar)); }
+.wrap { max-width: 1400px; margin: 0 auto; padding: 0 clamp(20px, 3vw, 40px); }
+.hairline-t { border-top: 1px solid rgb(var(--line)); }
+.hairline-b { border-bottom: 1px solid rgb(var(--line)); }
+
+/* ── 切换器 ── */
+.atm-bar { position: fixed; top: 14px; right: 14px; z-index: 99; display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; max-width: 72vw; }
+.atm-bar button { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: .08em; padding: 7px 12px;
+  background: rgb(var(--paper) / .88); backdrop-filter: blur(8px); border: 1px solid rgb(var(--line)); color: rgb(var(--ink) / .6);
+  cursor: pointer; transition: .3s; }
+.atm-bar button:hover { color: rgb(var(--ink)); border-color: rgb(var(--ink) / .4); }
+.atm-bar button.on { background: rgb(var(--ink)); color: rgb(var(--paper)); border-color: rgb(var(--ink)); }
+.atm-note { position: fixed; bottom: 12px; left: 14px; z-index: 99; font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: .16em; color: rgb(var(--ink) / .38); }
+
+/* ── 页面骨架（复刻首页真实文案与结构） ── */
+.nav { display: flex; align-items: baseline; justify-content: space-between; padding: 18px 0; border-bottom: 1px solid rgb(var(--line)); }
+.nav .brand { font-family: 'Noto Serif SC', serif; font-weight: 900; font-size: 19px; letter-spacing: .02em; }
+.nav .brand small { font-family: 'IBM Plex Mono', monospace; font-weight: 400; font-size: 10px; letter-spacing: .22em; color: rgb(var(--ink) / .42); margin-left: 10px; }
+.nav .links { display: flex; gap: clamp(14px, 2.4vw, 30px); font-family: 'Noto Serif SC', serif; font-size: 14px; color: rgb(var(--ink) / .72); }
+.nav .links .cur { color: rgb(var(--ink)); font-weight: 700; }
+.hero { min-height: 78vh; display: flex; flex-direction: column; justify-content: center; padding: 60px 0 30px; }
+.hero h1 { font-family: 'Noto Serif SC', serif; font-weight: 900; letter-spacing: -0.01em; line-height: 1.12; font-size: clamp(2.6rem, 8vw, 7rem); }
+.hero .desc { margin-top: clamp(36px, 5vw, 64px); max-width: 34em; }
+.hero .desc p { font-size: clamp(14px, 1.2vw, 17px); line-height: 1.9; color: rgb(var(--ink) / .72); }
+.hero .motto { margin-top: clamp(36px, 5vw, 60px); text-align: center; font-family: 'Noto Serif SC', serif; font-weight: 700; font-size: clamp(17px, 1.6vw, 22px); letter-spacing: .06em; }
+.taiji { margin: 34px auto 0; width: 68px; height: 68px; border-radius: 50%; border: 1.5px solid rgb(var(--ink)); position: relative; opacity: .9; }
+.taiji::before { content: ''; position: absolute; left: 50%; top: 0; width: 50%; height: 50%; border-radius: 50%; background: rgb(var(--ink)); }
+.taiji::after { content: ''; position: absolute; left: 0; top: 50%; width: 50%; height: 50%; border-radius: 50%; background: rgb(var(--ink)); }
+.taiji i { position: absolute; left: 25%; top: 25%; width: 50%; height: 50%; border-radius: 50%; background: rgb(var(--paper)); z-index: 1; }
+
+.sec { padding: clamp(64px, 9vw, 120px) 0; position: relative; }
+.sec-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: clamp(28px, 4vw, 44px); }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.card { border: 1px solid rgb(var(--line)); padding: clamp(22px, 2.6vw, 34px); min-height: 250px; display: flex; flex-direction: column;
+  background: rgb(var(--paper)); transition: transform .22s cubic-bezier(.2,.7,.2,1), box-shadow .22s cubic-bezier(.2,.7,.2,1), border-color .22s; }
+.card:hover { transform: translateY(-2px); }
+.card .t { font-family: 'Noto Serif SC', serif; font-weight: 700; font-size: clamp(19px, 1.8vw, 24px); line-height: 1.35; margin: 18px 0 12px; letter-spacing: -0.01em; }
+.card .b { font-size: 14px; line-height: 1.85; color: rgb(var(--ink) / .72); }
+.card .cta { margin-top: auto; padding-top: 20px; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: .24em; color: rgb(var(--water)); }
+
+.chg-row { display: grid; grid-template-columns: 1.2fr .9fr 2fr; gap: 24px; align-items: baseline; padding: 28px 4px; }
+.chg-row .name { font-family: 'Noto Serif SC', serif; font-weight: 700; font-size: clamp(18px, 1.7vw, 23px); }
+.chg-row .num { font-family: 'IBM Plex Mono', monospace; font-size: clamp(22px, 2.2vw, 30px); }
+.chg-row .num .up { color: rgb(var(--cinnabar)); font-size: 14px; margin-left: 8px; }
+.chg-row .why { font-size: 13.5px; line-height: 1.8; color: rgb(var(--ink) / .72); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+.end { background: rgb(var(--ivory)); text-align: center; }
+.end .seal { width: 84px; height: 84px; margin: 0 auto 40px; background: rgb(var(--cinnabar)); color: #fdf8f0; display: none; align-items: center; justify-content: center;
+  font-family: 'Noto Serif SC', serif; font-weight: 900; font-size: 34px; border-radius: 6px; box-shadow: 0 10px 24px -12px rgb(var(--cinnabar) / .7); transform: rotate(-3deg); }
+.end .seal small { display: block; font-size: 9px; font-family: 'IBM Plex Mono', monospace; letter-spacing: .3em; margin-top: 6px; }
+.end p.big { font-family: 'Noto Serif SC', serif; font-weight: 700; font-size: clamp(26px, 4vw, 44px); line-height: 1.5; letter-spacing: .04em; }
+.end .sig { margin-top: 40px; font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: .34em; color: rgb(var(--ink) / .55); }
+
+/* 竖排栏标（D） */
+.vlabel { display: none; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); writing-mode: vertical-rl; font-family: 'Noto Serif SC', serif;
+  font-size: 13px; letter-spacing: .5em; color: rgb(var(--ink) / .34); }
+body[data-atm="d"] .sec, body[data-atm="all"] .sec { padding-left: 56px; }
+
+/* ═══ 方案 A · 宣纸的温度（材质层：暖纸 + 暖墨 + 颗粒 + 晕影） ═══ */
+body[data-atm="a"], body[data-atm="b"], body[data-atm="c"], body[data-atm="all"] {
+  --paper: 244 238 227;      /* 冷白 → 暖米纸 */
+  --ink: 38 32 26;           /* 纯黑 → 暖玄 */
+  --line: 219 209 192;       /* 发丝线变暖 */
+  --ivory: 236 228 212;
+  --grain-op: .5;
+  --warm-shadow: 110 74 28;
+}
+/* 颗粒：获奖站通用的「granular texture」，宣纸纤维触感 */
+body::before { content: ''; position: fixed; inset: -50%; z-index: 60; pointer-events: none; opacity: var(--grain-op);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.34'/%3E%3C/svg%3E");
+  mix-blend-mode: multiply; transition: opacity .8s ease; }
+/* 晕影：纸面四周微微沉下去 */
+body::after { content: ''; position: fixed; inset: 0; z-index: 59; pointer-events: none; opacity: var(--grain-op);
+  background: radial-gradient(120% 90% at 50% 38%, transparent 58%, rgb(58 42 24 / .12) 100%); transition: opacity .8s ease; }
+
+/* ═══ 方案 B · 水墨生息（动效层：气息 + 墨在水中缓动） ═══ */
+body[data-atm="b"], body[data-atm="all"] { --canvas-op: 1; }
+#inkCanvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: var(--canvas-op); mix-blend-mode: multiply; transition: opacity 1.2s ease; }
+body[data-atm="b"] .hero h1, body[data-atm="all"] .hero h1 { animation: breathe 9s ease-in-out infinite; }
+@keyframes breathe { 0%,100% { letter-spacing: -0.01em; } 50% { letter-spacing: .012em; } }
+body[data-atm="b"] .taiji, body[data-atm="all"] .taiji { animation: taiji-breathe 12s ease-in-out infinite; }
+@keyframes taiji-breathe { 0%,100% { transform: scale(1); opacity: .88; } 50% { transform: scale(1.045); opacity: 1; } }
+.nav, .hero, .sec, .end { position: relative; z-index: 1; }
+
+/* ═══ 方案 C · 烛照书香（光影层：光源 + 深度 + 节奏） ═══ */
+body[data-atm="c"], body[data-atm="all"] { --glow-op: 1; }
+.glow { position: fixed; inset: 0; z-index: 58; pointer-events: none; opacity: var(--glow-op); transition: opacity 1s ease;
+  background:
+    radial-gradient(46% 34% at 12% 6%, rgb(255 186 110 / .20), transparent 70%),
+    radial-gradient(30% 26% at 88% 90%, rgb(255 170 96 / .10), transparent 70%); }
+body[data-atm="c"] .sec:nth-of-type(odd), body[data-atm="all"] .sec:nth-of-type(odd) { background: rgb(var(--ivory) / .55); }
+body[data-atm="c"] .card, body[data-atm="all"] .card { box-shadow: 0 16px 34px -26px rgb(var(--warm-shadow) / .5); border-color: rgb(var(--line)); }
+body[data-atm="c"] .card:hover, body[data-atm="all"] .card:hover { box-shadow: 0 26px 48px -26px rgb(var(--warm-shadow) / .55); border-color: rgb(var(--ink) / .35); }
+body[data-atm="c"] .hairline-t, body[data-atm="all"] .hairline-t,
+body[data-atm="c"] .hairline-b, body[data-atm="all"] .hairline-b { border-color: rgb(var(--line)); }
+
+/* ═══ 方案 D · 排版入境（字体层：竖排栏标 + 印章 + 字号戏剧） ═══ */
+body[data-atm="d"] .vlabel, body[data-atm="all"] .vlabel { display: block; }
+body[data-atm="d"] .end .seal, body[data-atm="all"] .end .seal { display: flex; }
+body[data-atm="d"] .hero h1, body[data-atm="all"] .hero h1 { font-size: clamp(3rem, 9.6vw, 8.4rem); }
+body[data-atm="d"] .card .t, body[data-atm="all"] .card .t { font-size: clamp(22px, 2.2vw, 30px); }
+body[data-atm="d"] .chg-row .name, body[data-atm="all"] .chg-row .name { font-size: clamp(20px, 2vw, 27px); }
+body[data-atm="d"] .sec-head .label-sm, body[data-atm="all"] .sec-head .label-sm { color: rgb(var(--cinnabar)); }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero h1, .taiji { animation: none !important; }
+  #inkCanvas { display: none; }
+}
+</style>
+</head>
+<body data-atm="base">
+
+<div class="atm-bar" id="atmBar">
+  <button data-a="base" class="on">现状</button>
+  <button data-a="a">A · 宣纸温度</button>
+  <button data-a="b">B · 水墨生息</button>
+  <button data-a="c">C · 烛照书香</button>
+  <button data-a="d">D · 排版入境</button>
+  <button data-a="all">A+B+D 组合</button>
+</div>
+<span class="atm-note">DEMO ONLY · 复刻首页真实文案与结构 · 用右上切换对比</span>
+<canvas id="inkCanvas"></canvas>
+<div class="glow"></div>
+
+<div class="wrap">
+  <div class="nav">
+    <span class="brand">trading·lab<small>BY HSN</small></span>
+    <span class="links"><span class="cur">当下</span><span>世界</span><span>命题</span><span>日志</span><span>无为</span><span>HSN</span></span>
+  </div>
+
+  <section class="hero">
+    <h1>观察变化，<br>而非预测未来<span class="cinnabar">。</span></h1>
+    <div class="desc">
+      <p>HSN 的交易探索实验室，</p>
+      <p>一部分是对产业与世界的长期观察，</p>
+      <p>一部分是多年交易沉淀下来的系统、纪律与心法。</p>
+      <p>所有内容都是活着的档案，而非一次性结论。</p>
+    </div>
+    <p class="motto">玄之又玄，众妙之门。</p>
+    <div class="taiji"><i></i></div>
+  </section>
+
+  <section class="sec hairline-t">
+    <span class="vlabel">研 究 在 途</span>
+    <div class="sec-head"><span class="label-sm">RESEARCH · 当前值得探索</span><span class="label-sm">06 REPORTS</span></div>
+    <div class="cards">
+      <div class="card">
+        <span class="label-sm">存储 · REPORT 2026.08</span>
+        <div class="t">存储价格还在涨。</div>
+        <div class="b">DDR4 每月涨约两成，Q4 合约价再涨五成——但股价已经不跟了。</div>
+        <span class="cta">EXPLORE →</span>
+      </div>
+      <div class="card">
+        <span class="label-sm">算力租赁 · REPORT 2026.09</span>
+        <div class="t">GPU 租金半年涨了五成。</div>
+        <div class="b">13.1 个月回本——利率上升，为什么还没有杀死 AI 基建。</div>
+        <span class="cta">EXPLORE →</span>
+      </div>
+      <div class="card">
+        <span class="label-sm">电力 · REPORT 2026.08</span>
+        <div class="t">算力的尽头是电力。</div>
+        <div class="b">当所有人盯着芯片，电力指标正成为智算中心选址的第一约束。</div>
+        <span class="cta">EXPLORE →</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec hairline-t">
+    <span class="vlabel">修 正 轨 迹</span>
+    <div class="sec-head"><span class="label-sm">WHAT CHANGED</span><span class="label-sm">LEDGER 派生 · 最新 5 条</span></div>
+    <div class="chg-row hairline-b" style="border-top: 1px solid rgb(var(--line));">
+      <span class="name">新能源</span>
+      <span class="num">57 → 63<span class="up">+6</span></span>
+      <span class="why">龙头经营性现金流连续两季为正，出清证据链闭合。否极泰来的早期形态。</span>
+    </div>
+    <div class="chg-row hairline-b">
+      <span class="name">机器人</span>
+      <span class="num">46 → 50<span class="up">+4</span></span>
+      <span class="why">情绪定价已挤出、量产斜率兑现，两个前提反向移动，回调概率上调。</span>
+    </div>
+  </section>
+
+  <section class="sec end">
+    <div class="seal"><span>观<br><small>HSN</small></span></div>
+    <p class="big">反者道之动，<br>弱者道之用<span class="cinnabar">。</span></p>
+    <p class="sig">HSN · TRADINGLABB</p>
+  </section>
+</div>
+
+<script>
+/* 变体切换 */
+document.getElementById('atmBar').addEventListener('click', e => {
+  const b = e.target.closest('button[data-a]');
+  if (!b) return;
+  document.querySelectorAll('#atmBar button').forEach(x => x.classList.toggle('on', x === b));
+  document.body.dataset.atm = b.dataset.a;
+  syncInk();
+});
+
+/* 方案 B：水墨气息——低分辨率画布放大 = 免费柔焦，三团墨色正弦缓行 */
+const cv = document.getElementById('inkCanvas');
+const ctx = cv.getContext('2d');
+let raf = null, t0 = performance.now();
+function sizeCanvas() {
+  cv.width = Math.ceil(innerWidth / 5);
+  cv.height = Math.ceil(innerHeight / 5);
+}
+sizeCanvas();
+addEventListener('resize', sizeCanvas);
+const BLOBS = [
+  { hue: [52, 44, 36], a: .17, r: .52, sx: .000021, sy: .000017, px: 0, py: 2.1, ax: .30, ay: .22 },
+  { hue: [61, 90, 108], a: .12, r: .46, sx: .000016, sy: .000023, px: 2.4, py: 4.0, ax: .26, ay: .28 },
+  { hue: [192, 57, 43], a: .08, r: .36, sx: .000019, sy: .000014, px: 4.4, py: 1.2, ax: .22, ay: .18 },
+];
+function drawInk(now) {
+  const t = now - t0, w = cv.width, h = cv.height;
+  ctx.clearRect(0, 0, w, h);
+  for (const b of BLOBS) {
+    const x = w * (.5 + b.ax * Math.sin(t * b.sx + b.px));
+    const y = h * (.42 + b.ay * Math.sin(t * b.sy + b.py));
+    const r = Math.max(w, h) * b.r;
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, `rgba(${b.hue.join(',')},${b.a})`);
+    g.addColorStop(1, `rgba(${b.hue.join(',')},0)`);
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
+  }
+  raf = requestAnimationFrame(drawInk);
+}
+function syncInk() {
+  const on = document.body.dataset.atm === 'b' || document.body.dataset.atm === 'all';
+  if (on && !raf) { t0 = performance.now(); raf = requestAnimationFrame(drawInk); }
+  if (!on && raf) { cancelAnimationFrame(raf); raf = null; }
+}
+syncInk();
+</script>
+</body>
+</html>

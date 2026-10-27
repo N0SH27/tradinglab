@@ -10,6 +10,7 @@ import {
 import type { Revision } from '../data/domains/ledger'
 import { Label, PolarityTag } from '../components/Bits'
 import { BackNav } from '../ink/BackNav'
+import { InkDivider, Anno } from '../ink/brush'
 
 /* 单命题页（V2-06-04 Revision Engine / Belief Ledger Presentation）。
    信息优先级（契约）：CURRENT BELIEF → THESIS → WHY → WHAT WOULD CHANGE MY MIND
@@ -138,9 +139,13 @@ export default function ThesisDetail({ id }: { id: string }) {
           <Label className="water">{thesis.industry}</Label>
           <Label>更新 {thesis.updated}</Label>
         </div>
-        <h1 className="font-serif-sc font-black text-3xl md:text-5xl leading-tight tracking-tight mb-10">
+        <h1 className="font-serif-sc font-black text-3xl md:text-5xl leading-tight tracking-tight mb-8">
           {thesis.title}
         </h1>
+        {/* 题眼浓划：全页只此一笔重的（裁决：论点页全站笔墨最素） */}
+        <div className="max-w-md mb-10 opacity-90">
+          <InkDivider variant="heavy" />
+        </div>
 
         {/* 当前信念仪表条：conviction / polarity / horizon / last revised */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-[rgb(var(--line))] border border-[rgb(var(--line))]">
@@ -171,8 +176,10 @@ export default function ThesisDetail({ id }: { id: string }) {
           {thesis.conflict.although}，
         </p>
         <p className="font-serif-sc font-bold text-lg md:text-xl leading-[1.9] text-[rgb(var(--ink))]">
-          <span>但是</span>
-          {thesis.conflict.but}。
+          {/* 朱笔圈点：全篇题眼在此一句，入视口朱圈一次即驻留 */}
+          <Anno note="题眼在此">
+            <span className="inline-block">但是{thesis.conflict.but}。</span>
+          </Anno>
         </p>
       </section>
 

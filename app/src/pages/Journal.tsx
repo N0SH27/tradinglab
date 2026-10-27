@@ -3,6 +3,18 @@ import { JOURNAL, LEDGER, THESES } from '../data/content'
 import type { JournalEntry, JournalItem } from '../data/domains/journal'
 import { deltaOf, latestChanges } from '../data/ledger'
 import { PageHead, Label } from '../components/Bits'
+import { Seal, InkFrame, InkDivider } from '../ink/brush'
+
+/* 干支纪日（落款用；锚点 2024-02-10 = 甲辰日校准，JDN+49 取六十甲子序） */
+function ganzhiToday(d: Date): string {
+  const G = '甲乙丙丁戊己庚辛壬癸',
+    Z = '子丑寅卯辰巳午未申酉戌亥'
+  const y = d.getFullYear()
+  const yr = `${G[(y - 4) % 10]}${Z[(y - 4) % 12]}`
+  const jdn = Math.floor(d.getTime() / 86400000 + 2440588)
+  const di = (jdn + 49) % 60
+  return `${yr}年 ${G[di % 10]}${Z[di % 12]}日`
+}
 
 const TYPE_META: Record<string, { mark: string; label: string; red?: boolean }> = {
   up: { mark: '↑', label: '上调概率' },
@@ -149,6 +161,8 @@ function NarrativeRack() {
                     <span className="q">Q{q}</span>
                     <span className="qn">{QN[q - 1]}</span>
                     <span className="cnt">虚位以待</span>
+                    {/* 寒梅含苞：空函不空，留一点生发的余地 */}
+                    <img className="slot-plum" src="ink/plum-bud-sm.png" alt="" aria-hidden="true" />
                   </button>
                 )
               }
@@ -185,6 +199,8 @@ function NarrativeRack() {
         <div className="dos" role="dialog" aria-modal="true">
           <div className="dos-scrim" onClick={() => setOpen(null)} />
           <div className="dos-panel">
+            {/* 墨迹边框：4号淡墨飞白残边，展卷时勾框一次即驻留 */}
+            <InkFrame seed={Number(open.year) * 4 + open.q} />
             <div className="dos-head">
               <span className="t">
                 {open.year} · Q{open.q} 卷宗
@@ -192,9 +208,13 @@ function NarrativeRack() {
                   {QN[open.q - 1]} · {openWeeks.length} WEEKS
                 </span>
               </span>
-              <button className="dos-close" onClick={() => setOpen(null)}>
-                收起卷宗 ✕
-              </button>
+              <span className="flex items-center gap-3">
+                {/* 季检朱印：检讫于此 */}
+                <Seal text="检" size={26} title="季检之印" />
+                <button className="dos-close" onClick={() => setOpen(null)}>
+                  收起卷宗 ✕
+                </button>
+              </span>
             </div>
             <div className="dos-scroll" ref={scrollRef}>
               <div
@@ -306,16 +326,29 @@ export default function Journal() {
 
       {/* ── 02 叙事流 · 季度档案架 ── */}
       <section className="py-4 md:py-8">
+        <div className="mb-6 md:mb-8 opacity-80">
+          <InkDivider variant="light" />
+        </div>
         <div className="flex items-baseline justify-between mb-4 md:mb-6">
           <Label>NARRATIVE · 研究叙事</Label>
         </div>
         <NarrativeRack />
       </section>
 
-      <div className="py-16 md:py-24 text-center">
+      <div className="py-16 md:py-24 flex flex-col items-center text-center">
         <p className="font-serif-sc text-xl md:text-2xl font-bold tracking-wide">
           错误的修正记录，比正确的预测更值得展示。
         </p>
+        {/* 落款：淡墨短笔 + 干支日期 + 观复小印（作者自题跋） */}
+        <div className="mt-10 w-36 opacity-90">
+          <InkDivider variant="light" />
+        </div>
+        <div className="mt-4 flex items-center gap-3">
+          <span className="font-serif-sc text-sm tracking-[0.28em] ink-3">
+            {ganzhiToday(new Date())} · 观复自题
+          </span>
+          <Seal text="观复" size={28} title="观复" />
+        </div>
       </div>
     </div>
   )

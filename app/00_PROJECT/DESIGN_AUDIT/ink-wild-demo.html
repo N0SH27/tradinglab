@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>狂草行气 Demo · 龙首笔锋 × 毛刺墨点 × 仙鹤</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Noto+Sans+SC:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root { --paper: 250 250 249; --ink: 23 23 23; --line: 229 229 226; --cinnabar: 192 57 43; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: rgb(var(--paper)); color: rgb(var(--ink)); font-family: 'Noto Sans SC', -apple-system, 'PingFang SC', sans-serif;
+  -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+.wrap { max-width: 1400px; margin: 0 auto; padding: 0 clamp(20px, 3vw, 40px); }
+.atm-bar { position: fixed; top: 14px; right: 14px; z-index: 99; display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; max-width: 84vw; }
+.atm-bar button { font-family: 'IBM Plex Mono', 'Noto Sans SC', monospace; font-size: 11px; letter-spacing: .08em; padding: 7px 13px;
+  background: rgb(var(--paper) / .92); backdrop-filter: blur(8px); border: 1px solid rgb(var(--line)); color: rgb(var(--ink) / .6); cursor: pointer; transition: .3s; }
+.atm-bar button:hover { color: rgb(var(--ink)); border-color: rgb(var(--ink) / .4); }
+.atm-bar button.on { background: rgb(var(--ink)); color: rgb(var(--paper)); border-color: rgb(var(--ink)); }
+.atm-note { position: fixed; bottom: 12px; left: 14px; z-index: 99; font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: .16em; color: rgb(var(--ink) / .38); }
+.stage { transition: max-width .5s cubic-bezier(.2,.7,.2,1); margin: 0 auto; }
+.stage.mobile { max-width: 402px; box-shadow: 0 0 0 1px rgb(var(--line)), 0 24px 60px -30px rgb(var(--ink) / .25); }
+.stage.mobile .only-wide { display: none; }
+
+.nav { display: flex; align-items: baseline; justify-content: space-between; padding: 18px 0; border-bottom: 1px solid rgb(var(--line)); }
+.nav .brand { font-family: 'Noto Serif SC', serif; font-weight: 900; font-size: 19px; }
+.nav .brand small { font-family: 'IBM Plex Mono', monospace; font-weight: 400; font-size: 10px; letter-spacing: .22em; color: rgb(var(--ink) / .42); margin-left: 10px; }
+.nav .links { display: flex; gap: clamp(14px, 2.4vw, 30px); font-family: 'Noto Serif SC', serif; font-size: 14px; color: rgb(var(--ink) / .72); }
+.hero { min-height: 88vh; display: flex; flex-direction: column; padding-top: clamp(40px, 7vh, 90px); position: relative; }
+.hero h1 { font-family: 'Noto Serif SC', serif; font-weight: 900; letter-spacing: -0.01em; line-height: 1.12; font-size: clamp(2.6rem, 8vw, 7rem); position: relative; z-index: 2; }
+.hero .desc { margin-top: clamp(30px, 4vw, 48px); max-width: 34em; position: relative; z-index: 2; }
+.hero .desc p { font-size: clamp(14px, 1.2vw, 17px); line-height: 1.9; color: rgb(var(--ink) / .72); }
+.void { position: relative; flex: 1; min-height: 38vh; transition: min-height .5s ease; }
+.stage.vert .void { min-height: 64vh; }
+#inkCanvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; mix-blend-mode: multiply; z-index: 1; }
+.hero .motto { text-align: center; font-family: 'Noto Serif SC', serif; font-weight: 700; font-size: clamp(17px, 1.6vw, 22px); letter-spacing: .06em; position: relative; z-index: 2; }
+.taiji { margin: 30px auto 0; width: 46px; height: 46px; border-radius: 50%; border: 1.5px solid rgb(var(--ink)); position: relative; opacity: .85; }
+.taiji::before { content: ''; position: absolute; left: 50%; top: 0; width: 50%; height: 50%; border-radius: 50%; background: rgb(var(--ink)); }
+.taiji::after { content: ''; position: absolute; left: 0; top: 50%; width: 50%; height: 50%; border-radius: 50%; background: rgb(var(--ink)); }
+.taiji i { position: absolute; left: 25%; top: 25%; width: 50%; height: 50%; border-radius: 50%; background: rgb(var(--paper)); z-index: 1; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <div class="wrap">
+    <div class="nav">
+      <div class="brand">trading·lab <small>BY HSN</small></div>
+      <div class="links only-wide"><span>当下</span><span>世界</span><span>命题</span><span>日志</span><span>无为</span><span>HSN</span></div>
+    </div>
+    <section class="hero">
+      <h1>观察变化，<br><span style="white-space:nowrap">而非预测未来<span style="color:rgb(var(--cinnabar))">。</span></span></h1>
+      <div class="desc">
+        <p>HSN 的交易探索实验室，</p>
+        <p>一部分是对产业与世界的长期观察，</p>
+        <p>一部分是多年交易沉淀下来的系统、纪律与心法。</p>
+        <p>所有内容都是活着的档案，而非一次性结论。</p>
+      </div>
+      <div class="void"><canvas id="inkCanvas"></canvas></div>
+      <div class="motto">玄之又玄，众妙之门。</div>
+      <div class="taiji"><i></i></div>
+    </section>
+  </div>
+</div>
+
+<div class="atm-bar">
+  <button id="btnH" class="on">横向 · 行笔</button>
+  <button id="btnV">纵向 · 行笔</button>
+  <button id="btnDragon" class="on">龙首 开</button>
+  <button id="btnCrane" class="on">仙鹤 开</button>
+  <button id="btnM">手机视角</button>
+</div>
+<div class="atm-note">DEMO ONLY · 狂草行气：毛刺 / 飞白 / 墨点 / 龙首笔锋 / 仙鹤偶现 · multiply · reduced-motion 下静止</div>
+
+<script>
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const cv = document.getElementById('inkCanvas'), ctx = cv.getContext('2d');
+const stage = document.getElementById('stage');
+let W = 0, H = 0, path = [], segMeta = [], orientation = 'h';
+let dragonOn = true, craneOn = true;
+
+/* ── 路径：基础走势 + 噪声抖动，破掉规整感 ── */
+function hash(n) { const s = Math.sin(n * 127.1 + 311.7) * 43758.5453; return s - Math.floor(s); }
+function catmull(raw, n) {
+  const P = raw.map(p => ({ x: p[0] * W, y: p[1] * H }));
+  const out = [];
+  for (let i = 0; i < P.length - 1; i++) {
+    const p0 = P[Math.max(0, i - 1)], p1 = P[i], p2 = P[i + 1], p3 = P[Math.min(P.length - 1, i + 2)];
+    const seg = Math.max(6, Math.round(n / (P.length - 1)));
+    for (let j = 0; j < seg; j++) {
+      const t = j / seg, t2 = t * t, t3 = t2 * t;
+      out.push({
+        x: .5 * ((2*p1.x) + (-p0.x+p2.x)*t + (2*p0.x-5*p1.x+4*p2.x-p3.x)*t2 + (-p0.x+3*p1.x-3*p2.x+p3.x)*t3),
+        y: .5 * ((2*p1.y) + (-p0.y+p2.y)*t + (2*p0.y-5*p1.y+4*p2.y-p3.y)*t2 + (-p0.y+3*p1.y-3*p2.y+p3.y)*t3)
+      });
+    }
+  }
+  out.push({ x: P[P.length-1].x, y: P[P.length-1].y });
+  return out;
+}
+function buildPath() {
+  let raw;
+  if (orientation === 'h') {
+    // 横向：放大的 logo ∫ 走势，两折
+    raw = [[.05,.7],[.16,.44],[.28,.68],[.42,.3],[.55,.6],[.68,.2],[.8,.44],[.95,.12]];
+  } else {
+    // 纵向：一竖长柱，自上而下，一波三折
+    raw = [[.6,-.06],[.44,.14],[.66,.32],[.4,.52],[.64,.72],[.46,.9],[.58,1.08]];
+  }
+  const base = catmull(raw, 260);
+  // 抖动：低频摆动 + 偶发顿挫尖峰；并计算每段的切向/法向
+  path = []; segMeta = [];
+  for (let i = 0; i < base.length; i++) {
+    const s = i / (base.length - 1);
+    const pPrev = base[Math.max(0, i - 1)], pNext = base[Math.min(base.length - 1, i + 1)];
+    const tx = pNext.x - pPrev.x, ty = pNext.y - pPrev.y;
+    const len = Math.hypot(tx, ty) || 1;
+    const nx = -ty / len, ny = tx / len;
+    // 低频抖 + 高频颤 + 尖峰顿挫
+    const flick = Math.exp(-Math.pow((s - 0.33) / 0.075, 2)) + Math.exp(-Math.pow((s - 0.71) / 0.065, 2));
+    const amp = (14 * Math.sin(s * 17.3 + 1.7) + 6 * Math.sin(s * 41.9) + 12 * flick * (hash(i) - 0.35));
+    path.push({ x: base[i].x + nx * amp, y: base[i].y + ny * amp, tx: tx / len, ty: ty / len, nx, ny, s });
+  }
+  // 曲率：急转处提笔（笔宽随转角收窄，防墨带自交，亦合笔法）
+  for (let i = 1; i < path.length - 1; i++) {
+    const a1 = Math.atan2(path[i].y - path[i - 1].y, path[i].x - path[i - 1].x);
+    const a2 = Math.atan2(path[i + 1].y - path[i].y, path[i + 1].x - path[i].x);
+    let d = Math.abs(a2 - a1); if (d > Math.PI) d = 2 * Math.PI - d;
+    path[i].kappa = d;
+  }
+  path[0].kappa = 0; path[path.length - 1].kappa = 0;
+}
+function resize() {
+  const r = cv.parentElement.getBoundingClientRect();
+  W = r.width; H = r.height;
+  const dpr = Math.min(1.5, devicePixelRatio || 1);
+  cv.width = W * dpr; cv.height = H * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  buildPath();
+}
+
+/* ── 提按节奏：入纸→饱→按提交替→甩锋 ── */
+function widthAt(s, i, loop) {
+  let env;
+  if (s < .06) env = .4 + s / .06 * .6;                 // 入纸渐按
+  else if (s > .9) env = Math.max(.16, 1 - (s - .9) / .08); // 收笔出锋（细而枯）
+  else env = 1;
+  const press = 1 - .5 * Math.pow(Math.max(0, Math.sin(s * Math.PI * 3.2 + .6)), 2); // 行笔提按
+  const jitter = .84 + .3 * hash(i * 3.7 + loop * 91.3);
+  const turn = 1 / (1 + (path[i].kappa || 0) * 4); // 转角提笔
+  return Math.max(1.4, 25 * env * press * jitter * turn);
+}
+
+/* ── 粒子：毛刺 / 墨点 / 渗化 ── */
+let hairs = [], dots = [], stains = [];
+function spawnFx(i, w, speed, now) {
+  const p = path[i], s = p.s;
+  // 毛刺：行笔越快越炸毫； predominantly 出锋段与外侧
+  const hairRate = s > .85 ? .3 : speed > 1.6 ? .16 : .05;
+  if (hash(i * 13.13 + loop * 7.7) < hairRate) {
+    const n = 1 + Math.floor(hash(i * 3.1) * 3);
+    for (let k = 0; k < n; k++) {
+      const side = hash(i * 5.5 + k) < .5 ? -1 : 1;
+      const ang = Math.atan2(p.ty, p.tx) + side * (.55 + hash(i + k * 77) * .9);
+      hairs.push({ x: p.x + p.nx * side * w * .3, y: p.y + p.ny * side * w * .3,
+        ang, len: 7 + hash(i * 1.7 + k * 3) * 34 * (speed > 1.6 ? 1.5 : 1), t: now, ttl: 2400 + hash(i + k) * 1800 });
+    }
+  }
+  // 墨点：按笔处溅落 + 甩锋处散落
+  const pressDrop = Math.abs(Math.sin(s * Math.PI * 3.2 + .6)) < .18 && hash(i * 9.7 + loop) < .1;
+  const flickDrop = s > .88 && hash(i * 7.3 + loop * 3) < .22;
+  if (pressDrop || flickDrop) {
+    const n = 2 + Math.floor(hash(i * 11.9) * 4);
+    for (let k = 0; k < n; k++) {
+      const a = hash(i * 17.7 + k * 31) * Math.PI * 2, d = w * (.6 + hash(i + k * 7) * 2.6);
+      dots.push({ x: p.x + Math.cos(a) * d, y: p.y + Math.sin(a) * d, r: .7 + hash(i * 2.3 + k) * 2.8, t: now, ttl: 2600 + hash(i + k * 3) * 2200 });
+    }
+    if (hash(i * 23.3 + loop) < .3) stains.push({ x: p.x, y: p.y, r: w * (1.2 + hash(i) * 1.6), t: now, ttl: 4200 });
+  }
+}
+
+/* ── 龙首笔锋：行笔前段是龙在写字 ── */
+function drawDragonHead(x, y, a, sc, alpha) {
+  if (alpha <= 0) return;
+  ctx.save(); ctx.translate(x, y); ctx.rotate(a); ctx.scale(sc, sc);
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  const ink = v => `rgba(23,23,23,${(v * alpha).toFixed(3)})`;
+  ctx.strokeStyle = ink(.72); ctx.lineWidth = 4.4;
+  // 吻部与颚
+  ctx.beginPath(); ctx.moveTo(0, -2); ctx.quadraticCurveTo(12, -8, 26, -3); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, 3); ctx.quadraticCurveTo(12, 9, 25, 5); ctx.stroke();
+  // 角（分叉）
+  ctx.lineWidth = 3.2;
+  ctx.beginPath(); ctx.moveTo(-4, -6); ctx.quadraticCurveTo(-10, -18, -20, -24); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-10, -14); ctx.quadraticCurveTo(-12, -22, -8, -30); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-16, -20); ctx.quadraticCurveTo(-22, -24, -24, -32); ctx.stroke();
+  // 鬃（脑后三缕）
+  ctx.lineWidth = 2.7;
+  for (let k = 0; k < 3; k++) {
+    ctx.beginPath(); ctx.moveTo(-8 - k * 4, -2 + k * 4);
+    ctx.quadraticCurveTo(-18 - k * 6, 2 + k * 6, -24 - k * 9, 10 + k * 9); ctx.stroke();
+  }
+  // 须（长而回卷）
+  ctx.lineWidth = 1.8;
+  ctx.beginPath(); ctx.moveTo(24, 0); ctx.quadraticCurveTo(38, 6, 34, 22); ctx.quadraticCurveTo(32, 30, 40, 34); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(22, 4); ctx.quadraticCurveTo(32, 14, 28, 26); ctx.stroke();
+  // 眼
+  ctx.fillStyle = ink(.9);
+  ctx.beginPath(); ctx.arc(9, -4, 2.2, 0, 7); ctx.fill();
+  // 朱砂点睛
+  ctx.fillStyle = `rgba(192,57,43,${(.85 * alpha).toFixed(3)})`;
+  ctx.beginPath(); ctx.arc(9, -4, 1.1, 0, 7); ctx.fill();
+  ctx.restore();
+}
+
+/* ── 仙鹤：八大山人式极简墨鸟，偶发访客 ── */
+let crane = { state: 'idle', t: 0, next: 6000 };
+function drawCrane(x, y, a, sc, alpha, t) {
+  ctx.save(); ctx.translate(x, y + Math.sin(t / 9) * 3); ctx.rotate(a + Math.sin(t / 13) * .05); ctx.scale(sc, sc);
+  ctx.lineCap = 'round';
+  const ink = (v, w) => { ctx.strokeStyle = `rgba(23,23,23,${(v * alpha).toFixed(3)})`; ctx.lineWidth = w; };
+  ink(.7, 4.8); // 身（蚕头雁尾，一笔）
+  ctx.beginPath(); ctx.moveTo(-32, 4);
+  ctx.quadraticCurveTo(-16, -11, 4, -8);
+  ctx.quadraticCurveTo(20, -6, 29, -1); ctx.stroke();
+  ink(.62, 2.4); // 腹线
+  ctx.beginPath(); ctx.moveTo(-30, 7); ctx.quadraticCurveTo(-12, 8, 8, 1); ctx.stroke();
+  ink(.68, 2.6); // 颈（S 形上探）
+  ctx.beginPath(); ctx.moveTo(25, -2); ctx.quadraticCurveTo(34, -6, 35, -18); ctx.quadraticCurveTo(35, -28, 27, -33); ctx.stroke();
+  ink(.72, 1.8); // 喙
+  ctx.beginPath(); ctx.moveTo(27, -33); ctx.lineTo(39, -34); ctx.stroke();
+  ink(.5, 1.6); // 双腿后曳
+  ctx.beginPath(); ctx.moveTo(-26, 8); ctx.quadraticCurveTo(-38, 13, -48, 19); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-24, 9); ctx.quadraticCurveTo(-34, 16, -42, 23); ctx.stroke();
+  ctx.fillStyle = `rgba(192,57,43,${(.9 * alpha).toFixed(3)})`; // 丹顶
+  ctx.beginPath(); ctx.arc(28, -35, 1.9, 0, 7); ctx.fill();
+  ctx.restore();
+}
+window.__craneNow = () => { crane = { state: 'in', t: 0, next: 0 }; };
+
+/* ── 主循环：落笔 → 行气成迹 → 驻留 → 淡去 → 再来 ── */
+let pts = [], loop = 0, lastIdx = 0, lastEased = 0, pauseUntil = 0, endAt = 0, fadeAll = 1;
+const DUR = 6200, HOLD = 2600, FADE = 2200;
+function tick() {
+  const now = performance.now();
+  if (!pauseUntil) pauseUntil = now + 500;   // 以首帧为计时原点，字体加载阻塞不影响节奏
+  const total = path.length;
+  const s = now > pauseUntil ? Math.min(1, (now - pauseUntil) / DUR) : 0;
+  const eased = s < .5 ? 2 * s * s : 1 - Math.pow(-2 * s + 2, 2) / 2;
+  const headIdx = Math.floor(eased * (total - 1));
+  const speed = s <= 0 || s >= 1 ? 0 : (eased - lastEased) * total / 16.7;
+  lastEased = eased;
+  if (headIdx > lastIdx) {
+    const from = pts.length ? lastIdx + 1 : 0; // pts 与 path 严格 1:1（墨带按同名索引取法向），首帧才含 i=0
+    for (let i = from; i <= headIdx; i++) {
+      const wRaw = widthAt(path[i].s, i, loop);
+      const w = pts.length ? pts[pts.length - 1].w * .62 + wRaw * .38 : wRaw; // 指数平滑笔宽，去串珠感
+      pts.push({ x: path[i].x, y: path[i].y, w, s: path[i].s, t: now });
+      if (!reduced) spawnFx(i, w, speed, now);
+    }
+    lastIdx = headIdx;
+  }
+  if (s >= 1 && !endAt) endAt = now;         // 成迹驻留，之后整体淡去
+  fadeAll = endAt ? Math.max(0, 1 - Math.max(0, now - endAt - HOLD) / FADE) : 1;
+  hairs = hairs.filter(h => now - h.t < h.ttl);
+  dots = dots.filter(d => now - d.t < d.ttl);
+  stains = stains.filter(d => now - d.t < d.ttl);
+  render(now, s, speed);
+  if (endAt && now - endAt > FADE + 400) {
+    loop++; pts = []; lastIdx = 0; lastEased = 0; endAt = 0; fadeAll = 1;
+    pauseUntil = now + 2800;
+  }
+  requestAnimationFrame(tick);
+}
+window.__dbg = () => JSON.stringify({ idx: lastIdx, total: path.length, fade: +fadeAll.toFixed(2), started: pauseUntil > 0, end: !!endAt });
+function render(now, s, speed) {
+  ctx.clearRect(0, 0, W, H);
+  // 渗化
+  for (const st of stains) {
+    const f = fadeAll * (1 - (now - st.t) / st.ttl);
+    const g = ctx.createRadialGradient(st.x, st.y, 0, st.x, st.y, st.r);
+    g.addColorStop(0, `rgba(23,23,23,${(.05 * f).toFixed(3)})`); g.addColorStop(1, 'rgba(23,23,23,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(st.x, st.y, st.r, 0, 7); ctx.fill();
+  }
+  // 主笔：整条法向墨带一次填充（无接缝），干笔段用 destination-out 挖除成飞白
+  if (pts.length > 1) {
+    const outline = (scale, off) => {
+      ctx.beginPath();
+      for (let k = 0; k < pts.length; k++) {
+        const seg = path[k], q = pts[k], hw = q.w * scale / 2;
+        const X = seg.x + seg.nx * hw + off, Y = seg.y + seg.ny * hw + off * .4;
+        k === 0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y);
+      }
+      for (let k = pts.length - 1; k >= 0; k--) {
+        const seg = path[k], q = pts[k], hw = q.w * scale / 2;
+        ctx.lineTo(seg.x - seg.nx * hw + off, seg.y - seg.ny * hw + off * .4);
+      }
+      ctx.closePath();
+    };
+    outline(.5 + .5 * fadeAll, 0);
+    ctx.fillStyle = `rgba(23,23,23,${(.46 * fadeAll).toFixed(3)})`;
+    ctx.fill();
+    outline(.32 * Math.max(fadeAll, .15), (hash(pts.length * 3 + loop) - .5) * pts[pts.length - 1].w * .8);
+    ctx.fillStyle = `rgba(23,23,23,${(.2 * fadeAll).toFixed(3)})`;
+    ctx.fill();
+    // 飞白断墨：挖除干笔块
+    ctx.save();
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.fillStyle = '#000';
+    for (let c0 = 1; c0 < pts.length; c0 += 6) {
+      const c1 = Math.min(pts.length - 1, c0 + 6);
+      if (!(pts[c1].w < 7 && ((c1 * 7919 + loop * 104729) % 89) < 34)) continue;
+      ctx.beginPath();
+      for (let k = c0; k <= c1; k++) {
+        const seg = path[k], q = pts[k], hw = q.w * .8;
+        const X = seg.x + seg.nx * hw, Y = seg.y + seg.ny * hw;
+        k === c0 ? ctx.moveTo(X, Y) : ctx.lineTo(X, Y);
+      }
+      for (let k = c1; k >= c0; k--) {
+        const seg = path[k], q = pts[k], hw = q.w * .8;
+        ctx.lineTo(seg.x - seg.nx * hw, seg.y - seg.ny * hw);
+      }
+      ctx.closePath(); ctx.fill();
+    }
+    ctx.restore();
+    // 端头圆补
+    ctx.fillStyle = `rgba(23,23,23,${(.46 * fadeAll).toFixed(3)})`;
+    for (const k of [0, pts.length - 1]) {
+      ctx.beginPath(); ctx.arc(path[k].x, path[k].y, Math.max(.8, pts[k].w * .28), 0, 7); ctx.fill();
+    }
+    // 龙脊鬃刺：前 1/3 段外侧偶现
+    if (dragonOn) {
+      const lim = Math.min(pts.length, Math.floor(path.length * .34));
+      for (let i = 2; i < lim; i += 6) {
+        if (hash(i * 7.7 + loop) >= .5) continue;
+        const seg = path[i], q = pts[i], side = hash(i) < .5 ? 1 : -1;
+        ctx.strokeStyle = `rgba(23,23,23,${(.25 * fadeAll).toFixed(3)})`;
+        ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.moveTo(seg.x, seg.y);
+        ctx.lineTo(seg.x + seg.nx * side * (q.w * .9 + 10), seg.y + seg.ny * side * (q.w * .9 + 10)); ctx.stroke();
+      }
+    }
+  }
+  // 毛刺（炸毫）：墨色更深、更挺，聚集于笔道两侧
+  for (const h of hairs) {
+    const f = fadeAll * (1 - (now - h.t) / h.ttl);
+    ctx.strokeStyle = `rgba(23,23,23,${(.66 * f).toFixed(3)})`;
+    ctx.lineWidth = 1 + hash(h.len) * .8;
+    const cx = h.x + Math.cos(h.ang) * h.len * .5 + (hash(h.t) - .5) * 8;
+    const cy = h.y + Math.sin(h.ang) * h.len * .5 + (hash(h.t * 2) - .5) * 8;
+    ctx.beginPath(); ctx.moveTo(h.x, h.y);
+    ctx.quadraticCurveTo(cx, cy, h.x + Math.cos(h.ang) * h.len, h.y + Math.sin(h.ang) * h.len); ctx.stroke();
+  }
+  // 墨点
+  for (const d of dots) {
+    const f = fadeAll * (1 - (now - d.t) / d.ttl);
+    ctx.fillStyle = `rgba(23,23,23,${(.5 * f).toFixed(3)})`;
+    ctx.beginPath(); ctx.arc(d.x, d.y, d.r * (0.7 + .3 * f), 0, 7); ctx.fill();
+  }
+  // 龙首：行笔前 30%，随锋而行
+  if (dragonOn && s > .005 && s < .3 && lastIdx > 4) {
+    const p = path[lastIdx], p2 = path[Math.min(lastIdx + 4, path.length - 1)];
+    const a = Math.atan2(p2.y - p.y, p2.x - p.x);
+    const alpha = Math.min(1, s / .04) * Math.max(0, 1 - (s - .2) / .12);
+    const fw = (pts[lastIdx] ? pts[lastIdx].w : 12) * .5;   // 头探出锋前，不与湿笔叠糊
+    drawDragonHead(p.x + Math.cos(a) * fw, p.y + Math.sin(a) * fw, a, Math.min(W, 1200) / 1200 + .55, alpha);
+  }
+  // 仙鹤
+  if (craneOn && !reduced) {
+    crane.t += 16.7;
+    if (crane.state === 'idle' && crane.t > crane.next) { crane = { state: 'in', t: 0, next: 0 }; }
+    if (crane.state === 'in') {
+      const f = Math.min(1, crane.t / 1500);
+      const x = W * (1.15 - .5 * f), y = H * .17 - H * .07 * f;   // 高位航线，避开笔道
+      const vf = Math.min(1, W / 1100 + .45);                     // 窄屏（手机）收敛体型
+      drawCrane(x, y, -.12, (1.7 + .5 * f) * vf, Math.min(1, f * 1.1), crane.t);
+      if (crane.t > 7000) crane.state = 'out';
+    } else if (crane.state === 'out') {
+      const f = Math.max(0, 1 - (crane.t - 7000) / 1600);
+      const x = W * (.65 - .85 * (1 - f)), y = H * .1;
+      drawCrane(x, y, -.12, 2.2 * Math.min(1, W / 1100 + .45), f, crane.t);
+      if (f <= 0) { crane = { state: 'idle', t: 0, next: 12000 + Math.random() * 6000 }; }
+    }
+  }
+}
+
+/* ── 控制 ── */
+function setOrient(o) {
+  orientation = o;
+  stage.classList.toggle('vert', o === 'v');
+  pts = []; hairs = []; dots = []; stains = []; lastIdx = 0; lastEased = 0;
+  endAt = 0; fadeAll = 1; pauseUntil = 0;   // 重启一个完整行笔周期
+  resize();
+  document.getElementById('btnH').classList.toggle('on', o === 'h');
+  document.getElementById('btnV').classList.toggle('on', o === 'v');
+}
+document.getElementById('btnH').onclick = () => setOrient('h');
+document.getElementById('btnV').onclick = () => setOrient('v');
+document.getElementById('btnDragon').onclick = e => { dragonOn = !dragonOn; e.target.classList.toggle('on', dragonOn); e.target.textContent = dragonOn ? '龙首 开' : '龙首 关'; };
+document.getElementById('btnCrane').onclick = e => { craneOn = !craneOn; e.target.classList.toggle('on', craneOn); e.target.textContent = craneOn ? '仙鹤 开' : '仙鹤 关'; };
+document.getElementById('btnM').onclick = () => stage.classList.toggle('mobile');
+
+resize();
+addEventListener('resize', resize);
+if (reduced) {
+  // 静止模式：直接铺一笔完成的狂草 + 龙首
+  for (let i = 0; i < path.length; i++) pts.push({ x: path[i].x, y: path[i].y, w: widthAt(path[i].s, i, 0), s: path[i].s, t: 0 });
+  ctx.clearRect(0, 0, W, H);
+  render(1400, .5, 0);
+} else {
+  requestAnimationFrame(tick);
+}
+</script>
+</body>
+</html>

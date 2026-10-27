@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { THESES, LEDGER, SITE } from '../data/content'
 import { deltaOf, deriveCurrentBelief, lastRevisedOf, latestChanges } from '../data/ledger'
 import { HSNSeal, HSNSymbol } from '../components/Brand'
@@ -6,6 +6,17 @@ import { PolarityInstrument, type PolarityState } from '../components/PolarityIn
 import { FlipCard } from '../components/FlipCard'
 import { PolarityXiao } from '../components/PolarityXiao'
 import { useRevealRoot } from '../hooks/useReveal'
+import { HeroInk } from '../ink/HeroInk'
+
+/* 寒梅表态（2026-10-26 Human 裁决）：阴·含苞 / 平·疏放 / 阳·盛放。
+   当前市场多空立场由 HSN 手动维护此处（站点数据层无立场字段，不发明数据）。 */
+type PlumState = 'bud' | 'sparse' | 'bloom'
+const PLUM_STATE: PlumState = 'sparse'
+const PLUM_IMG: Record<PlumState, string> = {
+  bud: 'ink/plum-bud.png',
+  sparse: 'ink/plum-sparse.png',
+  bloom: 'ink/plum-bloom.png',
+}
 
 /* ── V2-C.1 Homepage · 2026-09-05 Human 裁决施工 ────────────────────────────
  * 首页 = 三大内容主体 + 两个认知节拍：
@@ -130,6 +141,7 @@ const FILTER_META: Record<PolarityState, { zh: string; en: string; color: string
 
 export default function Home() {
   const rootRef = useRevealRoot<HTMLDivElement>()
+  const dotRef = useRef<HTMLSpanElement>(null)
   const [polarity, setPolarity] = useState<PolarityState | null>(null)
 
   /* WHAT CHANGED（V2-C.1 · Human 裁决：3～5 条真实变化，LEDGER 派生）：
@@ -143,12 +155,29 @@ export default function Home() {
           ② 宣言四行按现有断句左对齐；
           ③ 「玄之又玄，众妙之门。」单独居中、字号稍大——作为总结并开启下文；
           无 ENTER，图形 Logo 不重复于左上角） ── */}
-      <section className="max-w-[1400px] mx-auto px-5 md:px-10 min-h-[80vh] flex flex-col justify-center pt-24 pb-10 md:pb-12">
+      <section className="relative max-w-[1400px] mx-auto px-5 md:px-10 min-h-[80vh] flex flex-col justify-center pt-24 pb-10 md:pb-12">
+        {/* 方案五笔墨：墨泅朱砂句号 + 润笔淡痕（落墨一次即驻留） */}
+        <HeroInk dotRef={dotRef} />
+        {/* 寒梅：作者对当下市场的多空表态（无竖签，留白让读者自参） */}
+        <div
+          className="pointer-events-none absolute right-2 bottom-6 md:right-8 md:bottom-10 z-[5] select-none"
+          aria-hidden="true"
+        >
+          <img
+            src={PLUM_IMG[PLUM_STATE]}
+            alt=""
+            className="h-[104px] md:h-[150px] w-auto"
+            style={{ filter: 'drop-shadow(0 1px 1px rgba(10,10,10,.06))' }}
+          />
+        </div>
         <div data-reveal>
           <h1 className="font-serif-sc font-black leading-[1.08] tracking-tight text-[clamp(2.8rem,9vw,8rem)]">
             观察变化，
             <br />
-            而非预测未来<span className="cinnabar">。</span>
+            而非预测未来
+            <span ref={dotRef} className="cinnabar invisible" aria-hidden="true">
+              。
+            </span>
           </h1>
           <div className="mt-14 md:mt-20 max-w-xl space-y-2">
             {SITE.description.slice(0, -1).map((line, i) => (

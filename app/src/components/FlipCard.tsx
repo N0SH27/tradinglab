@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react'
+import { InkFrame } from '../ink/brush'
 
 /* ── FlipCard（V2-C.1 · 2026-09-05 Human 裁决 · 整卡翻转）─────────────────────
  * 语义：表面 → 隐藏变量。翻面是语义，不是表演。
@@ -34,8 +35,10 @@ export function FlipCard({
 
   return (
     <div
-      className={`group paper-card relative min-h-[300px] md:min-h-[340px] border border-[rgb(var(--line))] bg-paper overflow-hidden ${className}`}
+      className={`group paper-card relative min-h-[300px] md:min-h-[340px] border border-transparent bg-paper overflow-hidden ${className}`}
     >
+      {/* 墨迹边框：4号淡墨飞白残边（落墨一次即驻留；背面纸墨反转时随之隐去） */}
+      <InkFrame seed={label.length * 3 + 1} />
       {/* 正面 · 表面（整面即翻面按钮，正面无任何嵌套交互） */}
       <button
         type="button"
