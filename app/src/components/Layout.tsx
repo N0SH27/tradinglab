@@ -178,7 +178,7 @@ function Footer() {
    日志=记、论点=证、无为=无、首页=观；本轮补齐：宣言=易、系统=律、
    杂文=文、维度=衡、框架=枢、方法=法、研究=研（含 report/essay 详情页同源）。
    字库：马善正楷书 12 字子集（app/public/fonts/mashanzheng-subset.ttf）。
-   巨字＋点景＋朱点，落 canvas z-[-1]。
+   六裁：只留一个淡淡的巨字单图层（无点景/朱点/涨墨/撕裂/游丝/飞溅），落 canvas z-[-1]。
    必须渲染在 #page-root 之内：page-root 的 relative+z-[1]+bg-paper 构成层叠上下文，
    画布以 z-[-1] 置于其背景之上、内容之下；挂在外面会被这层纸色整个盖住。 */
 function edgeChar(path: string): string | null {

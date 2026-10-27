@@ -217,16 +217,7 @@ function paintBands(
   }
 }
 const GRAY_STOPS: Stops = [[1.3, 'mist'], [1.12, 'pale'], [0.95, 'silver'], [0.72, 'graphite'], [0, 'slate']]
-/* 逐点毛刺（炸毫质感，±0.75px） */
-const wobStd = (N: number) => (k: number) => {
-  const u = ((k % 89) * 0.37) / 6,
-    i0 = Math.floor(u),
-    f = u - i0,
-    s = f * f * (3 - 2 * f)
-  return (hash(i0 + N) * (1 - s) + hash(i0 + 1 + N) * s - 0.5) * 1.5
-}
 const DARK_STOPS: Stops = [[1.3, 'mist'], [1.1, 'graphite'], [0.95, 'soot'], [0.7, 'rich'], [0, 'concentrated']]
-const PALE_STOPS: Stops = [[1.3, 'mist'], [0.9, 'pale'], [0, 'silver']]
 
 /* 勾框进度动画（入视口一次） */
 function animateOnView(
@@ -447,22 +438,19 @@ export function InkDivider({
   return <canvas ref={ref} aria-hidden="true" className={`block w-full ${className}`} />
 }
 
-/* ══ <EdgeStroke> · 纸缘行气（2026-10-27 结合版定案：巨字 × 点景 × 朱点）══════════
- * 一字为主：右缘落巨型题眼字，字体为马善正楷书子集（本地 @font-face MaShanZheng），
- *   湍流置换炸毫、多层洇墨、source-atop 于墨迹内部刻飞白——非印刷体。
- * 点景为辅：字左上一记淡墨短斜笔（PALE α.3）＋ 字周 silver 散点（globalAlpha .6）；
- * 朱点作押：字左下两粒朱砂（α.6）。全部落 canvas z-[-1]（#page-root 内），
- *   正文在上——2026-10-27 层级纪律：可见窗 = 字宽 [2%, 75%]（又全见前），
- *   右缘沟出血 25% 字宽。
- * 题眼字：世界=观 周期=复 日志=记 论点=证 无为=无 首页=观（Layout.edgeKind 映射）。
+/* ══ <EdgeStroke> · 纸缘行气（2026-10-27 六裁：只留一个淡淡的巨字）══════════
+ * 右缘只落巨型题眼字一个图层——不要点景、不要散点、不要朱点、不要涨墨、
+ * 不要撕裂、不要游丝、不要飞溅（Human 裁决：特效以后再加）。
+ * 骨架字体仍是马善正楷书子集（本地 @font-face MaShanZheng），两层炸毫低透明度成水印。
+ * 可见窗 = 字宽 [2%, 75%]（又全见前），右缘沟出血 25% 字宽；canvas z-[-1]（#page-root 内）。
+ * 题眼字：全站每页一字（Layout.edgeChar 映射：观/复/记/证/无/易/律/文/衡/枢/法/研）。
  * 字体异步：document.fonts.ready 后重绘一次；prefers-reduced-motion 直接成图。 */
 function drawCalliChar(
   ctx: CanvasRenderingContext2D,
   ch: string,
   x: number,
   y: number,
-  size: number,
-  seed: number
+  size: number
 ) {
   ctx.save()
   ctx.translate(x + size / 2, y + size / 2)
@@ -474,72 +462,19 @@ function drawCalliChar(
   ctx.textBaseline = 'middle'
   const cx = size / 2,
     cy = size / 2 + size * 0.03
-  /* 底层洇晕：模糊大雾 */
-  ctx.save()
-  ;(ctx as CanvasRenderingContext2D & { filter: string }).filter = 'blur(3px)'
-  ctx.fillStyle = inkA('mist', 0.22)
-  ctx.fillText(ch, cx, cy)
-  ctx.restore()
-  /* 中层淡墨：粗置换（炸毫大起伏） */
+  /* ══ 淡字题眼（2026-10-27 Human 六裁：只要一个淡淡的巨字，特效以后再加）════
+     马善正楷书子集两层炸毫铺身，低透明度成纸下水印；无涨墨、无撕裂、无游丝、无飞溅。 */
   ctx.save()
   ;(ctx as CanvasRenderingContext2D & { filter: string }).filter = 'url(#inkRough)'
-  ctx.fillStyle = inkA('silver', 0.15)
+  ctx.fillStyle = inkA('graphite', 0.12)
   ctx.fillText(ch, cx, cy)
   ctx.restore()
-  /* 主墨：细置换（笔缘毛刺） */
   ctx.save()
   ;(ctx as CanvasRenderingContext2D & { filter: string }).filter = 'url(#inkRough2)'
-  ctx.fillStyle = inkA('graphite', 0.18)
+  ctx.fillStyle = inkA('rich', 0.065)
   ctx.fillText(ch, cx, cy)
-  ctx.fillStyle = inkA('slate', 0.12)
+  ctx.fillStyle = inkA('concentrated', 0.045)
   ctx.fillText(ch, cx, cy)
-  ctx.restore()
-  /* 骨：极小核，立神 */
-  ctx.save()
-  ;(ctx as CanvasRenderingContext2D & { filter: string }).filter = 'url(#inkRough2)'
-  ctx.fillStyle = inkA('soot', 0.07)
-  ctx.fillText(ch, cx, cy)
-  ctx.restore()
-  /* 飞白 v2（2026-10-27 二修·Human 裁决「仍有横线」）：断丝式干笔——每道剖成
-     2–4 段不连续短丝，段间错位、带波弯、宽度渐窄、alpha 更低，杜绝直尺横线感；
-     仍用 source-atop 限墨迹内部，丝不穿空白 */
-  ctx.save()
-  ctx.globalCompositeOperation = 'source-atop'
-  ctx.lineCap = 'round'
-  for (let i = 0; i < 4; i++) {
-    const yy = size * (0.15 + hash(seed + i * 7) * 0.7)
-    const x0 = size * (0.05 + hash(seed + i * 13) * 0.28)
-    const total = size * (0.1 + hash(seed + i * 19) * 0.12)
-    const nSeg = 2 + Math.floor(hash(seed + i * 47) * 3)
-    for (let s = 0; s < nSeg; s++) {
-      const st = x0 + (total * s) / nSeg + hash(seed + i * 53 + s) * total * 0.08
-      const len = (total / nSeg) * (0.3 + hash(seed + i * 59 + s) * 0.45)
-      const bend = (hash(seed + i * 61 + s) * 2 - 1) * size * 0.05
-      const yOff = (hash(seed + i * 67 + s) * 2 - 1) * size * 0.012
-      ctx.lineWidth = size * 0.004 + hash(seed + i * 3 + s) * size * 0.006
-      ctx.strokeStyle = `rgba(250,250,249,${0.14 + hash(seed + i * 5 + s) * 0.16})`
-      ctx.beginPath()
-      ctx.moveTo(st, yy + yOff)
-      ctx.quadraticCurveTo(st + len / 2, yy + yOff + bend, st + len, yy + yOff + bend * 0.6)
-      ctx.stroke()
-    }
-  }
-  /* 干笔擦痕 v2：1–2 道短斜丝，断为两截 */
-  for (let i = 0; i < 1 + Math.floor(hash(seed + 71) * 2); i++) {
-    const xx = size * (0.2 + hash(seed + i * 29) * 0.6)
-    const y0 = size * (0.2 + hash(seed + i * 31) * 0.35)
-    const len = size * (0.1 + hash(seed + i * 37) * 0.08)
-    const lean = (hash(seed + i * 43) * 2 - 1) * size * 0.08
-    for (let s = 0; s < 2; s++) {
-      const st = y0 + s * len * 0.62
-      ctx.lineWidth = size * 0.005
-      ctx.strokeStyle = `rgba(250,250,249,${0.12 + hash(seed + i * 41 + s) * 0.13})`
-      ctx.beginPath()
-      ctx.moveTo(xx + lean * s * 0.5, st)
-      ctx.lineTo(xx + lean * s * 0.5 + lean * 0.4, st + len * 0.55)
-      ctx.stroke()
-    }
-  }
   ctx.restore()
   ctx.restore()
 }
@@ -549,7 +484,6 @@ export function EdgeStroke({ ch }: { ch: string }) {
   useEffect(() => {
     const cv = ref.current
     if (!cv) return
-    const seed = [...ch].reduce((a, c) => a + c.charCodeAt(0), 0)
     const draw = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 1.5)
       const H = window.innerHeight
@@ -570,52 +504,8 @@ export function EdgeStroke({ ch }: { ch: string }) {
          画布外，右缘出血 BLEED 入缘沟——可见窗恰为字宽的 [2%, 75%] */
       const cx = W + BLEED - size,
         cy = (H - size) / 2
-      drawCalliChar(c, ch, cx, cy, size, seed)
-      /* 点景一：字左上一记短斜笔（淡墨，余光档） */
-      {
-        const p0 = strokePts(110, 24, { N: 100, yK: 0.5, amps: [2, 1, 0.5], f: [2.4, 6, 11], ph: 1.3, baseW: 3.6, envIn: 0.1, envOut: 0.86, pressFreq: 0.9, pressDepth: 0.22, seed: seed + 71 })
-        const bx = cx - 40,
-          by = cy + size * 0.16
-        const pts = p0.map((p) => ({ ...p, x: bx - 14 - (p.y - 12) * 0.9 - p.x * 0.35, y: by + p.x * 0.55 + (p.y - 12) * 0.5 }))
-        for (let i = 0; i < pts.length; i++) {
-          const a = pts[Math.max(0, i - 1)],
-            b = pts[Math.min(pts.length - 1, i + 1)]
-          const tx = b.x - a.x,
-            ty = b.y - a.y,
-            l = Math.hypot(tx, ty) || 1
-          pts[i].nx = -ty / l
-          pts[i].ny = tx / l
-        }
-        paintBands(c, pts, pts.length, { stops: PALE_STOPS, alpha: 0.3, pad: 0.25, tipDry: true, wob: wobStd(pts.length) })
-      }
-      /* 点景二：字周散点（silver 淡灰） */
-      c.save()
-      c.globalAlpha = 0.6
-      const dots: [number, number, number][] = [
-        [cx - 24, cy + size * 0.42, 2],
-        [cx - 40, cy + size * 0.6, 1.4],
-        [cx + size * 0.7, cy + size * 0.06, 1.9],
-        [cx + size * 0.82, cy + size * 0.3, 1.3],
-      ]
-      dots.forEach(([x, y, r], i) => {
-        for (let b = 0; b < 9; b++) {
-          const a = hash(i * 13 + b) * 6.283,
-            rr = r * (0.5 + hash(b * 5 + i * 2) * 0.65)
-          c.fillStyle = inkA('silver', 0.26 + hash(b * 7 + i) * 0.22)
-          c.beginPath()
-          c.arc(x + Math.cos(a) * rr * 0.45, y + Math.sin(a) * rr * 0.38, rr * 0.52, 0, 7)
-          c.fill()
-        }
-      })
-      /* 朱点作押：字左下 */
-      c.fillStyle = 'rgba(192,57,43,.6)'
-      c.beginPath()
-      c.arc(cx - 30, cy + size * 0.82, 2.8, 0, 7)
-      c.fill()
-      c.beginPath()
-      c.arc(cx - 16, cy + size * 0.86, 1.4, 0, 7)
-      c.fill()
-      c.restore()
+      /* 2026-10-27 Human 六裁：只留一个淡淡的巨字——无点景、无特效，以后再加 */
+      drawCalliChar(c, ch, cx, cy, size)
     }
     draw()
     /* 字体异步到位后重绘一次（避免首帧回退字体定形） */

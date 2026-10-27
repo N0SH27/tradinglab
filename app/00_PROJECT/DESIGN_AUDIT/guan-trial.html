@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>观 · 三方向试稿 — 狂草重设计</title>
+<style>
+  :root { --paper:250 250 249; --ink:10 10 10; --ink-3:117 117 115; --line:229 229 226; --cinnabar:192 57 43; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:rgb(var(--paper)); color:rgb(var(--ink));
+         font-family:'Noto Serif SC','Songti SC',serif; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:1500px; margin:0 auto; padding:48px 40px 64px; }
+  h1 { font-size:26px; letter-spacing:.12em; margin:0 0 6px; font-weight:900; }
+  .sub { font-size:13px; color:rgb(var(--ink-3)); letter-spacing:.08em; margin-bottom:8px; }
+  .rule { height:1px; background:rgb(var(--line)); margin:18px 0 30px; }
+  .row { display:grid; grid-template-columns:repeat(3, 1fr); gap:28px; }
+  @media (max-width:980px){ .row{ grid-template-columns:1fr; } }
+  .card { border:1px solid rgb(var(--line)); background:rgb(var(--paper)); padding:18px 18px 14px; }
+  .card canvas { display:block; width:100%; background:rgb(var(--paper)); }
+  .tag { font-size:11px; letter-spacing:.28em; color:rgb(var(--cinnabar)); margin:14px 0 6px; font-weight:700; }
+  .name { font-size:19px; font-weight:900; letter-spacing:.1em; margin-bottom:8px; }
+  .desc { font-size:12.5px; line-height:1.85; color:#3f3f3e; }
+  .desc b { color:rgb(var(--ink)); }
+  .reco { margin-top:34px; border:1px solid rgb(var(--line)); padding:22px 26px; }
+  .reco .tag { margin-top:0; }
+  .reco p { font-size:13.5px; line-height:2; margin:6px 0 0; color:#2c2c2b; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>「观」字狂草重设计 · 三方向试稿 v2</h1>
+  <div class="sub">径向渐变叠印笔触（边缘色阶连续、无带状分层）· 飞白沿行笔方向分叉撕裂 · 毛刺顺笔势生长 · 仅供视觉裁决，未动正式代码</div>
+  <div class="rule"></div>
+
+  <div class="row">
+    <div class="card">
+      <canvas id="cvA" width="460" height="620"></canvas>
+      <div class="tag">方向 A</div>
+      <div class="name">狂草主笔</div>
+      <div class="desc">以「见」的<b>竖弯钩一笔定乾坤</b>——重切入、饱压行笔、出钩骤然释放成游丝；「又」两笔作辅，三缕牵丝把两次书写连成一气。主次悬殊，气势先声夺人。</div>
+    </div>
+    <div class="card">
+      <canvas id="cvB" width="460" height="620"></canvas>
+      <div class="tag">方向 B</div>
+      <div class="name">枯润飞白</div>
+      <div class="desc">结构近楷而笔墨全枯——笔毫分叉，<b>沿行笔方向撕裂出纸白丝路</b>，起笔涨墨、行笔渐枯，浓淡枯润层层可见。真实毛笔试探纸面的 resistance，第二眼全是细节。</div>
+    </div>
+    <div class="card">
+      <canvas id="cvC" width="460" height="620"></canvas>
+      <div class="tag">方向 C</div>
+      <div class="name">结构解构</div>
+      <div class="desc">「又」放大高扬、「见」压缩沉降，一笔长牵丝斜贯中宫——<b>重心偏移、疏密对抗</b>，现代艺术的构成感最强，识别度靠笔序维持。</div>
+    </div>
+  </div>
+
+  <div class="reco">
+    <div class="tag">推荐</div>
+    <p><b>主推 方向 A（狂草主笔），细节层借 B 的飞白处理。</b>理由：巨字活在右缘窄沟、被 [2%,75%] 窗口裁切、衬于正文之下——第一眼只能读到「势」，A 的主笔张力在裁切与远距离下仍成立；B 的细腻在正文字缝间易生噪；C 的解构依赖完整字形观看，裁切后识别风险最高。A 为骨、B 为肌理，即「第一眼力量，第二眼枯润」。</p>
+  </div>
+</div>
+
+<script>
+/* ── 笔墨引擎 v2：径向渐变叠印笔 ───────────────────────────────
+   每枚印章 = 一枚径向渐变：墨芯浓黑 → 墨腰 → 边缘极淡 soot 透明。
+   色阶天然连续，无带状分层；逐点半径/浓度抖动产生生涩边。 */
+const PAL = { ink:[10,10,10], rich:[26,26,26], soot:[60,60,60], slate:[52,52,52],
+              graphite:[84,84,84], paper:[250,250,249] }
+const rgba = (c,a)=>`rgba(${PAL[c][0]},${PAL[c][1]},${PAL[c][2]},${a})`
+function H(n){ const s=Math.sin(n*127.1+311.7)*43758.5453; return s-Math.floor(s) }
+
+/* 控制点 [{x,y,p}] 重采样为等距密集点（压力插值+平滑） */
+function resample(pts, step){
+  const cum=[0]
+  for(let i=1;i<pts.length;i++) cum.push(cum[i-1]+Math.hypot(pts[i].x-pts[i-1].x, pts[i].y-pts[i-1].y))
+  const total=cum[cum.length-1], out=[]
+  let j=0
+  for(let d=0; d<=total; d+=step){
+    while(j<cum.length-2 && cum[j+1]<d) j++
+    const t=(d-cum[j])/((cum[j+1]-cum[j])||1)
+    out.push({ x:pts[j].x+(pts[j+1].x-pts[j].x)*t, y:pts[j].y+(pts[j+1].y-pts[j].y)*t,
+               p:pts[j].p+(pts[j+1].p-pts[j].p)*t })
+  }
+  out.push({...pts[pts.length-1]})
+  for(let k=0;k<2;k++)
+    for(let i=1;i<out.length-1;i++){ out[i].p=(out[i-1].p+out[i].p*2+out[i+1].p)/4 }
+  return out
+}
+
+/* 叠印主笔：dense 密集点 + 基础半宽 baseW（实际全宽=baseW） */
+function stampStroke(ctx, dense, baseW, o){
+  o=o||{}
+  const seed=o.seed||1, n=dense.length
+  for(let i=0;i<n;i++){
+    const t=i/(n-1), p=dense[i].p
+    let life=1
+    if(o.frayTail!=null && t>o.frayTail)
+      life=Math.max(0, 1-(t-o.frayTail)/(1-o.frayTail))*(0.5+0.5*H(i*3.1+seed))
+    const r=baseW*0.5*(0.16+0.84*Math.pow(Math.max(0,p),1.08))*(0.9+0.2*H(i*1.37+seed))
+    if(r<0.4) continue
+    let a=(0.66+0.3*H(i*2.71+seed*1.7))*life*(o.alpha||1)
+    if(o.sat) a*=o.sat(t)
+    if(a<=0.025) continue
+    const g=ctx.createRadialGradient(dense[i].x,dense[i].y,0,dense[i].x,dense[i].y,r)
+    g.addColorStop(0,   rgba('ink',   Math.min(1,a)))
+    g.addColorStop(0.4, rgba('rich',  a*0.9))
+    g.addColorStop(0.72,rgba('soot',  a*0.34))
+    g.addColorStop(1,   rgba('soot',  0))
+    ctx.fillStyle=g
+    ctx.beginPath(); ctx.arc(dense[i].x,dense[i].y,r,0,7); ctx.fill()
+  }
+}
+
+/* 飞白撕裂：destination-out，沿行笔方向擦出断续丝路（笔毫分叉感）
+   fils: [[横向偏移(半宽倍数), 丝宽系数],...]  profile(t)→擦除概率 */
+function splitDry(ctx, dense, baseW, o){
+  const seed=o.seed||7, n=dense.length
+  ctx.save(); ctx.globalCompositeOperation='destination-out'
+  for(let i=1;i<n;i++){
+    const t=i/(n-1)
+    if(t<(o.from||0) || t>(o.to==null?1:o.to)) continue
+    const a=dense[i-1], b=dense[i]
+    let tx=b.x-a.x, ty=b.y-a.y, l=Math.hypot(tx,ty)||1
+    const nx=-ty/l, ny=tx/l
+    const halfW=baseW*0.5*(0.16+0.84*Math.pow(Math.max(0,dense[i].p),1.08))
+    if(halfW<2) continue
+    for(const [off,fw] of o.fils){
+      const pr=o.profile?o.profile(t):0.3+t*0.7
+      if(H(i*1.71+seed+off*97)>Math.min(1,pr)) continue
+      const cx=dense[i].x+nx*off*halfW, cy=dense[i].y+ny*off*halfW
+      const rl=halfW*fw*(1.8+H(i*3.3+seed)*2.2)
+      const rs=halfW*fw*(0.42+H(i*4.9+seed)*0.3)
+      ctx.save(); ctx.translate(cx,cy); ctx.rotate(Math.atan2(ty,tx))
+      ctx.fillStyle=`rgba(0,0,0,${0.28+H(i*5.1+seed)*0.4})`
+      ctx.beginPath(); ctx.ellipse(0,0,rl,rs,0,0,7); ctx.fill()
+      ctx.restore()
+    }
+  }
+  ctx.restore()
+}
+
+/* 毛刺炸毫：笔缘稀疏小三角，顺法线外挑 */
+function bristle(ctx, dense, baseW, o){
+  o=o||{}
+  const seed=o.seed||3, n=dense.length, rate=o.rate==null?0.09:o.rate
+  ctx.save()
+  for(let i=2;i<n-2;i++){
+    if(H(i*2.93+seed)>rate) continue
+    const a=dense[i-1], b=dense[i+1]
+    let tx=b.x-a.x, ty=b.y-a.y, l=Math.hypot(tx,ty)||1
+    const nx=-ty/l, ny=tx/l, side=H(i*7.7+seed)>0.5?1:-1
+    const halfW=baseW*0.5*(0.16+0.84*Math.pow(Math.max(0,dense[i].p),1.08))
+    const len=halfW*(0.28+H(i*4.7+seed)*0.85), wd=halfW*(0.1+H(i*6.1+seed)*0.13)
+    if(len<1) continue
+    const bx=dense[i].x+nx*halfW*0.9*side, by=dense[i].y+ny*halfW*0.9*side
+    ctx.save(); ctx.translate(bx,by)
+    ctx.rotate(Math.atan2(ny*side,nx*side)+(H(i*9.3+seed)-0.5)*0.8)
+    ctx.fillStyle=rgba(H(i*3.1+seed)>0.45?'ink':'soot', 0.3+H(i*5.9+seed)*0.42)
+    ctx.beginPath(); ctx.moveTo(0,-wd); ctx.lineTo(len,0); ctx.lineTo(0,wd); ctx.closePath(); ctx.fill()
+    ctx.restore()
+  }
+  ctx.restore()
+}
+
+/* 涨墨：转笔/驻笔处的墨聚 + 卫星飞点 */
+function pool(ctx, x, y, r, seed){
+  const g=ctx.createRadialGradient(x,y,0,x,y,r)
+  g.addColorStop(0,rgba('ink',0.92)); g.addColorStop(0.65,rgba('ink',0.55)); g.addColorStop(1,rgba('ink',0))
+  ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,y,r,0,7); ctx.fill()
+  for(let i=0;i<5;i++){
+    const a=H(i*7+seed)*6.283, d=r*(0.9+H(i*3+seed)*1.7), rr=r*(0.07+H(i*5+seed)*0.13)
+    const px=x+Math.cos(a)*d, py=y+Math.sin(a)*d
+    const g2=ctx.createRadialGradient(px,py,0,px,py,rr)
+    g2.addColorStop(0,rgba('soot',0.5)); g2.addColorStop(1,rgba('soot',0))
+    ctx.fillStyle=g2; ctx.beginPath(); ctx.arc(px,py,rr,0,7); ctx.fill()
+  }
+}
+
+/* 游丝牵丝：渐细渐淡的细丝 */
+function hair(ctx, pts, baseW, alpha, seed){
+  seed=seed||17
+  const d=resample(pts,1.4), n=d.length
+  for(let i=0;i<n;i++){
+    const t=i/(n-1)
+    const r=baseW*0.5*(1-t*0.72)
+    const a=alpha*(1-t*0.85)*(0.45+0.55*H(i*2.3+seed))
+    if(r<0.3||a<0.02) continue
+    const g=ctx.createRadialGradient(d[i].x,d[i].y,0,d[i].x,d[i].y,r)
+    g.addColorStop(0,rgba('ink',a)); g.addColorStop(1,rgba('ink',0))
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(d[i].x,d[i].y,r,0,7); ctx.fill()
+  }
+}
+
+/* 一笔 = 叠印 + 可选飞白 + 毛刺 */
+function brush(ctx, ctrl, baseW, o){
+  o=o||{}
+  const d=resample(ctrl,1.3)
+  stampStroke(ctx,d,baseW,o)
+  if(o.split) splitDry(ctx,d,baseW,Object.assign({seed:(o.seed||1)*13+5},o.split))
+  if(o.bristle!==false) bristle(ctx,d,baseW,{seed:(o.seed||1)*3+2,rate:o.bristleRate})
+  return d
+}
+
+function S(u,v){ return {x:70+u*3.5, y:80+v*3.5} }   /* 字格 100×100 → 画布 */
+function mk(pts){ return pts.map(q=>({...S(q[0],q[1]), p:q[2]})) }
+function at(u,v){ const p=S(u,v); return [p.x,p.y] }
+
+function drawA(ctx){
+  /* 主笔：竖弯钩——重切入，饱压行笔，出钩释放成丝 */
+  brush(ctx, mk([[62,22,.5],[58,44,.95],[57,62,1],[62,72,.92],[76,77,.8],[88,72,.5],[95,58,.16]]),
+        30, {seed:3, frayTail:0.78, bristleRate:0.1,
+             split:{from:0.55, fils:[[-0.32,0.42],[0.28,0.5]], profile:t=>0.25+(t-0.55)*1.4}})
+  pool(ctx, ...at(58,64), 8, 3)
+  /* 又·横撇：快笔斜切，顿挫成势 */
+  brush(ctx, mk([[10,33,.6],[33,27,.85],[42,32,1],[34,46,.55],[25,57,.14]]),
+        17, {seed:7, split:{from:0.5, fils:[[-0.3,0.4],[0.26,0.46]], profile:t=>0.15+t*0.7}})
+  pool(ctx, ...at(42,32), 5.5, 7)
+  /* 又·捺：蓄势撇出，尖锋收束 */
+  brush(ctx, mk([[28,40,.45],[44,56,.9],[57,70,.4],[62,74,.05]]),
+        15, {seed:11, frayTail:0.7, split:{from:0.45, fils:[[0,0.5]], profile:t=>0.2+t*0.8}})
+  /* 见·横折：方折收紧，末锋垂缩 */
+  brush(ctx, mk([[48,14,.5],[74,12,.72],[82,18,.85],[81,37,.2]]),
+        12, {seed:13, bristleRate:0.08, split:{from:0.6, fils:[[0.2,0.4]], profile:t=>0.2+t*0.6}})
+  /* 见·短竖 / 内撇：轻笔让位 */
+  brush(ctx, mk([[56,19,.4],[54,38,.24]]), 8.5, {seed:17, bristleRate:0.06})
+  brush(ctx, mk([[70,25,.45],[59,40,.07]]), 9, {seed:19, bristleRate:0.06, frayTail:0.5})
+  /* 牵丝：三次顺势牵引 */
+  hair(ctx, mk([[25,57,.5],[42,54,.5],[56,48,.5]]), 2.6, .55, 5)
+  hair(ctx, mk([[47,14,.5],[51,16.5,.5],[55,19,.5]]), 1.6, .5, 9)
+  hair(ctx, mk([[95,58,.5],[99,51,.5]]), 1.5, .5, 13)
+}
+
+function drawB(ctx){
+  /* 结构近楷：六笔分立，全靠枯润说话 */
+  brush(ctx, mk([[13,29,.7],[36,26,.85],[44,31,1],[28,51,.2]]),
+        15, {seed:23, split:{from:0.3, fils:[[-0.32,0.4],[0.24,0.46]], profile:t=>0.15+t*0.95}})
+  pool(ctx, ...at(44,31), 6, 23)
+  brush(ctx, mk([[29,38,.5],[43,53,.85],[54,64,.35],[56,67,.05]]),
+        14, {seed:29, frayTail:0.65, split:{from:0.35, fils:[[0,0.5],[0.3,0.35]], profile:t=>0.2+t*0.9}})
+  brush(ctx, mk([[51,16,.55],[79,14,.7],[85,21,.85],[83,44,.24]]),
+        12, {seed:31, split:{from:0.3, fils:[[-0.24,0.4],[0.28,0.42]], profile:t=>0.15+t*0.9}})
+  pool(ctx, ...at(84,21), 4.5, 31)
+  brush(ctx, mk([[57,19,.45],[55,43,.3]]),
+        9, {seed:37, split:{from:0.35, fils:[[0,0.5]], profile:t=>0.25+t*0.85}})
+  brush(ctx, mk([[69,25,.5],[58,41,.07]]),
+        8.5, {seed:41, frayTail:0.45, split:{from:0.3, fils:[[0.1,0.45]], profile:t=>0.25+t*0.8}})
+  brush(ctx, mk([[62,40,.55],[60,61,1],[63,72,.95],[77,76,.8],[88,70,.45],[94,56,.1]]),
+        22, {seed:43, frayTail:0.7, split:{from:0.45, fils:[[-0.3,0.44],[0.26,0.5]], profile:t=>0.25+(t-0.45)*1.2}})
+  pool(ctx, ...at(60,62), 7, 43)
+  hair(ctx, mk([[28,51,.5],[44,50,.5],[57,46,.5]]), 1.7, .45, 21)
+}
+
+function drawC(ctx){
+  /* 又·放大高扬 */
+  brush(ctx, mk([[2,16,.65],[29,12,.85],[40,20,1],[19,45,.2]]),
+        18, {seed:51, split:{from:0.4, fils:[[-0.3,0.42],[0.26,0.48]], profile:t=>0.2+t*0.75}})
+  pool(ctx, ...at(40,20), 6, 51)
+  brush(ctx, mk([[25,26,.5],[42,48,.9],[56,66,.35],[59,70,.05]]),
+        15, {seed:53, frayTail:0.65, split:{from:0.4, fils:[[0,0.5]], profile:t=>0.2+t*0.85}})
+  /* 长牵丝斜贯中宫（压淡、走弧） */
+  hair(ctx, mk([[19,45,.5],[36,50,.5],[55,60,.5]]), 2.1, .4, 57)
+  /* 见·压缩沉降 */
+  brush(ctx, mk([[45,46,.5],[73,43,.65],[81,50,.8],[80,65,.22]]),
+        11.5, {seed:57, bristleRate:0.08, split:{from:0.55, fils:[[0.2,0.4]], profile:t=>0.2+t*0.6}})
+  brush(ctx, mk([[51,48,.4],[50,66,.26]]), 8.5, {seed:59, bristleRate:0.06})
+  brush(ctx, mk([[63,53,.45],[53,65,.09]]), 8, {seed:61, bristleRate:0.06, frayTail:0.5})
+  brush(ctx, mk([[58,62,.55],[57,79,1],[61,89,.95],[75,92,.78],[86,84,.4],[91,71,.13]]),
+        21, {seed:63, frayTail:0.75, split:{from:0.5, fils:[[-0.3,0.44],[0.26,0.5]], profile:t=>0.2+(t-0.5)*1.1}})
+  pool(ctx, ...at(57,80), 7, 63)
+  hair(ctx, mk([[91,71,.5],[95,62,.5]]), 1.4, .45, 67)
+}
+
+for (const [id, fn] of [['cvA',drawA],['cvB',drawB],['cvC',drawC]]) {
+  const cv=document.getElementById(id), ctx=cv.getContext('2d')
+  ctx.translate(0.5,0.5)
+  fn(ctx)
+}
+</script>
+</body>
+</html>
