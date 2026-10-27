@@ -449,7 +449,7 @@ export function InkDivider({
 
 /* ══ <EdgeStroke> · 纸缘行气（2026-10-27 结合版定案：巨字 × 点景 × 朱点）══════════
  * 一字为主：右缘落巨型题眼字，字体为马善正楷书子集（本地 @font-face MaShanZheng），
- *   湍流置换炸毫、多层洇墨、destination-out 刻飞白——非印刷体。
+ *   湍流置换炸毫、多层洇墨、source-atop 于墨迹内部刻飞白——非印刷体。
  * 点景为辅：字左上一记淡墨短斜笔（PALE α.3）＋ 字周 silver 散点（globalAlpha .6）；
  * 朱点作押：字左下两粒朱砂（α.6）。全部落 canvas z-[-1]（#page-root 内），
  *   正文在上——2026-10-27 层级纪律：字只露左缘约 1/3，主体待在右缘沟。
@@ -499,36 +499,33 @@ function drawCalliChar(
   ctx.fillStyle = inkA('soot', 0.07)
   ctx.fillText(ch, cx, cy)
   ctx.restore()
-  /* 飞白：destination-out 刻纸色丝，沿横向行笔 */
+  /* 飞白：source-atop 只在字形墨迹内部刻纸色丝——丝不穿空白，
+     段短（≤.32 字宽）、带弧弯、低 alpha，绝不呈横竖交叉的划痕感 */
   ctx.save()
-  ctx.globalCompositeOperation = 'destination-out'
+  ctx.globalCompositeOperation = 'source-atop'
   ctx.lineCap = 'round'
-  for (let i = 0; i < 6; i++) {
-    const yy = size * (0.18 + hash(seed + i * 7) * 0.64)
-    const x0 = size * (0.08 + hash(seed + i * 13) * 0.2),
-      x1 = size * (0.72 + hash(seed + i * 17) * 0.2)
-    ctx.lineWidth = size * 0.006 + hash(seed + i * 3) * size * 0.01
-    ctx.strokeStyle = `rgba(0,0,0,${0.25 + hash(seed + i * 5) * 0.3})`
+  for (let i = 0; i < 5; i++) {
+    const yy = size * (0.15 + hash(seed + i * 7) * 0.7)
+    const x0 = size * (0.05 + hash(seed + i * 13) * 0.25)
+    const len = size * (0.18 + hash(seed + i * 19) * 0.14)
+    const bend = (hash(seed + i * 23) * 2 - 1) * size * 0.03
+    ctx.lineWidth = size * 0.005 + hash(seed + i * 3) * size * 0.008
+    ctx.strokeStyle = `rgba(250,250,249,${0.3 + hash(seed + i * 5) * 0.25})`
     ctx.beginPath()
     ctx.moveTo(x0, yy)
-    ctx.bezierCurveTo(
-      size * 0.3,
-      yy + (hash(seed + i) * 8 - 4),
-      size * 0.6,
-      yy + (hash(seed + i * 2) * 8 - 4),
-      x1,
-      yy + (hash(seed + i * 4) * 6 - 3)
-    )
+    ctx.quadraticCurveTo(x0 + len / 2, yy + bend, x0 + len, yy + bend * 0.5)
     ctx.stroke()
   }
-  /* 边缘干笔擦痕 */
-  for (let i = 0; i < 3; i++) {
-    const xx = size * (0.15 + hash(seed + i * 29) * 0.7)
-    ctx.lineWidth = size * 0.008
-    ctx.strokeStyle = `rgba(0,0,0,${0.2 + hash(seed + i * 31) * 0.2})`
+  /* 干笔擦痕：限墨迹内部，一段短斜丝 */
+  for (let i = 0; i < 2; i++) {
+    const xx = size * (0.2 + hash(seed + i * 29) * 0.6)
+    const y0 = size * (0.2 + hash(seed + i * 31) * 0.3)
+    const len = size * (0.2 + hash(seed + i * 37) * 0.15)
+    ctx.lineWidth = size * 0.007
+    ctx.strokeStyle = `rgba(250,250,249,${0.25 + hash(seed + i * 41) * 0.2})`
     ctx.beginPath()
-    ctx.moveTo(xx, size * 0.14)
-    ctx.lineTo(xx + (hash(seed + i * 37) * 10 - 5), size * 0.86)
+    ctx.moveTo(xx, y0)
+    ctx.lineTo(xx + (hash(seed + i * 43) * 2 - 1) * size * 0.04, y0 + len)
     ctx.stroke()
   }
   ctx.restore()
