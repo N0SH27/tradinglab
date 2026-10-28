@@ -371,7 +371,7 @@ export function Seal({ text, size = 24, title }: { text: string; size?: number; 
           <stop offset="100%" stopColor="rgba(192,57,43,.62)" />
         </radialGradient>
       </defs>
-      <g filter={`url(#sealR${text})`}>
+      <g filter={`url(#sealR${text}${size})`}>
         <rect x="4" y="4" width="52" height="52" rx="7" fill={`url(#sealG${text}${size})`} />
         <rect
           x="8.5"
