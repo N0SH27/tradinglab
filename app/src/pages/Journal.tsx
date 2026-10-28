@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { JOURNAL, LEDGER, THESES } from '../data/content'
 import type { JournalEntry, JournalItem } from '../data/domains/journal'
 import { deltaOf, latestChanges } from '../data/ledger'
@@ -195,8 +196,8 @@ function NarrativeRack() {
         </div>
       ))}
 
-      {open && openWeeks && (
-        <div className="dos" role="dialog" aria-modal="true">
+      {open && openWeeks && createPortal(
+        <div className="dos" role="dialog" aria-modal="true" aria-label="研究叙事卷宗">
           <div className="dos-scrim" onClick={() => setOpen(null)} />
           <div className="dos-panel">
             {/* 墨迹边框：4号淡墨飞白残边，展卷时勾框一次即驻留 */}
@@ -267,7 +268,8 @@ function NarrativeRack() {
               <span className="dos-hint">横移如展卷 · 滚轮可用</span>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   )

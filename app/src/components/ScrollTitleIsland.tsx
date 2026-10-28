@@ -48,6 +48,13 @@ export function ScrollTitleIsland({ containerRef, path }: ScrollTitleIslandProps
 
       ghost.innerHTML = source.innerHTML
       ghost.querySelectorAll('[id]').forEach((element) => element.removeAttribute('id'))
+      /* 滚动副本不参与页面的逐字落墨：直接以完整标题开始收拢。
+         否则栏目页会复制 InkTitle 的隐藏状态，只剩外层位移而文字不可见。 */
+      ghost.querySelectorAll<HTMLElement>('.ink-title-reveal span').forEach((element) => {
+        element.style.opacity = '1'
+        element.style.filter = 'none'
+        element.style.transition = 'none'
+      })
       const sourceTitle = (source.textContent ?? '').replace(/\s+/g, '')
       const isLongTitle = Array.from(sourceTitle).length > 6
       const fullLabel = PAGE_LABELS[path] ?? (isLongTitle ? shorten(sourceTitle, 6) : sourceTitle)
@@ -56,10 +63,14 @@ export function ScrollTitleIsland({ containerRef, path }: ScrollTitleIslandProps
       const render = () => {
         const rect = source.getBoundingClientRect()
         const startTop = 88
-        const endTop = 56 - rect.height
+        /* 全站共用首页双行标题的滚动时间轴：短标题不再因自身高度较小而加速。
+           与首页 clamp(2.8rem, 9vw, 8rem) × 1.08 × 2 行的原始行程一致。 */
+        const rootFontSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16
+        const homeFontSize = Math.min(Math.max(window.innerWidth * 0.09, rootFontSize * 2.8), rootFontSize * 8)
+        const scrollRange = startTop - (56 - homeFontSize * 1.08 * 2)
         const progress = motionQuery.matches
           ? (rect.bottom <= 56 ? 1 : 0)
-          : clamp((startTop - rect.top) / (startTop - endTop))
+          : clamp((startTop - rect.top) / scrollRange)
         const styles = getComputedStyle(source)
         const targetScale = 12 / Number.parseFloat(styles.fontSize)
         const horizontalProgress = smoothstep(0.04, 0.9, progress)

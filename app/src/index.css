@@ -235,8 +235,8 @@
   .rack-slot-open .marks { color: rgb(var(--paper)); }
   .rack-slot-open .marks .risk { color: #e0907f; }
 
-  /* 卷宗浮层：抽出 → 背景整页虚化 → 奏折横陈 */
-  .dos { position: fixed; inset: 0; z-index: 75; }
+  /* 卷宗浮层：portal 到 body，层级高于页头与标题灵动岛 */
+  .dos { position: fixed; inset: 0; z-index: 100; }
   .dos-scrim { position: absolute; inset: 0; background: rgb(var(--paper) / .55);
     backdrop-filter: blur(14px) saturate(.85); -webkit-backdrop-filter: blur(14px) saturate(.85);
     animation: dos-fade .5s var(--ease-touch) both; }
