@@ -327,7 +327,7 @@ export default function Journal() {
       {/* ── 02 叙事流 · 季度档案架 ── */}
       <section className="py-4 md:py-8">
         <div className="mb-6 md:mb-8 opacity-80">
-          <InkDivider variant="light" />
+          <InkDivider variant="light" animated={false} />
         </div>
         <div className="flex items-baseline justify-between mb-4 md:mb-6">
           <Label>NARRATIVE · 研究叙事</Label>

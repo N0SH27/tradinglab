@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { INDUSTRY_MAP, MAP_EDGES, MAP_ESSAY, MAP_ERA, THESES, type MapNode } from '../data/content'
 import { Label, PageHead, PolarityTag } from '../components/Bits'
 
@@ -281,34 +282,23 @@ function NodeDetail({ node, linkedNodes }: { node: MapNode; linkedNodes: MapNode
 export default function IndustryMap() {
   const [activeId, setActiveId] = useState(INDUSTRY_MAP.nodes[0]?.id ?? '')
   const [hoverId, setHoverId] = useState<string | null>(null)
-  /* 使用说明浮层：悬浮即显（150ms 过桥防抖），点击钉住，再点或 ✕ 关闭 */
+  /* 使用说明浮层：仅点击开启，再点入口、遮罩、✕ 或 Esc 关闭 */
   const [infoOpen, setInfoOpen] = useState(false)
-  const infoPin = useRef(false)
-  const infoTimer = useRef<number | undefined>(undefined)
-  useEffect(() => () => window.clearTimeout(infoTimer.current), [])
-  const openInfo = () => {
-    window.clearTimeout(infoTimer.current)
-    setInfoOpen(true)
-  }
-  const delayCloseInfo = () => {
-    window.clearTimeout(infoTimer.current)
-    infoTimer.current = window.setTimeout(() => {
-      if (!infoPin.current) setInfoOpen(false)
-    }, 150)
-  }
-  const toggleInfo = () => {
-    if (infoPin.current) {
-      infoPin.current = false
-      setInfoOpen(false)
-    } else {
-      infoPin.current = true
-      setInfoOpen(true)
+  useEffect(() => {
+    if (!infoOpen) return
+    const previousOverflow = document.body.style.overflow
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setInfoOpen(false)
     }
-  }
-  const closeInfo = () => {
-    infoPin.current = false
-    setInfoOpen(false)
-  }
+    document.body.style.overflow = 'hidden'
+    document.addEventListener('keydown', closeOnEscape)
+    return () => {
+      document.body.style.overflow = previousOverflow
+      document.removeEventListener('keydown', closeOnEscape)
+    }
+  }, [infoOpen])
+  const toggleInfo = () => setInfoOpen((current) => !current)
+  const closeInfo = () => setInfoOpen(false)
   const active = INDUSTRY_MAP.nodes.find((n) => n.id === activeId) ?? INDUSTRY_MAP.nodes[0]
   if (!active) return null // 地图数据为空时不渲染，不拖垮整站
   const byId = Object.fromEntries(INDUSTRY_MAP.nodes.map((n) => [n.id, n]))
@@ -333,7 +323,7 @@ export default function IndustryMap() {
               <div className="absolute top-4 left-4 md:top-5 md:left-5 z-10">
                 <Label>{INDUSTRY_MAP.root}</Label>
               </div>
-              {/* 使用说明入口：圆圈 i · 悬浮或点击弹出（2026-10-27 Human 裁决） */}
+              {/* 使用说明入口：圆圈 i · 仅点击弹出 */}
               <div className="absolute top-4 right-4 md:top-5 md:right-5 z-30 flex items-center gap-3">
                 <Label>上游 ↓ 下游</Label>
                 <button
@@ -341,8 +331,6 @@ export default function IndustryMap() {
                   aria-label="使用说明"
                   aria-expanded={infoOpen}
                   onClick={toggleInfo}
-                  onMouseEnter={openInfo}
-                  onMouseLeave={delayCloseInfo}
                   className="block cursor-pointer text-[rgb(var(--ink-3))] hover:text-[rgb(var(--ink))] transition-colors"
                 >
                   <svg width="21" height="21" viewBox="0 0 21 21" fill="none" aria-hidden="true">
@@ -396,23 +384,22 @@ export default function IndustryMap() {
                   </g>
                 ))}
               </svg>
-              {/* 使用说明浮层：背景虚化（backdrop-blur 毛玻璃） */}
-              {infoOpen && (
+              {/* 使用说明：portal 到 body，遮罩与背景虚化覆盖整个视口 */}
+              {infoOpen && createPortal(
                 <div
-                  className="absolute inset-0 z-20 flex items-center justify-center p-4 md:p-8"
+                  className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8"
                   style={{
                     background: 'rgba(250,250,249,.45)',
                     backdropFilter: 'blur(7px)',
                     WebkitBackdropFilter: 'blur(7px)',
                   }}
                   onClick={closeInfo}
-                  onMouseEnter={openInfo}
-                  onMouseLeave={delayCloseInfo}
                 >
                   <div
                     role="dialog"
+                    aria-modal="true"
                     aria-label="地图使用说明"
-                    className="relative w-full max-w-lg max-h-full overflow-y-auto bg-paper border border-[rgb(var(--line))] p-6 md:p-9"
+                    className="relative w-full max-w-lg max-h-[calc(100dvh-2rem)] md:max-h-[calc(100dvh-4rem)] overflow-y-auto bg-paper border border-[rgb(var(--line))] p-6 md:p-9"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <button
@@ -438,7 +425,8 @@ export default function IndustryMap() {
                       </p>
                     </div>
                   </div>
-                </div>
+                </div>,
+                document.body,
               )}
             </div>
           </div>
