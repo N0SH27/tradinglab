@@ -406,9 +406,11 @@ export function Seal({ text, size = 24, title }: { text: string; size?: number; 
 export function InkDivider({
   variant = 'light',
   className = '',
+  animated = true,
 }: {
   variant?: 'heavy' | 'light'
   className?: string
+  animated?: boolean
 }) {
   const ref = useRef<HTMLCanvasElement>(null)
   useEffect(() => {
@@ -430,11 +432,12 @@ export function InkDivider({
       const n = Math.max(2, Math.floor(pts.length * prog))
       paintBands(c, pts, n, { stops: heavy ? DARK_STOPS : GRAY_STOPS, alpha: heavy ? 0.55 : 0.4, pad: 0.3, tipDry: true })
     }
-    animateOnView(parent, draw, heavy ? 1000 : 1400, 0.6)
+    if (animated) animateOnView(parent, draw, heavy ? 1000 : 1400, 0.6)
+    else draw(1)
     const ro = new ResizeObserver(() => draw(1))
     ro.observe(parent)
     return () => ro.disconnect()
-  }, [variant])
+  }, [variant, animated])
   return <canvas ref={ref} aria-hidden="true" className={`block w-full ${className}`} />
 }
 

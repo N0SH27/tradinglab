@@ -1,8 +1,9 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { NAV, SITE, ARCHIVE_TREE } from '../data/content'
 import { Label } from './Bits'
 import { HSNSeal, HSNSymbol } from './Brand'
 import { EdgeStroke } from '../ink/brush'
+import { ScrollTitleIsland } from './ScrollTitleIsland'
 
 /* 视觉 lockup「trading·lab BY HSN」= Founder Signature（V2-06-00 裁决 A）：
    与 canonical brand（SITE.name = 'TradingLabb'）正式解耦——
@@ -12,35 +13,77 @@ const HEADER_LOCKUP = 'trading-lab'
 
 function Header({ path }: { path: string }) {
   const [open, setOpen] = useState(false)
+  const [openMenu, setOpenMenu] = useState<string | null>(null)
+  const desktopNavRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    if (!openMenu) return
+
+    const closeOnOutsideClick = (event: PointerEvent) => {
+      if (!desktopNavRef.current?.contains(event.target as Node)) setOpenMenu(null)
+    }
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpenMenu(null)
+    }
+
+    document.addEventListener('pointerdown', closeOnOutsideClick)
+    document.addEventListener('keydown', closeOnEscape)
+    return () => {
+      document.removeEventListener('pointerdown', closeOnOutsideClick)
+      document.removeEventListener('keydown', closeOnEscape)
+    }
+  }, [openMenu])
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-paper hairline-b">
       <div className="max-w-[1400px] mx-auto px-5 md:px-10 h-14 flex items-center justify-between">
-        <a href="#/" className="flex items-center gap-2.5 group" onClick={() => setOpen(false)}>
+        <a
+          href="#/"
+          className="flex items-center gap-2.5 group"
+          onClick={() => {
+            setOpen(false)
+            setOpenMenu(null)
+          }}
+        >
           <HSNSymbol size={22} />
           <span className="font-mono-num font-medium tracking-tight text-base lowercase">{HEADER_LOCKUP}</span>
           <span className="label-sm hidden xl:inline">by {SITE.author}</span>
         </a>
-        <nav className="hidden lg:flex items-stretch gap-5 self-stretch">
+        <nav ref={desktopNavRef} className="hidden lg:flex items-stretch gap-5 self-stretch">
           {NAV.map((n) =>
             'children' in n ? (
-              <div key={n.label} className="nav-group relative group flex items-center">
-                <span
-                  tabIndex={0}
-                  role="button"
+              <div
+                key={n.label}
+                className="nav-group relative flex items-center"
+                onBlur={(event) => {
+                  if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+                    setOpenMenu((current) => current === n.label ? null : current)
+                  }
+                }}
+              >
+                <button
+                  type="button"
                   aria-haspopup="true"
+                  aria-expanded={openMenu === n.label}
+                  aria-controls={`nav-panel-${n.label}`}
                   aria-label={`${n.label}栏目`}
-                  className={`ink-hv text-xs leading-none tracking-[0.2em] cursor-default ${
+                  onClick={() => setOpenMenu((current) => current === n.label ? null : n.label)}
+                  className={`ink-hv text-xs leading-none tracking-[0.2em] cursor-pointer ${
                     n.children.some((c) => c.path === path) ? 'ink font-medium' : 'ink-3 hover:ink'
                   }`}
                 >
                   {n.label}
-                </span>
-                <div className="nav-panel absolute left-1/2 -translate-x-1/2 top-full hidden group-hover:block group-focus-within:block">
+                </button>
+                <div
+                  id={`nav-panel-${n.label}`}
+                  className={`nav-panel absolute left-1/2 -translate-x-1/2 top-full ${openMenu === n.label ? 'block' : 'hidden'}`}
+                >
                   <div className="mt-2.5 bg-paper border border-[rgb(var(--line))] min-w-36 py-1.5">
                     {n.children.map((c) => (
                       <a
                         key={c.path}
                         href={`#${c.path}`}
+                        onClick={() => setOpenMenu(null)}
                         className={`ink-hv flex items-baseline justify-between gap-7 px-4 py-2.5 text-xs tracking-[0.2em] whitespace-nowrap ${
                           path === c.path ? 'ink font-medium' : 'ink-3 hover:ink'
                         }`}
@@ -56,6 +99,7 @@ function Header({ path }: { path: string }) {
               <a
                 key={n.path}
                 href={`#${n.path}`}
+                onClick={() => setOpenMenu(null)}
                 className={`flex items-center text-xs leading-none tracking-[0.2em] ${
                   path === n.path ? 'ink font-medium' : 'ink-3 hover:ink'
                 }`}
@@ -199,11 +243,13 @@ function edgeChar(path: string): string | null {
 }
 
 export default function Layout({ path, children }: { path: string; children: React.ReactNode }) {
+  const mainRef = useRef<HTMLElement>(null)
   return (
     <div id="page-root" className="min-h-screen flex flex-col relative z-[1] bg-paper">
       {edgeChar(path) && <EdgeStroke ch={edgeChar(path)!} />}
+      <ScrollTitleIsland containerRef={mainRef} path={path} />
       <Header path={path} />
-      <main className="flex-1">{children}</main>
+      <main ref={mainRef} className="flex-1">{children}</main>
       <Footer />
     </div>
   )
