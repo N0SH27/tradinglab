@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react'
 import { THESES, LEDGER, SITE } from '../data/content'
 import { deltaOf, deriveCurrentBelief, lastRevisedOf, latestChanges } from '../data/ledger'
-import { HSNSeal, HSNSymbol } from '../components/Brand'
+import { HSNSeal } from '../components/Brand'
+import { HiddenEntryLogo } from '../components/HiddenEntryLogo'
 import { PolarityInstrument, type PolarityState } from '../components/PolarityInstrument'
 import { FlipCard } from '../components/FlipCard'
 import { PolarityXiao } from '../components/PolarityXiao'
@@ -190,7 +191,7 @@ export default function Home() {
             {SITE.description[SITE.description.length - 1]}
           </p>
           <div className="mt-10 md:mt-12 flex justify-center">
-            <HSNSymbol size={72} className="opacity-90" />
+            <HiddenEntryLogo />
           </div>
         </div>
       </section>

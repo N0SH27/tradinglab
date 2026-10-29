@@ -6,6 +6,7 @@ import { trackPageView } from './analytics'
 import { InkTransition } from './ink/InkTransition'
 import { InkCursor } from './ink/InkCursor'
 import { SwipeBack } from './ink/SwipeBack'
+import { HIDDEN_ROUTE, hasHiddenEntry } from './lib/hiddenAccess'
 
 /* 按路由分包：首屏只下载当前页的代码，其余页面首次进入时静默加载 */
 const Home = lazy(() => import('./pages/Home'))
@@ -29,6 +30,7 @@ const Report3 = lazy(() => import('./pages/research/Report3'))
 const Report4 = lazy(() => import('./pages/research/Report4'))
 const Report5 = lazy(() => import('./pages/research/Report5'))
 const Report6 = lazy(() => import('./pages/research/Report6'))
+const HiddenPage = lazy(() => import('./pages/HiddenPage'))
 
 function route(path: string): React.ReactNode {
   if (path.startsWith('/essays/')) return <Essay id={path.replace('/essays/', '')} />
@@ -61,7 +63,22 @@ function route(path: string): React.ReactNode {
 
 export default function App() {
   const path = useHashRoute()
-  useEffect(() => { trackPageView(path) }, [path])
+  const hiddenEntry = hasHiddenEntry()
+
+  useEffect(() => {
+    if (path !== HIDDEN_ROUTE) trackPageView(path)
+    if (path === HIDDEN_ROUTE && !hiddenEntry) window.location.hash = '/'
+  }, [path, hiddenEntry])
+
+  if (path === HIDDEN_ROUTE) {
+    if (!hiddenEntry) return null
+    return (
+      <ErrorBoundary>
+        <Suspense fallback={null}><HiddenPage /></Suspense>
+      </ErrorBoundary>
+    )
+  }
+
   return (
     <>
       <Layout path={path}>
