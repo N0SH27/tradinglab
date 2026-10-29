@@ -116,13 +116,15 @@ try {
   await send('Page.enable')
   await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false })
 
-  /* 没有三连击凭证时，直接输入 hash 也会被送回首页。 */
-  await send('Page.navigate', { url: `${BASE}/#/after-hours` })
+  /* 没有三连击凭证时，直接输入内部地址也会被送回首页。 */
+  await send('Page.navigate', { url: `${BASE}/#/after-hours/library` })
   await waitFor(`location.hash === '#/' && !!document.querySelector('button[aria-label="HSN 符号"]')`)
+  await sleep(800)
 
   await evaluate(`document.querySelector('button[aria-label="HSN 符号"]').click()`)
   await evaluate(`document.querySelector('button[aria-label="HSN 符号"]').click()`)
   await evaluate(`document.querySelector('button[aria-label="HSN 符号"]').click()`)
+  await sleep(600)
   await waitFor(`location.hash === '#/after-hours' && !!document.querySelector('#after-hours-password')`)
   await sleep(1400)
   assert.equal(await evaluate(`!!document.querySelector('.ghost-fibers-canvas')?.getContext('webgl2')`), true)
@@ -138,20 +140,85 @@ try {
   await sleep(1200)
   await screenshot('desktop-unlocked.png')
 
-  await evaluate(`document.querySelector('.ah-note-trigger').click()`)
-  assert.equal(await evaluate(`document.querySelector('.ah-note-detail').hidden`), false)
-  assert.match(await evaluate(`document.querySelector('.ah-note-detail').textContent`), /示例正文/)
+  await evaluate(`document.querySelector('.ah-scroll-link').click()`)
+  await waitFor(`document.querySelector('.circular-carousel')?.hasAttribute('data-ready')`)
+  await sleep(1800)
+  assert.equal(await evaluate(`document.querySelectorAll('.circular-carousel__card').length`), 6)
+  assert.equal(await evaluate(`location.hash`), '#/after-hours')
+  await screenshot('desktop-carousel.png')
+
+  await evaluate(`document.querySelector('.circular-carousel').dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))`)
+  await waitFor(`document.querySelector('.ah-carousel-current-index')?.textContent.includes('031')`)
+  assert.match(await evaluate(`document.querySelector('.ah-carousel-current p').textContent`), /结构破坏负责改变假设/)
+  await evaluate(`document.querySelector('.ah-carousel-current .ah-inline-link').click()`)
+  await waitFor(`location.hash === '#/after-hours/note/structure-break-retest' && !!document.querySelector('.ah-note-article')`)
+  assert.equal(await evaluate(`document.querySelectorAll('.ah-note-article section').length`), 4)
+  await screenshot('desktop-note.png')
+
+  await evaluate(`document.querySelector('.ah-note-back').click()`)
+  await waitFor(`location.hash === '#/after-hours/library' && document.querySelectorAll('.ah-library-row').length === 8`)
+  await screenshot('desktop-library.png')
+  await evaluate(`[...document.querySelectorAll('.ah-library-filters fieldset')][0].querySelectorAll('button')[4].click()`)
+  await waitFor(`document.querySelectorAll('.ah-library-row').length === 2`)
+  assert.match(await evaluate(`document.querySelector('.ah-library-results').textContent`), /流动性清扫/)
+  await evaluate(`document.querySelector('.ah-clear-filters').click()`)
+  await waitFor(`document.querySelectorAll('.ah-library-row').length === 8`)
+
+  await evaluate(`(() => {
+    const input = document.querySelector('.ah-filter-search input');
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+    setter.call(input, 'ATR');
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  })()`)
+  await waitFor(`document.querySelectorAll('.ah-library-row').length === 1`)
+  assert.match(await evaluate(`document.querySelector('.ah-library-row-title').textContent`), /ATR/)
+  await evaluate(`document.querySelector('.ah-preview-open').click()`)
+  await waitFor(`location.hash === '#/after-hours/note/atr-risk-measurement'`)
+
+  await evaluate(`window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true }))`)
+  await waitFor(`!!document.querySelector('.ah-search-dialog')`)
+  await evaluate(`(() => {
+    const input = document.querySelector('.ah-search-input-row input');
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+    setter.call(input, '追单');
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  })()`)
+  await waitFor(`document.querySelectorAll('.ah-search-results > button').length >= 2`)
+  await evaluate(`document.querySelector('.ah-search-input-row input').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))`)
+  await waitFor(`!document.querySelector('.ah-search-dialog') && !!document.querySelector('.ah-note-page')`)
+
+  await evaluate(`document.querySelector('.ah-wordmark').click()`)
+  await waitFor(`!!document.querySelector('.ah-system-section')`)
+  await evaluate(`document.querySelector('.ah-system-section').scrollIntoView()`)
+  await screenshot('desktop-system.png')
+  await evaluate(`document.querySelectorAll('.ah-domain-row')[3].click()`)
+  await waitFor(`location.hash === '#/after-hours/library?domain=structure' && document.querySelectorAll('.ah-library-row').length === 2`)
+  await evaluate(`document.querySelector('.ah-wordmark').click()`)
+  await waitFor(`!!document.querySelector('.ah-path-section')`)
+  await evaluate(`document.querySelector('.ah-path-current .ah-inline-link').click()`)
+  await waitFor(`location.hash === '#/after-hours/note/price-action-failure' && !!document.querySelector('.ah-note-page')`)
 
   await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true })
   await send('Page.navigate', { url: `${BASE}/#/after-hours` })
   await waitFor(`!!document.querySelector('.ah-private')`)
-  await sleep(700)
+  await evaluate(`document.querySelector('.ah-scroll-link').click()`)
+  await waitFor(`document.querySelector('.circular-carousel')?.hasAttribute('data-ready')`)
+  await sleep(900)
   assert.equal(await evaluate(`document.documentElement.scrollWidth <= window.innerWidth`), true)
-  await screenshot('mobile-unlocked.png')
+  await screenshot('mobile-carousel.png')
+
+  await send('Page.navigate', { url: `${BASE}/#/after-hours/library` })
+  await waitFor(`document.querySelectorAll('.ah-library-row').length === 8`)
+  assert.equal(await evaluate(`document.documentElement.scrollWidth <= window.innerWidth`), true)
+  await screenshot('mobile-library.png')
+  await evaluate(`document.querySelector('.ah-library-row').click()`)
+  await waitFor(`!!document.querySelector('.ah-note-page')`)
+  assert.equal(await evaluate(`document.documentElement.scrollWidth <= window.innerWidth`), true)
+  await screenshot('mobile-note.png')
   assert.deepEqual(exceptions, [])
 
-  console.log('PASS 直接地址拦截 → 三连击进入 → 错误密码 → 正确密码 → 正文加载 → 档案展开')
-  console.log('PASS WebGL2 背景 / 桌面布局 / 移动端无横向溢出 / 无浏览器异常')
+  console.log('PASS 内部地址拦截 → 三连击 → 密码验证 → 精选轮播 → 详情阅读 → 资料库筛选')
+  console.log('PASS 全局搜索 / 键盘切换 / 移动端直达详情 / 无横向溢出 / 无浏览器异常')
   console.log(`Screenshots: ${OUT}`)
 } finally {
   if (ws) ws.close()

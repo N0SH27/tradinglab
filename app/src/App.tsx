@@ -64,17 +64,18 @@ function route(path: string): React.ReactNode {
 export default function App() {
   const path = useHashRoute()
   const hiddenEntry = hasHiddenEntry()
+  const isHiddenPath = path === HIDDEN_ROUTE || path.startsWith(`${HIDDEN_ROUTE}/`)
 
   useEffect(() => {
-    if (path !== HIDDEN_ROUTE) trackPageView(path)
-    if (path === HIDDEN_ROUTE && !hiddenEntry) window.location.hash = '/'
-  }, [path, hiddenEntry])
+    if (!isHiddenPath) trackPageView(path)
+    if (isHiddenPath && !hiddenEntry) window.location.hash = '/'
+  }, [path, hiddenEntry, isHiddenPath])
 
-  if (path === HIDDEN_ROUTE) {
+  if (isHiddenPath) {
     if (!hiddenEntry) return null
     return (
       <ErrorBoundary>
-        <Suspense fallback={null}><HiddenPage /></Suspense>
+        <Suspense fallback={null}><HiddenPage path={path} /></Suspense>
       </ErrorBoundary>
     )
   }

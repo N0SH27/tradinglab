@@ -1,23 +1,15 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import GhostFibers from '../components/GhostFibers'
 import { clearHiddenEntry } from '../lib/hiddenAccess'
+import HiddenHome from './hidden/HiddenHome'
+import HiddenLibrary from './hidden/HiddenLibrary'
+import HiddenNote from './hidden/HiddenNote'
+import HiddenSearch from './hidden/HiddenSearch'
+import { goAfterHours, type DomainId, type PrivateContent } from './hidden/hiddenTypes'
 import './HiddenPage.css'
 
-type PrivateNote = {
-  index: string
-  title: string
-  tag: string
-  body: string
-}
-
-type PrivateContent = {
-  kicker: string
-  title: [string, string]
-  intro: string
-  notes: PrivateNote[]
-}
-
 type Phase = 'checking' | 'locked' | 'unlocked'
+type Props = { path: string }
 
 async function getPrivateContent(signal?: AbortSignal): Promise<PrivateContent> {
   const response = await fetch('/api/hidden-content', {
@@ -29,15 +21,21 @@ async function getPrivateContent(signal?: AbortSignal): Promise<PrivateContent> 
   return response.json() as Promise<PrivateContent>
 }
 
-export default function HiddenPage() {
+export default function HiddenPage({ path }: Props) {
   const [phase, setPhase] = useState<Phase>('checking')
   const [content, setContent] = useState<PrivateContent | null>(null)
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [pending, setPending] = useState(false)
   const [error, setError] = useState('')
-  const [openNote, setOpenNote] = useState<string | null>(null)
+  const [searchOpen, setSearchOpen] = useState(false)
   const passwordRef = useRef<HTMLInputElement>(null)
+  const routePath = path.split('?')[0]
+  const view = routePath.startsWith('/after-hours/note/') ? 'note' : routePath === '/after-hours/library' ? 'library' : 'home'
+  const noteSlug = view === 'note' ? decodeURIComponent(routePath.replace('/after-hours/note/', '')) : ''
+  const queryDomain = new URLSearchParams(path.split('?')[1] ?? '').get('domain') ?? 'all'
+  const validDomains: (DomainId | 'all')[] = ['all', 'foundation', 'language', 'tools', 'structure', 'execution', 'review']
+  const initialDomain = validDomains.includes(queryDomain as DomainId | 'all') ? queryDomain as DomainId | 'all' : 'all'
 
   useEffect(() => {
     const previousTitle = document.title
@@ -78,10 +76,37 @@ export default function HiddenPage() {
     if (phase === 'locked') passwordRef.current?.focus()
   }, [phase])
 
+  useEffect(() => {
+    if (!content || phase !== 'unlocked') return
+    const note = view === 'note' ? content.notes.find(item => item.slug === noteSlug) : null
+    document.title = note ? `${note.title} — After Hours` : view === 'library' ? '体系资料库 — After Hours' : 'After Hours — TradingLabb'
+  }, [content, noteSlug, phase, view])
+
+  useEffect(() => {
+    if (phase !== 'unlocked') return
+    const onKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLocaleLowerCase() === 'k') {
+        event.preventDefault()
+        setSearchOpen(true)
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [phase])
+
   const leave = () => {
     clearHiddenEntry()
     window.location.hash = '/'
   }
+
+  const closeSearch = useCallback(() => setSearchOpen(false), [])
+  const openNote = useCallback((slug: string) => {
+    setSearchOpen(false)
+    goAfterHours(`note/${encodeURIComponent(slug)}`)
+  }, [])
+  const openLibrary = useCallback((domain?: DomainId) => {
+    goAfterHours(domain ? `library?domain=${domain}` : 'library')
+  }, [])
 
   const submitPassword = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -134,38 +159,44 @@ export default function HiddenPage() {
   }
 
   return (
-    <div className="after-hours">
-      <GhostFibers
-        className="ah-fibers"
-        glowColor="#f7f7f7"
-        lineColor="#ffffff"
-        secondaryColor="#949494"
-        gradient="depth"
-        speed={0.32}
-        scale={1.08}
-        rotation={18}
-        rollSpeed={0.12}
-        layers={3}
-        waves={1.1}
-        twist={1.35}
-        threads={64}
-        density={0.85}
-        fiberStyle="lines"
-        sparkle={0.35}
-        glow={0.7}
-        brightness={0.9}
-        grain={0.05}
-        vignette={0.42}
-        hoverEffect="focus"
-      />
+    <div className={`after-hours ah-view-${view}`}>
+      {(phase !== 'unlocked' || view === 'home') && (
+        <GhostFibers
+          className="ah-fibers"
+          glowColor="#f7f7f7"
+          lineColor="#ffffff"
+          secondaryColor="#949494"
+          gradient="depth"
+          speed={0.32}
+          scale={1.08}
+          rotation={18}
+          rollSpeed={0.12}
+          layers={3}
+          waves={1.1}
+          twist={1.35}
+          threads={64}
+          density={0.85}
+          fiberStyle="lines"
+          sparkle={0.35}
+          glow={0.7}
+          brightness={0.9}
+          grain={0.05}
+          vignette={0.42}
+          hoverEffect="focus"
+        />
+      )}
 
       <div className="ah-shell">
         <header className="ah-header">
-          <span className="ah-wordmark">trading-lab</span>
-          <span className="ah-header-meta">PRIVATE / 001</span>
-          <button type="button" className="ah-text-button" onClick={phase === 'unlocked' ? logout : leave} disabled={pending}>
-            {phase === 'unlocked' ? '退出并返回' : '返回首页'} <span aria-hidden="true">↗</span>
-          </button>
+          <button type="button" className="ah-wordmark" onClick={() => phase === 'unlocked' ? goAfterHours() : leave()}>trading-lab</button>
+          <span className="ah-header-meta">PRIVATE / {view === 'home' ? '001' : view === 'library' ? 'LIBRARY' : 'NOTE'}</span>
+          <div className="ah-header-actions">
+            {phase === 'unlocked' && view !== 'library' && <button type="button" className="ah-header-link" onClick={() => openLibrary()}>LIBRARY</button>}
+            {phase === 'unlocked' && <button type="button" className="ah-header-link ah-header-search" onClick={() => setSearchOpen(true)} aria-label="搜索知识库">⌘ K</button>}
+            <button type="button" className="ah-text-button" onClick={phase === 'unlocked' ? logout : leave} disabled={pending}>
+              {phase === 'unlocked' ? '退出并返回' : '返回首页'} <span aria-hidden="true">↗</span>
+            </button>
+          </div>
         </header>
 
         {phase !== 'unlocked' || !content ? (
@@ -194,19 +225,12 @@ export default function HiddenPage() {
                       disabled={pending}
                       required
                     />
-                    <button
-                      type="button"
-                      className="ah-reveal"
-                      onClick={() => setShowPassword(value => !value)}
-                      aria-label={showPassword ? '隐藏密码' : '显示密码'}
-                    >
+                    <button type="button" className="ah-reveal" onClick={() => setShowPassword(value => !value)} aria-label={showPassword ? '隐藏密码' : '显示密码'}>
                       {showPassword ? '隐藏' : '显示'}
                     </button>
                   </div>
                   <div className="ah-form-bottom">
-                    <button type="submit" className="ah-enter" disabled={pending || !password}>
-                      {pending ? '验证中' : '进入'} <span aria-hidden="true">→</span>
-                    </button>
+                    <button type="submit" className="ah-enter" disabled={pending || !password}>{pending ? '验证中' : '进入'} <span aria-hidden="true">→</span></button>
                     <span className="ah-session-note">限时访问 · 2 HOURS</span>
                   </div>
                 </form>
@@ -214,56 +238,15 @@ export default function HiddenPage() {
               {error && <p className="ah-error" role="alert">{error}</p>}
             </div>
           </main>
+        ) : view === 'library' ? (
+          <HiddenLibrary key={path} content={content} initialDomain={initialDomain} onOpenNote={openNote} onOpenSearch={() => setSearchOpen(true)} />
+        ) : view === 'note' ? (
+          <HiddenNote content={content} slug={noteSlug} onBack={() => openLibrary()} onOpenNote={openNote} />
         ) : (
-          <main className="ah-private">
-            <section className="ah-hero" aria-labelledby="after-hours-title">
-              <p className="ah-kicker">{content.kicker}</p>
-              <h1 id="after-hours-title">{content.title[0]}<br />{content.title[1]}</h1>
-              <div className="ah-hero-bottom">
-                <p>{content.intro}</p>
-                <a href="#private-notes" className="ah-scroll-link">阅读档案 <span aria-hidden="true">↓</span></a>
-              </div>
-            </section>
-
-            <section id="private-notes" className="ah-notes" aria-label="私密档案">
-              <div className="ah-section-heading">
-                <span>FIELD NOTES</span>
-                <span>{String(content.notes.length).padStart(2, '0')} ENTRIES</span>
-              </div>
-              <div className="ah-note-list">
-                {content.notes.map(note => {
-                  const open = openNote === note.index
-                  return (
-                    <article className={`ah-note${open ? ' is-open' : ''}`} key={note.index}>
-                      <button
-                        type="button"
-                        className="ah-note-trigger"
-                        onClick={() => setOpenNote(open ? null : note.index)}
-                        aria-expanded={open}
-                        aria-controls={`note-${note.index}`}
-                      >
-                        <span className="ah-note-index">{note.index}</span>
-                        <span className="ah-note-title">{note.title}</span>
-                        <span className="ah-note-tag">{note.tag}</span>
-                        <span className="ah-note-toggle" aria-hidden="true">{open ? '−' : '+'}</span>
-                      </button>
-                      <div id={`note-${note.index}`} className="ah-note-detail" hidden={!open}>
-                        <span className="ah-detail-mark" aria-hidden="true">{note.index}</span>
-                        <p>{note.body}</p>
-                      </div>
-                    </article>
-                  )
-                })}
-              </div>
-            </section>
-
-            <footer className="ah-footer">
-              <span>NOT INDEXED / NOT IN NAVIGATION</span>
-              <span>HSN · TRADINGLABB</span>
-            </footer>
-          </main>
+          <HiddenHome content={content} onOpenLibrary={openLibrary} onOpenNote={openNote} onOpenSearch={() => setSearchOpen(true)} />
         )}
       </div>
+      {searchOpen && content && <HiddenSearch notes={content.notes} onClose={closeSearch} onOpenNote={openNote} />}
     </div>
   )
 }
