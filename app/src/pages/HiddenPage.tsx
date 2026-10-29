@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import GhostFibers from '../components/GhostFibers'
 import { clearHiddenEntry } from '../lib/hiddenAccess'
+import HiddenCollection from './hidden/HiddenCollection'
 import HiddenHome from './hidden/HiddenHome'
 import HiddenLibrary from './hidden/HiddenLibrary'
 import HiddenNote from './hidden/HiddenNote'
 import HiddenSearch from './hidden/HiddenSearch'
-import { goAfterHours, type DomainId, type PrivateContent } from './hidden/hiddenTypes'
+import { goAfterHours, type DomainId, type HiddenCollectionId, type PrivateContent } from './hidden/hiddenTypes'
 import './HiddenPage.css'
 
 type Phase = 'checking' | 'locked' | 'unlocked'
@@ -31,8 +32,16 @@ export default function HiddenPage({ path }: Props) {
   const [searchOpen, setSearchOpen] = useState(false)
   const passwordRef = useRef<HTMLInputElement>(null)
   const routePath = path.split('?')[0]
-  const view = routePath.startsWith('/after-hours/note/') ? 'note' : routePath === '/after-hours/library' ? 'library' : 'home'
+  const view = routePath.startsWith('/after-hours/note/')
+    ? 'note'
+    : routePath === '/after-hours/library'
+      ? 'library'
+      : routePath.startsWith('/after-hours/collection/')
+        ? 'collection'
+        : 'home'
   const noteSlug = view === 'note' ? decodeURIComponent(routePath.replace('/after-hours/note/', '')) : ''
+  const collectionId = view === 'collection' ? decodeURIComponent(routePath.replace('/after-hours/collection/', '')) : ''
+  const collection = content?.collections.find(item => item.id === collectionId && item.id !== 'library')
   const queryDomain = new URLSearchParams(path.split('?')[1] ?? '').get('domain') ?? 'all'
   const validDomains: (DomainId | 'all')[] = ['all', 'foundation', 'language', 'tools', 'structure', 'execution', 'review']
   const initialDomain = validDomains.includes(queryDomain as DomainId | 'all') ? queryDomain as DomainId | 'all' : 'all'
@@ -79,8 +88,14 @@ export default function HiddenPage({ path }: Props) {
   useEffect(() => {
     if (!content || phase !== 'unlocked') return
     const note = view === 'note' ? content.notes.find(item => item.slug === noteSlug) : null
-    document.title = note ? `${note.title} — After Hours` : view === 'library' ? '体系资料库 — After Hours' : 'After Hours — TradingLabb'
-  }, [content, noteSlug, phase, view])
+    document.title = note
+      ? `${note.title} — After Hours`
+      : view === 'library'
+        ? '体系资料库 — After Hours'
+        : collection
+          ? `${collection.title} — After Hours`
+          : 'After Hours — TradingLabb'
+  }, [collection, content, noteSlug, phase, view])
 
   useEffect(() => {
     if (phase !== 'unlocked') return
@@ -107,6 +122,13 @@ export default function HiddenPage({ path }: Props) {
   const openLibrary = useCallback((domain?: DomainId) => {
     goAfterHours(domain ? `library?domain=${domain}` : 'library')
   }, [])
+  const openCollection = useCallback((id: HiddenCollectionId) => {
+    if (id === 'library') {
+      openLibrary()
+      return
+    }
+    goAfterHours(`collection/${encodeURIComponent(id)}`)
+  }, [openLibrary])
 
   const submitPassword = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -189,7 +211,7 @@ export default function HiddenPage({ path }: Props) {
       <div className="ah-shell">
         <header className="ah-header">
           <button type="button" className="ah-wordmark" onClick={() => phase === 'unlocked' ? goAfterHours() : leave()}>trading-lab</button>
-          <span className="ah-header-meta">PRIVATE / {view === 'home' ? '001' : view === 'library' ? 'LIBRARY' : 'NOTE'}</span>
+          <span className="ah-header-meta">PRIVATE / {view === 'home' ? '001' : view === 'library' ? 'LIBRARY' : view === 'collection' ? (collection?.english ?? 'COLLECTION') : 'NOTE'}</span>
           <div className="ah-header-actions">
             {phase === 'unlocked' && view !== 'library' && <button type="button" className="ah-header-link" onClick={() => openLibrary()}>LIBRARY</button>}
             {phase === 'unlocked' && <button type="button" className="ah-header-link ah-header-search" onClick={() => setSearchOpen(true)} aria-label="搜索知识库">⌘ K</button>}
@@ -239,11 +261,13 @@ export default function HiddenPage({ path }: Props) {
             </div>
           </main>
         ) : view === 'library' ? (
-          <HiddenLibrary key={path} content={content} initialDomain={initialDomain} onOpenNote={openNote} onOpenSearch={() => setSearchOpen(true)} />
+          <HiddenLibrary key={path} content={content} initialDomain={initialDomain} onGoHome={() => goAfterHours()} onOpenNote={openNote} onOpenSearch={() => setSearchOpen(true)} />
         ) : view === 'note' ? (
           <HiddenNote content={content} slug={noteSlug} onBack={() => openLibrary()} onOpenNote={openNote} />
+        ) : view === 'collection' && collection ? (
+          <HiddenCollection key={collection.id} collection={collection} onGoHome={() => goAfterHours()} onOpenLibrary={() => openLibrary()} />
         ) : (
-          <HiddenHome content={content} onOpenLibrary={openLibrary} onOpenNote={openNote} onOpenSearch={() => setSearchOpen(true)} />
+          <HiddenHome content={content} onOpenCollection={openCollection} onOpenSearch={() => setSearchOpen(true)} />
         )}
       </div>
       {searchOpen && content && <HiddenSearch notes={content.notes} onClose={closeSearch} onOpenNote={openNote} />}

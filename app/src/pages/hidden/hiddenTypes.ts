@@ -43,10 +43,26 @@ export type HiddenPath = {
   steps: { label: string; state: 'done' | 'current' | 'next' }[]
 }
 
+export type HiddenCollectionId = 'library' | 'research' | 'media' | 'tools' | 'dashboards' | 'conversations' | 'investors'
+
+export type HiddenCollection = {
+  id: HiddenCollectionId
+  index: string
+  title: string
+  shortTitle: string
+  english: string
+  summary: string
+  src: string
+  format: string
+  groups: { title: string; description: string; src?: string }[]
+  editorial: string
+}
+
 export type PrivateContent = {
   kicker: string
   title: [string, string]
   intro: string
+  collections: HiddenCollection[]
   domains: HiddenDomain[]
   notes: PrivateNote[]
   currentPath: HiddenPath
