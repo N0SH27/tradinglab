@@ -71,6 +71,7 @@ export function ScrollTitleIsland({ containerRef, path }: ScrollTitleIslandProps
       let scrollRange = 1
       let compact = window.innerWidth < 640
       let sourceHidden: boolean | null = null
+      let lastProgress = -1
 
       /* 布局只在挂载和视口变化时读取。滚动帧只消费缓存值，避免读写交错触发布局。 */
       const measure = () => {
@@ -88,6 +89,7 @@ export function ScrollTitleIsland({ containerRef, path }: ScrollTitleIslandProps
         targetLeft = (window.innerWidth - sourceWidth * targetScale) / 2
         scrollRange = startTop - (56 - homeFontSize * 1.08 * 2)
         compact = window.innerWidth < 640
+        lastProgress = -1
 
         ghost.style.left = `${sourceLeft}px`
         ghost.style.top = `${documentTop}px`
@@ -100,6 +102,9 @@ export function ScrollTitleIsland({ containerRef, path }: ScrollTitleIslandProps
         ghost.style.textAlign = styles.textAlign
         ghost.style.color = styles.color
         label.textContent = compact && isLongTitle ? shorten(fullLabel, 4) : fullLabel
+        const expandedWidth = compact ? 104 : 148
+        island.style.width = `${expandedWidth}px`
+        island.style.left = compact ? `${window.innerWidth - 56 - expandedWidth / 2}px` : '50%'
       }
 
       const render = () => {
@@ -109,6 +114,9 @@ export function ScrollTitleIsland({ containerRef, path }: ScrollTitleIslandProps
         const progress = motionQuery.matches
           ? (rectTop + sourceHeight <= 56 ? 1 : 0)
           : clamp((startTop - rectTop) / scrollRange)
+        /* 收拢行程之外不再写样式：长页面滚动时保持休眠。 */
+        if (progress === lastProgress) return
+        lastProgress = progress
         const horizontalProgress = smoothstep(0.04, 0.9, progress)
         const scaleProgress = smoothstep(0, 0.92, progress)
         const scale = 1 + (targetScale - 1) * scaleProgress
@@ -127,10 +135,9 @@ export function ScrollTitleIsland({ containerRef, path }: ScrollTitleIslandProps
         const expandedWidth = compact ? 104 : 148
         const islandWidth = 40 + (expandedWidth - 40) * elasticProgress
         const stretch = Math.sin(Math.PI * islandProgress)
-        const scaleX = 0.9 + 0.1 * islandProgress + 0.04 * stretch
+        /* 宽度与锚点固定，展开只走合成层 transform，避免逐帧布局。 */
+        const scaleX = (islandWidth / expandedWidth) * (0.9 + 0.1 * islandProgress + 0.04 * stretch)
         const scaleY = 0.94 + 0.06 * islandProgress - 0.06 * stretch
-        island.style.width = `${islandWidth}px`
-        island.style.left = compact ? `${window.innerWidth - 56 - islandWidth / 2}px` : '50%'
         island.style.opacity = `${islandProgress}`
         island.style.visibility = progress > 0.46 ? 'visible' : 'hidden'
         island.style.transform = `translateX(-50%) scale(${scaleX}, ${scaleY})`

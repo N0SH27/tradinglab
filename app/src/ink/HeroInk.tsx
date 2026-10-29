@@ -116,11 +116,13 @@ export function HeroInk({ dotRef }: { dotRef: RefObject<HTMLSpanElement | null> 
     window.addEventListener('resize', onResize)
     document.fonts?.ready.then(() => soak(1)).catch(() => {})
 
-    /* ── 润笔：光标游走留淡痕（2.4s 淡出，56 点上限） ── */
+    /* ── 润笔：仅鼠标设备启用；有墨迹时才逐帧绘制，淡尽即停。
+       触摸滑动不是游标游走，不再为手机滚动启动整幅画布清除。 ── */
     let raf = 0
     const trail: { x: number; y: number; r: number; t: number }[] = []
     let lastT = 0
     const trailTick = () => {
+      raf = 0
       const r = hero.getBoundingClientRect(),
         dpr = Math.min(1.5, window.devicePixelRatio || 1)
       if (trailCv.width !== Math.round(r.width * dpr)) {
@@ -145,7 +147,7 @@ export function HeroInk({ dotRef }: { dotRef: RefObject<HTMLSpanElement | null> 
           ctx.fill()
         }
       }
-      raf = requestAnimationFrame(trailTick)
+      if (trail.length > 0) raf = requestAnimationFrame(trailTick)
     }
     const onMove = (e: MouseEvent) => {
       const now = performance.now()
@@ -154,28 +156,16 @@ export function HeroInk({ dotRef }: { dotRef: RefObject<HTMLSpanElement | null> 
       const r = hero.getBoundingClientRect()
       trail.push({ x: e.clientX - r.left, y: e.clientY - r.top, r: 2.4 + Math.random() * 2.4, t: now })
       if (trail.length > 56) trail.shift()
+      if (!raf) raf = requestAnimationFrame(trailTick)
     }
-    const onTouch = (e: TouchEvent) => {
-      const now = performance.now()
-      if (now - lastT < 30) return
-      lastT = now
-      const r = hero.getBoundingClientRect(),
-        t0 = e.touches[0]
-      if (!t0) return
-      trail.push({ x: t0.clientX - r.left, y: t0.clientY - r.top, r: 2.4 + Math.random() * 2.4, t: now })
-      if (trail.length > 56) trail.shift()
-    }
-    if (!reduced) {
-      raf = requestAnimationFrame(trailTick)
+    if (!reduced && window.matchMedia('(pointer: fine)').matches) {
       hero.addEventListener('mousemove', onMove)
-      hero.addEventListener('touchmove', onTouch, { passive: true })
     }
 
     return () => {
       cancelAnimationFrame(raf)
       window.removeEventListener('resize', onResize)
       hero.removeEventListener('mousemove', onMove)
-      hero.removeEventListener('touchmove', onTouch)
     }
   }, [dotRef])
 
