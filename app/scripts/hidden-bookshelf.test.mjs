@@ -4,11 +4,11 @@ import { BOOKS_PER_PAGE, getBookShelfPage } from '../src/pages/hidden/hiddenBook
 
 const books = count => Array.from({ length: count }, (_, index) => index + 1)
 
-test('当前五本书平衡为两层，顺序保持不变', () => {
-  const layout = getBookShelfPage(books(5), 0)
+test('当前十五本书平衡为三层，顺序保持不变', () => {
+  const layout = getBookShelfPage(books(15), 0)
   assert.equal(layout.pageCount, 1)
-  assert.deepEqual(layout.tiers.map(tier => tier.length), [3, 2])
-  assert.deepEqual(layout.tiers.flat(), books(5))
+  assert.deepEqual(layout.tiers.map(tier => tier.length), [5, 5, 5])
+  assert.deepEqual(layout.tiers.flat(), books(15))
 })
 
 test('少量图书自动平衡层数，不超过每层五本', () => {

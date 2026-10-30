@@ -7,7 +7,7 @@
     "dev": "vite",
     "check": "node scripts/check-data.mjs",
     "build": "tsc -b && vite build",
-    "test:hidden": "node --test scripts/hidden-access.test.mjs scripts/hidden-market.test.mjs scripts/hidden-books.test.mjs scripts/hidden-bookshelf.test.mjs",
+    "test:hidden": "node --test scripts/hidden-access.test.mjs scripts/hidden-market.test.mjs scripts/hidden-books.test.mjs scripts/hidden-bookshelf.test.mjs scripts/hidden-research.test.mjs",
     "lint": "eslint .",
     "preview": "vite preview"
   },

@@ -1,2 +1,4 @@
 .DS_Store
-.DS_Store
+
+# 书籍原文件保留在本机，通过 GitHub Releases 分发，不进入仓库或 Vercel 部署。
+app/public/hidden/books/*.pdf

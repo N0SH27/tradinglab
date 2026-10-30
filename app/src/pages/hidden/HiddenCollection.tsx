@@ -17,6 +17,7 @@ type Props = {
   onGoHome: () => void
   onOpenLibrary: () => void
   onOpenInvestor: (id: string) => void
+  onOpenResearchTopic: (id: string) => void
 }
 
 const STAGE_HELP: Partial<Record<HiddenCollectionId, string>> = {
@@ -28,10 +29,11 @@ const STAGE_HELP: Partial<Record<HiddenCollectionId, string>> = {
   investors: '拖动旋转图廊，点击人物进入独立档案；下方也可直接查找。',
 }
 
-export default function HiddenCollection({ collection, investors, toolGroups, onGoHome, onOpenLibrary, onOpenInvestor }: Props) {
+export default function HiddenCollection({ collection, investors, toolGroups, onGoHome, onOpenLibrary, onOpenInvestor, onOpenResearchTopic }: Props) {
   const [activeGroup, setActiveGroup] = useState(0)
   const [openFolder, setOpenFolder] = useState<number | null>(null)
   const active = collection.groups[activeGroup] ?? { title: collection.title, description: collection.summary }
+  const researchCount = collection.groups.reduce((total, group) => total + (group.count ?? 0), 0)
 
   const mediaItems = useMemo(() => collection.groups.map((group, index) => ({
     id: `media-${index}`,
@@ -78,7 +80,7 @@ export default function HiddenCollection({ collection, investors, toolGroups, on
                       <h2>{group.title}</h2>
                       <p>{group.description}</p>
                     </div>
-                    <footer><span>00 / ENTRIES</span><span>点击或拖出 →</span></footer>
+                    <footer><span>{String(group.count ?? 0).padStart(2, '0')} / ENTRIES</span><span>点击或拖出切换 →</span></footer>
                   </article>
                 ))}
                 layout="cascade"
@@ -95,7 +97,8 @@ export default function HiddenCollection({ collection, investors, toolGroups, on
               <span>CURRENT DOSSIER / {String(activeGroup + 1).padStart(2, '0')}</span>
               <h2>{active.title}</h2>
               <p>{active.description}</p>
-              <div><strong>00</strong><span>ENTRIES<br />等待建立研究档案</span></div>
+              <div><strong>{String(active.count ?? 0).padStart(2, '0')}</strong><span>ENTRIES<br />{active.count ? '真实研究已归档' : '等待建立研究档案'}</span></div>
+              {active.id && <button type="button" className="ah-research-topic-enter" onClick={() => onOpenResearchTopic(active.id!)}>进入专题 <span aria-hidden="true">→</span></button>}
             </aside>
           </div>
         )
@@ -221,7 +224,7 @@ export default function HiddenCollection({ collection, investors, toolGroups, on
           <h1>{collection.title}</h1>
         </div>
         <div className="ah-collection-header-meta">
-          <span>{collection.id === 'investors' ? `${investors.length} / PROFILES` : collection.id === 'tools' ? '21 / LINKS' : collection.id === 'dashboards' ? '06 / INDICES' : collection.id === 'media' && activeGroup === 0 ? `${String(HIDDEN_BOOKS.length).padStart(2, '0')} / BOOKS` : '00 / ENTRIES'}</span>
+          <span>{collection.id === 'investors' ? `${investors.length} / PROFILES` : collection.id === 'research' ? `${String(researchCount).padStart(2, '0')} / ENTRIES` : collection.id === 'tools' ? '21 / LINKS' : collection.id === 'dashboards' ? '06 / INDICES' : collection.id === 'media' && activeGroup === 0 ? `${String(HIDDEN_BOOKS.length).padStart(2, '0')} / BOOKS` : '00 / ENTRIES'}</span>
           <span>DIRECTORY READY</span>
         </div>
       </header>
@@ -254,7 +257,7 @@ export default function HiddenCollection({ collection, investors, toolGroups, on
           </div>
         </section>
       )}
-      {!['tools', 'dashboards', 'investors'].includes(collection.id) && !(collection.id === 'media' && activeGroup === 0) && (
+      {!['research', 'tools', 'dashboards', 'investors'].includes(collection.id) && !(collection.id === 'media' && activeGroup === 0) && (
         <section className="ah-collection-empty" aria-label="内容归档区" aria-live="polite">
           <span>{String(activeGroup + 1).padStart(2, '0')} / CONTENT ARCHIVE</span>
           <div>

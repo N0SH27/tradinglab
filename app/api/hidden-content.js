@@ -1,6 +1,7 @@
 import { hasServerConfig, hasValidSession, sendJson } from './_hidden-access.js'
 import { INVESTORS } from './hidden-investors.js'
 import { TOOL_GROUPS } from './hidden-tools.js'
+import { RESEARCH_ARTICLES, RESEARCH_TOPICS } from './hidden-research.js'
 
 /* 私人知识只从受保护接口发出；人物内容保留原始出处和历史语境。 */
 const PRIVATE_CONTENT = {
@@ -20,11 +21,12 @@ const PRIVATE_CONTENT = {
       id: 'research', index: '02', title: '高价值研报与文章', shortTitle: '研报与文章', english: 'RESEARCH & ESSAYS',
       summary: '沉淀值得反复阅读的研究，把结论还原为证据、假设与可以持续追踪的问题。',
       src: '/hidden/research.jpg', format: 'RESEARCH / ESSAY / SPECIAL',
-      groups: [
-        { title: '产业与宏观', description: '产业周期、政策环境、宏观变量与关键传导路径。' },
-        { title: '公司与商业模式', description: '公司研究、商业模式、竞争优势与长期跟踪材料。' },
-        { title: '跨资产与专题', description: '股票、商品与其他资产的交叉研究和专题长文。' },
-      ],
+      groups: RESEARCH_TOPICS.map(topic => ({
+        id: topic.id,
+        title: topic.title,
+        description: topic.description,
+        count: RESEARCH_ARTICLES.filter(article => article.topic === topic.id).length,
+      })),
       editorial: '后续按来源、主题与阅读状态归档，保留原始链接、核心证据和个人批注。',
     },
     {

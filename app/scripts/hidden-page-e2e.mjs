@@ -7,8 +7,7 @@ import path from 'node:path'
 const ROOT = process.cwd()
 const OUT = path.join(ROOT, 'hidden-audit')
 const PROFILE = path.join(ROOT, '.tmp-hidden-e2e-chrome')
-const PDF_FIXTURE = path.join(ROOT, 'public/hidden/books/e2e-book-download.pdf')
-const PDF_DOWNLOAD = path.join(OUT, 'e2e-book-download.pdf')
+const BOOK_RELEASE = 'https://github.com/N0SH27/tradinglab/releases/download/books-v1/'
 const BASE = 'http://127.0.0.1:7100'
 const CHROME = process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 const COLLECTIONS_ONLY = process.env.E2E_COLLECTIONS_ONLY === '1'
@@ -16,36 +15,6 @@ const MOBILE_ONLY = process.env.E2E_MOBILE_ONLY === '1'
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 fs.rmSync(PROFILE, { recursive: true, force: true })
 fs.mkdirSync(OUT, { recursive: true })
-
-function createPdfFixture() {
-  const stream = 'BT\n/F1 12 Tf\n20 60 Td\n(TradingLabb PDF fixture) Tj\nET\n'
-  const objects = [
-    '1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n',
-    '2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n',
-    '3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 200 120] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>\nendobj\n',
-    '4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n',
-    `5 0 obj\n<< /Length ${Buffer.byteLength(stream)} >>\nstream\n${stream}endstream\nendobj\n`,
-  ]
-  let content = '%PDF-1.4\n'
-  const offsets = []
-  for (const object of objects) {
-    offsets.push(Buffer.byteLength(content))
-    content += object
-  }
-  const xref = Buffer.byteLength(content)
-  content += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`
-  content += offsets.map(offset => `${String(offset).padStart(10, '0')} 00000 n \n`).join('')
-  return `${content}trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`
-}
-
-async function waitForFile(file, timeout = 10000) {
-  const start = Date.now()
-  while (Date.now() - start < timeout) {
-    if (fs.existsSync(file) && fs.statSync(file).size > 0) return
-    await sleep(120)
-  }
-  throw new Error(`Download timed out: ${file}`)
-}
 
 let vite
 let chrome
@@ -132,7 +101,6 @@ async function assertCarouselReturn(index, title) {
 }
 
 try {
-  fs.writeFileSync(PDF_FIXTURE, createPdfFixture())
   vite = spawn('npm', ['run', 'dev', '--', '--host', '127.0.0.1', '--port', '7100'], {
     cwd: ROOT,
     detached: true,
@@ -257,7 +225,7 @@ try {
     await evaluate(`document.querySelector('[data-cc-index="${index}"]').click()`)
     await waitFor(`location.hash === '#/after-hours/collection/${id}' && document.querySelector('.ah-collection-header h1')?.textContent === ${JSON.stringify(title)}`)
     await waitFor(`!!document.querySelector(${JSON.stringify(stage)})`)
-    if (!['tools', 'dashboards', 'investors', 'media'].includes(id)) assert.match(await evaluate(`document.querySelector('.ah-collection-empty').textContent`), /内容等待归档/)
+    if (id === 'conversations') assert.match(await evaluate(`document.querySelector('.ah-collection-empty').textContent`), /内容等待归档/)
     await sleep(800)
 
     if (id === 'research') {
@@ -266,9 +234,9 @@ try {
       await send('Input.dispatchMouseEvent', { type: 'mousePressed', ...card, button: 'left', clickCount: 1 })
       await send('Input.dispatchMouseEvent', { type: 'mouseReleased', ...card, button: 'left', clickCount: 1 })
     } else if (id === 'media') {
-      assert.equal(await evaluate(`document.querySelectorAll('.ah-book-spine').length`), 5)
-      assert.equal(await evaluate(`document.querySelectorAll('.ah-bookshelf-tier').length`), 2)
-      assert.deepEqual(await evaluate(`Array.from(document.querySelectorAll('.ah-bookshelf-tier')).map(tier => tier.querySelectorAll('.ah-book-spine').length)`), [3, 2])
+      assert.equal(await evaluate(`document.querySelectorAll('.ah-book-spine').length`), 15)
+      assert.equal(await evaluate(`document.querySelectorAll('.ah-bookshelf-tier').length`), 3)
+      assert.deepEqual(await evaluate(`Array.from(document.querySelectorAll('.ah-bookshelf-tier')).map(tier => tier.querySelectorAll('.ah-book-spine').length)`), [5, 5, 5])
       assert.equal(await evaluate(`!!document.querySelector('.ah-bookshelf-pagination')`), false)
       assert.equal(await evaluate(`!!document.querySelector('.ah-collection-empty')`), false)
       await screenshot('desktop-bookshelf.png')
@@ -297,9 +265,9 @@ try {
       await evaluate(`document.querySelector('.ah-book-detail-nav button').click()`)
       await waitFor(`!!document.querySelector('.ah-book-preview') && !document.querySelector('.ah-book-detail')`)
 
-      /* 仅当前浏览器会话注入测试配置；正式书目和 PDF 文件均不保留测试数据。 */
+      /* 仅当前浏览器会话注入白名单附件配置，不实际下载大型 PDF。 */
       await evaluate(`import('/src/pages/hidden/hiddenBooks.ts').then(({ HIDDEN_BOOKS }) => {
-        HIDDEN_BOOKS[1].pdf = '/hidden/books/e2e-book-download.pdf';
+        HIDDEN_BOOKS[1].pdf = '${BOOK_RELEASE}e2e-book-download.pdf';
         return true;
       })`)
       await evaluate(`document.querySelector('.ah-book-holo-button').click()`)
@@ -309,23 +277,10 @@ try {
         return { href: link.getAttribute('href'), fileName: link.download, label: link.getAttribute('aria-label') };
       })()`)
       assert.deepEqual(downloadLink, {
-        href: '/hidden/books/e2e-book-download.pdf',
+        href: `${BOOK_RELEASE}e2e-book-download.pdf`,
         fileName: 'e2e-book-download.pdf',
         label: '下载《我和小明》PDF 原文',
       })
-      const pdfResponse = await evaluate(`fetch('/hidden/books/e2e-book-download.pdf').then(async response => ({
-        status: response.status,
-        type: response.headers.get('content-type'),
-        prefix: (await response.text()).slice(0, 8),
-      }))`)
-      assert.equal(pdfResponse.status, 200)
-      assert.match(pdfResponse.type, /application\/pdf/)
-      assert.equal(pdfResponse.prefix, '%PDF-1.4')
-      fs.rmSync(PDF_DOWNLOAD, { force: true })
-      await send('Page.setDownloadBehavior', { behavior: 'allow', downloadPath: OUT })
-      await evaluate(`document.querySelector('.ah-book-download').click()`)
-      await waitForFile(PDF_DOWNLOAD)
-      assert.equal(fs.readFileSync(PDF_DOWNLOAD, 'utf8').startsWith('%PDF-1.4'), true)
       await evaluate(`document.querySelector('.ah-book-download').scrollIntoView({ block: 'center' })`)
       await sleep(250)
       await screenshot('desktop-book-detail-download.png')
@@ -337,6 +292,54 @@ try {
       })`)
       await evaluate(`window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))`)
       await waitFor(`!document.querySelector('.ah-book-preview') && !!document.querySelector('.ah-bookshelf') && document.body.style.overflow !== 'hidden' && document.activeElement?.id === 'book-spine-me-and-xiaoming'`)
+
+      /* 真实完成书脊 → 封面 → 介绍，并核验 Release 下载入口。 */
+      await evaluate(`document.querySelectorAll('.ah-book-spine')[5].click()`)
+      await waitFor(`document.querySelector('.ah-book-preview h2')?.textContent === '蜂巢思维：群体意识如何影响你'`)
+      await sleep(400)
+      await screenshot('desktop-book-hive-preview.png')
+      await evaluate(`document.querySelector('.ah-book-holo-button').click()`)
+      await waitFor(`document.querySelector('.ah-book-detail-header h1')?.textContent === '蜂巢思维：群体意识如何影响你' && !!document.querySelector('.ah-book-download')`)
+      assert.equal(await evaluate(`document.querySelector('.ah-book-download').getAttribute('href')`), `${BOOK_RELEASE}hive-mind.pdf`)
+      assert.equal(await evaluate(`document.querySelector('.ah-book-download').download`), 'hive-mind.pdf')
+      await evaluate(`document.querySelector('.ah-book-download').scrollIntoView({ block: 'center' })`)
+      await sleep(300)
+      await screenshot('desktop-book-hive-detail.png')
+      await evaluate(`window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))`)
+      await waitFor(`!!document.querySelector('.ah-book-preview') && !document.querySelector('.ah-book-detail')`)
+      await evaluate(`window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))`)
+      await waitFor(`!document.querySelector('.ah-book-preview') && !!document.querySelector('.ah-bookshelf') && document.activeElement?.id === 'book-spine-hive-mind'`)
+
+      await evaluate(`document.querySelectorAll('.ah-book-spine')[11].click()`)
+      await waitFor(`document.querySelector('.ah-book-preview h2')?.textContent === '福格行为模型'`)
+      await sleep(400)
+      await screenshot('desktop-book-fogg-preview.png')
+      await evaluate(`document.querySelector('.ah-book-holo-button').click()`)
+      await waitFor(`document.querySelector('.ah-book-detail-header h1')?.textContent === '福格行为模型' && !!document.querySelector('.ah-book-download')`)
+      assert.equal(await evaluate(`document.querySelector('.ah-book-download').getAttribute('href')`), `${BOOK_RELEASE}fogg-behavior-model.pdf`)
+      assert.equal(await evaluate(`document.querySelector('.ah-book-download').download`), 'fogg-behavior-model.pdf')
+      await evaluate(`document.querySelector('.ah-book-download').scrollIntoView({ block: 'center' })`)
+      await sleep(300)
+      await screenshot('desktop-book-fogg-detail.png')
+      const expectedPdfNames = [
+        'zhou-jintao-cycle-collection.pdf',
+        'hive-mind.pdf',
+        'poor-economics.pdf',
+        'tech-revolutions-finance.pdf',
+        'trading-for-a-living.pdf',
+        'too-big-to-fail.pdf',
+        'psychology-of-money.pdf',
+        'fogg-behavior-model.pdf',
+        'behavioral-finance.pdf',
+        'investment-psychology.pdf',
+        'behavioral-investing-principles.pdf',
+      ]
+      const configuredPdfNames = await evaluate(`import('/src/pages/hidden/hiddenBooks.ts').then(({ HIDDEN_BOOKS }) => HIDDEN_BOOKS.map(book => book.pdf).filter(Boolean).map(href => href.split('/').pop()))`)
+      assert.deepEqual(configuredPdfNames, expectedPdfNames)
+      await evaluate(`window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))`)
+      await waitFor(`!!document.querySelector('.ah-book-preview') && !document.querySelector('.ah-book-detail')`)
+      await evaluate(`window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))`)
+      await waitFor(`!document.querySelector('.ah-book-preview') && !!document.querySelector('.ah-bookshelf') && document.activeElement?.id === 'book-spine-fogg-behavior-model'`)
       await evaluate(`document.querySelectorAll('.ah-media-tab')[1].click()`)
       await waitFor(`document.querySelectorAll('.ah-media-single .masonry__card').length === 1 && document.querySelector('.ah-media-single .masonry__image')?.hasAttribute('data-loaded')`)
     } else if (id === 'tools') {
@@ -406,13 +409,72 @@ try {
       await waitFor(`!!document.querySelector('.ah-investor-directory-grid')`)
     }
 
-    if (['research', 'media', 'conversations'].includes(id)) await waitFor(`document.querySelector('.ah-collection-empty h2')?.textContent.includes(${JSON.stringify(second)})`)
+    if (['media', 'conversations'].includes(id)) await waitFor(`document.querySelector('.ah-collection-empty h2')?.textContent.includes(${JSON.stringify(second)})`)
     assert.equal(await evaluate(`document.documentElement.scrollWidth <= window.innerWidth`), true)
     await screenshot(`desktop-collection-${id}.png`)
     await evaluate(`document.querySelector('.ah-collection-home').click()`)
     const caption = await evaluate(`fetch('/api/hidden-content').then(response => response.json()).then(content => content.collections[${index}].shortTitle)`)
     await assertCarouselReturn(index, caption)
   }
+  }
+
+  if (!MOBILE_ONLY) {
+    console.log('STAGE research topic desktop')
+    await evaluate(`window.location.hash = '/after-hours/collection/research'`)
+    await waitFor(`!!document.querySelector('.ah-research-topic-enter')`)
+    assert.match(await evaluate(`document.querySelector('.ah-research-current').textContent`), /06.*真实研究已归档/s)
+    await evaluate(`document.querySelector('.ah-research-topic-enter').click()`)
+    await waitFor(`location.hash === '#/after-hours/research/industry-macro' && document.querySelectorAll('.ah-research-article-row').length === 6`)
+    await sleep(500)
+    assert.equal(await evaluate(`document.querySelectorAll('.ah-research-featured .chroma-card').length`), 3)
+    await waitFor(`(() => {
+      const grid = document.querySelector('.ah-research-featured .chroma-grid');
+      const card = document.querySelector('.ah-research-featured .chroma-card');
+      const image = card.querySelector('.chroma-mono');
+      return getComputedStyle(grid).opacity === '1' && card.getBoundingClientRect().height > 200 && card.querySelector('.chroma-title').getBoundingClientRect().height > 20 && image.complete && image.naturalWidth > 0;
+    })()`)
+    assert.equal(await evaluate(`document.querySelectorAll('.ah-research-topic-sidebar .line-sidebar__button').length`), 3)
+    assert.equal(await evaluate(`document.querySelector('.ah-research-topic-header-meta').textContent.includes('06 / ENTRIES')`), true)
+    assert.deepEqual(await evaluate(`[...document.querySelectorAll('.ah-research-article-row')].map(row => row.getAttribute('href'))`), [
+      '#/research/report-6', '#/research/report-5', '#/research/report-4', '#/research/report-3', '#/research/report-2', '#/research/report-1',
+    ])
+    assert.equal(await evaluate(`[...document.querySelectorAll('.ah-research-featured a.chroma-card, .ah-research-article-row')].every(link => link.target !== '_blank')`), true)
+    await evaluate(`window.scrollTo(0, 0)`)
+    await screenshot('desktop-research-topic.png')
+
+    await evaluate(`(() => {
+      const input = document.querySelector('#research-index-search');
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+      setter.call(input, '存储');
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      document.querySelector('.ah-research-search').requestSubmit();
+    })()`)
+    await waitFor(`new URLSearchParams(location.hash.split('?')[1]).get('q') === '存储' && document.querySelectorAll('.ah-research-article-row').length === 2`)
+    assert.deepEqual(await evaluate(`[...document.querySelectorAll('.ah-research-article-row')].map(row => row.getAttribute('href'))`), ['#/research/report-5', '#/research/report-2'])
+    assert.equal(await evaluate(`!!document.querySelector('.ah-research-featured')`), false)
+    await evaluate(`document.querySelector('.ah-research-clear').click()`)
+    await waitFor(`location.hash === '#/after-hours/research/industry-macro' && document.querySelectorAll('.ah-research-article-row').length === 6`)
+    await evaluate(`[...document.querySelectorAll('.ah-research-tags button')].find(button => button.textContent.startsWith('AI 算力')).click()`)
+    await waitFor(`new URLSearchParams(location.hash.split('?')[1]).get('tag') === 'AI 算力' && document.querySelectorAll('.ah-research-article-row').length === 3`)
+    assert.equal(await evaluate(`document.querySelector('.ah-research-article-row').getAttribute('href')`), '#/research/report-6')
+    await evaluate(`document.querySelector('.ah-research-article-row').click()`)
+    await waitFor(`location.hash === '#/research/report-6'`)
+    await evaluate(`history.back()`)
+    await waitFor(`new URLSearchParams(location.hash.split('?')[1]).get('tag') === 'AI 算力' && document.querySelectorAll('.ah-research-article-row').length === 3`)
+
+    await send('Page.navigate', { url: `${BASE}/#/after-hours/research/industry-macro?q=${encodeURIComponent('存储')}&sort=oldest&page=99` })
+    await waitFor(`document.querySelectorAll('.ah-research-article-row').length === 2`)
+    assert.deepEqual(await evaluate(`[...document.querySelectorAll('.ah-research-article-row')].map(row => row.getAttribute('href'))`), ['#/research/report-2', '#/research/report-5'])
+    assert.match(await evaluate(`document.querySelector('.ah-research-results-meta').textContent`), /PAGE 1/)
+    assert.equal(await evaluate(`document.documentElement.scrollWidth <= window.innerWidth`), true)
+
+    await send('Page.navigate', { url: `${BASE}/#/after-hours/research/company-business` })
+    await waitFor(`!!document.querySelector('.ah-research-topic-empty')`)
+    assert.equal(await evaluate(`document.querySelectorAll('.ah-research-article-row, .ah-research-featured').length`), 0)
+    await evaluate(`document.querySelectorAll('.ah-research-topic-sidebar .line-sidebar__button')[2].click()`)
+    await waitFor(`location.hash === '#/after-hours/research/cross-asset' && !!document.querySelector('.ah-research-topic-empty')`)
+    await evaluate(`document.querySelectorAll('.ah-research-topic-sidebar .line-sidebar__button')[0].click()`)
+    await waitFor(`location.hash === '#/after-hours/research/industry-macro' && document.querySelectorAll('.ah-research-article-row').length === 6`)
   }
 
   if (!COLLECTIONS_ONLY && !MOBILE_ONLY) {
@@ -561,9 +623,9 @@ try {
     await sleep(700)
     assert.equal(await evaluate(`document.querySelector('.ah-collection-stage-heading span')?.textContent.startsWith('01 /')`), true)
     if (id === 'media') {
-      assert.equal(await evaluate(`document.querySelectorAll('.ah-book-spine').length`), 5)
-      assert.equal(await evaluate(`document.querySelectorAll('.ah-bookshelf-tier').length`), 2)
-      assert.deepEqual(await evaluate(`Array.from(document.querySelectorAll('.ah-bookshelf-tier')).map(tier => tier.querySelectorAll('.ah-book-spine').length)`), [3, 2])
+      assert.equal(await evaluate(`document.querySelectorAll('.ah-book-spine').length`), 15)
+      assert.equal(await evaluate(`document.querySelectorAll('.ah-bookshelf-tier').length`), 3)
+      assert.deepEqual(await evaluate(`Array.from(document.querySelectorAll('.ah-bookshelf-tier')).map(tier => tier.querySelectorAll('.ah-book-spine').length)`), [5, 5, 5])
       assert.equal(await evaluate(`!!document.querySelector('.ah-bookshelf-pagination')`), false)
       assert.equal(await evaluate(`document.documentElement.scrollWidth <= window.innerWidth`), true)
       await screenshot('mobile-bookshelf.png')
@@ -578,16 +640,8 @@ try {
       await evaluate(`document.querySelector('.ah-book-holo-button').click()`)
       await waitFor(`document.querySelector('.ah-book-detail-header h1')?.textContent.includes('周期真实义')`)
       assert.equal(await evaluate(`document.querySelectorAll('.ah-book-detail-reading ol li').length`), 3)
-      await waitFor(`document.querySelector('.ah-book-download')?.getAttribute('href') === '/hidden/books/zhou-jintao-cycle-collection.pdf'`)
+      await waitFor(`document.querySelector('.ah-book-download')?.getAttribute('href') === '${BOOK_RELEASE}zhou-jintao-cycle-collection.pdf'`)
       assert.equal(await evaluate(`document.querySelector('.ah-book-download').download`), 'zhou-jintao-cycle-collection.pdf')
-      const cyclePdfResponse = await evaluate(`fetch('/hidden/books/zhou-jintao-cycle-collection.pdf', { method: 'HEAD' }).then(response => ({
-        status: response.status,
-        type: response.headers.get('content-type'),
-        length: response.headers.get('content-length'),
-      }))`)
-      assert.equal(cyclePdfResponse.status, 200)
-      assert.match(cyclePdfResponse.type, /application\/pdf/)
-      assert.equal(Number(cyclePdfResponse.length), 95226872)
       assert.equal(await evaluate(`document.documentElement.scrollWidth <= window.innerWidth`), true)
       await sleep(500)
       await screenshot('mobile-book-detail.png')
@@ -635,6 +689,34 @@ try {
     await screenshot(`mobile-collection-${id}.png`)
   }
 
+  console.log('CHECK mobile research topic')
+  await send('Page.navigate', { url: `${BASE}/#/after-hours/research/industry-macro` })
+  await waitFor(`document.querySelectorAll('.ah-research-article-row').length === 6`)
+  await sleep(500)
+  assert.equal(await evaluate(`document.querySelectorAll('.ah-research-featured .chroma-card').length`), 3)
+  await waitFor(`(() => {
+    const grid = document.querySelector('.ah-research-featured .chroma-grid');
+    const card = document.querySelector('.ah-research-featured .chroma-card');
+    const image = card.querySelector('.chroma-mono');
+    return getComputedStyle(grid).opacity === '1' && card.getBoundingClientRect().height > 200 && card.querySelector('.chroma-title').getBoundingClientRect().height > 20 && image.complete && image.naturalWidth > 0;
+  })()`)
+  assert.equal(await evaluate(`getComputedStyle(document.querySelector('.ah-research-topic-mobile-nav')).display`), 'grid')
+  assert.equal(await evaluate(`getComputedStyle(document.querySelector('.ah-research-topic-sidebar')).display`), 'none')
+  assert.equal(await evaluate(`window.innerWidth === 390 && document.documentElement.scrollWidth <= window.innerWidth`), true)
+  await evaluate(`window.scrollTo(0, 0)`)
+  await screenshot('mobile-research-topic.png')
+  await evaluate(`(() => {
+    const select = document.querySelector('#research-topic-select');
+    const setter = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value').set;
+    setter.call(select, 'company-business');
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+  })()`)
+  await waitFor(`location.hash === '#/after-hours/research/company-business' && !!document.querySelector('.ah-research-topic-empty')`)
+  assert.equal(await evaluate(`document.documentElement.scrollWidth <= window.innerWidth`), true)
+  await send('Page.navigate', { url: `${BASE}/#/after-hours/research/industry-macro?q=${encodeURIComponent('存储')}` })
+  await waitFor(`document.querySelectorAll('.ah-research-article-row').length === 2`)
+  assert.equal(await evaluate(`window.innerWidth === 390 && document.documentElement.scrollWidth <= window.innerWidth`), true)
+
   await send('Page.navigate', { url: `${BASE}/#/after-hours/library` })
   await waitFor(`document.querySelectorAll('.ah-library-row').length === 8`)
   assert.equal(await evaluate(`document.documentElement.scrollWidth <= window.innerWidth`), true)
@@ -664,6 +746,4 @@ try {
   }
   await sleep(300)
   fs.rmSync(PROFILE, { recursive: true, force: true })
-  fs.rmSync(PDF_FIXTURE, { force: true })
-  fs.rmSync(PDF_DOWNLOAD, { force: true })
 }

@@ -54,8 +54,52 @@ export type HiddenCollection = {
   summary: string
   src: string
   format: string
-  groups: { title: string; description: string; src?: string }[]
+  groups: { id?: string; title: string; description: string; src?: string; count?: number }[]
   editorial: string
+}
+
+export type HiddenResearchTopicId = 'industry-macro' | 'company-business' | 'cross-asset'
+export type HiddenResearchKind = 'report' | 'essay'
+
+export type HiddenResearchArticle = {
+  id: string
+  topic: HiddenResearchTopicId
+  archiveId: string
+  title: string
+  summary: string
+  source: string
+  date: string
+  version: string
+  kind: HiddenResearchKind
+  tags: string[]
+  href: string
+  image: string
+  featuredOrder: number
+}
+
+export type HiddenResearchTopic = {
+  id: HiddenResearchTopicId
+  index: string
+  title: string
+  english: string
+  description: string
+  summary: string
+  count: number
+}
+
+export type HiddenResearchResponse = {
+  topic: HiddenResearchTopic
+  articles: HiddenResearchArticle[]
+  featured: HiddenResearchArticle[]
+  total: number
+  page: number
+  pageSize: number
+  pageCount: number
+  facets: {
+    tags: { id: string; count: number }[]
+    kinds: { id: HiddenResearchKind; label: string; count: number }[]
+  }
+  query: { q: string; tag: string; kind: string; sort: string }
 }
 
 export type InvestorProfile = {

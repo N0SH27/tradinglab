@@ -6,6 +6,7 @@ import HiddenHome from './hidden/HiddenHome'
 import HiddenInvestor from './hidden/HiddenInvestor'
 import HiddenLibrary from './hidden/HiddenLibrary'
 import HiddenNote from './hidden/HiddenNote'
+import HiddenResearchTopic from './hidden/HiddenResearchTopic'
 import HiddenSearch from './hidden/HiddenSearch'
 import { goAfterHours, type DomainId, type HiddenCollectionId, type PrivateContent } from './hidden/hiddenTypes'
 import './HiddenPage.css'
@@ -41,13 +42,18 @@ export default function HiddenPage({ path }: Props) {
       ? 'library'
       : routePath.startsWith('/after-hours/investor/')
         ? 'investor'
-        : routePath.startsWith('/after-hours/collection/')
-          ? 'collection'
-          : 'home'
+        : routePath.startsWith('/after-hours/research/')
+          ? 'research'
+          : routePath.startsWith('/after-hours/collection/')
+            ? 'collection'
+            : 'home'
   const noteSlug = view === 'note' ? decodeURIComponent(routePath.replace('/after-hours/note/', '')) : ''
   const collectionId = view === 'collection' ? decodeURIComponent(routePath.replace('/after-hours/collection/', '')) : ''
   const investorId = view === 'investor' ? decodeURIComponent(routePath.replace('/after-hours/investor/', '')) : ''
+  const researchTopicId = view === 'research' ? decodeURIComponent(routePath.replace('/after-hours/research/', '')) : ''
   const collection = content?.collections.find(item => item.id === collectionId && item.id !== 'library')
+  const researchCollection = content?.collections.find(item => item.id === 'research')
+  const researchTopic = researchCollection?.groups.find(item => item.id === researchTopicId)
   const investor = content?.investors.find(item => item.id === investorId)
   const queryDomain = new URLSearchParams(path.split('?')[1] ?? '').get('domain') ?? 'all'
   const validDomains: (DomainId | 'all')[] = ['all', 'foundation', 'language', 'tools', 'structure', 'execution', 'review']
@@ -101,10 +107,12 @@ export default function HiddenPage({ path }: Props) {
         ? '体系资料库 — After Hours'
         : investor
           ? `${investor.name} · 投资者框架 — After Hours`
-          : collection
-            ? `${collection.title} — After Hours`
-            : 'After Hours — TradingLabb'
-  }, [collection, content, investor, noteSlug, phase, view])
+          : researchTopic
+            ? `${researchTopic.title} · 研究专题 — After Hours`
+            : collection
+              ? `${collection.title} — After Hours`
+              : 'After Hours — TradingLabb'
+  }, [collection, content, investor, noteSlug, phase, researchTopic, view])
 
   useEffect(() => {
     if (phase !== 'unlocked') return
@@ -144,12 +152,19 @@ export default function HiddenPage({ path }: Props) {
   const openInvestor = useCallback((id: string) => {
     goAfterHours(`investor/${encodeURIComponent(id)}`)
   }, [])
+  const openResearchTopic = useCallback((id: string) => {
+    setCarouselIndex(1)
+    setRestoreCarousel(true)
+    goAfterHours(`research/${encodeURIComponent(id)}`)
+  }, [])
   const goHome = useCallback(() => {
     if (collection) {
       const index = content?.collections.findIndex(item => item.id === collection.id) ?? -1
       if (index >= 0) setCarouselIndex(index)
     } else if (view === 'library') {
       setCarouselIndex(0)
+    } else if (view === 'research') {
+      setCarouselIndex(1)
     }
     setRestoreCarousel(true)
     goAfterHours()
@@ -236,7 +251,7 @@ export default function HiddenPage({ path }: Props) {
       <div className="ah-shell">
         <header className="ah-header">
           <button type="button" className="ah-wordmark" onClick={phase === 'unlocked' ? goHome : leave}>trading-lab</button>
-          <span className="ah-header-meta">PRIVATE / {view === 'home' ? '001' : view === 'library' ? 'LIBRARY' : view === 'collection' ? (collection?.english ?? 'COLLECTION') : 'NOTE'}</span>
+          <span className="ah-header-meta">PRIVATE / {view === 'home' ? '001' : view === 'library' ? 'LIBRARY' : view === 'research' ? 'RESEARCH DOSSIER' : view === 'collection' ? (collection?.english ?? 'COLLECTION') : 'NOTE'}</span>
           <div className="ah-header-actions">
             {phase === 'unlocked' && view !== 'library' && <button type="button" className="ah-header-link" onClick={() => openLibrary()}>LIBRARY</button>}
             {phase === 'unlocked' && <button type="button" className="ah-header-link ah-header-search" onClick={() => setSearchOpen(true)} aria-label="搜索知识库">⌘ K</button>}
@@ -291,8 +306,10 @@ export default function HiddenPage({ path }: Props) {
           <HiddenNote content={content} slug={noteSlug} onBack={() => openLibrary()} onOpenNote={openNote} />
         ) : view === 'investor' && investor ? (
           <HiddenInvestor key={investor.id} profile={investor} profiles={content.investors} onBack={() => openCollection('investors')} onOpenInvestor={openInvestor} />
+        ) : view === 'research' && researchCollection && researchTopic ? (
+          <HiddenResearchTopic key={path} path={path} topicId={researchTopicId} topics={researchCollection.groups} onBack={() => openCollection('research')} onOpenTopic={openResearchTopic} />
         ) : view === 'collection' && collection ? (
-          <HiddenCollection key={collection.id} collection={collection} investors={content.investors} toolGroups={content.toolGroups} onGoHome={goHome} onOpenLibrary={() => openLibrary()} onOpenInvestor={openInvestor} />
+          <HiddenCollection key={collection.id} collection={collection} investors={content.investors} toolGroups={content.toolGroups} onGoHome={goHome} onOpenLibrary={() => openLibrary()} onOpenInvestor={openInvestor} onOpenResearchTopic={openResearchTopic} />
         ) : (
           <HiddenHome content={content} initialIndex={carouselIndex} restoreScroll={restoreCarousel} onOpenCollection={openCollection} onOpenSearch={() => setSearchOpen(true)} onSelectionChange={setCarouselIndex} />
         )}

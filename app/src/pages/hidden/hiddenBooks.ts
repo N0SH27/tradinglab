@@ -12,7 +12,7 @@ export type HiddenBook = {
   prompts: string[]
   sourceNote: string
   tone: 'paper' | 'ink' | 'silver'
-  /** 可选：public/hidden/books 下已经存在的 PDF 所对应的站内路径。 */
+  /** 可选：本仓库 GitHub Releases 的 books-v1 附件地址；本地原文件不进入 Git。 */
   pdf?: string
 }
 
@@ -21,15 +21,16 @@ export type HiddenBookDownload = {
   fileName: string
 }
 
-const HIDDEN_BOOK_PDF_PATH = /^\/hidden\/books\/([\p{L}\p{N}][\p{L}\p{N} ._·()（）《》—–-]*\.pdf)$/u
+export const HIDDEN_BOOK_RELEASE_PATH = 'https://github.com/N0SH27/tradinglab/releases/download/books-v1/'
+const HIDDEN_BOOK_PDF_NAME = /^[\p{L}\p{N}][\p{L}\p{N} ._·()（）《》—–-]*\.pdf$/u
 
-/** 未配置或不是安全的站内 PDF 路径时，不生成下载入口。 */
+/** 只接受本仓库 books-v1 的 PDF 附件，拒绝其他站点、标签、查询串与路径穿越。 */
 export function getHiddenBookDownload(book: Pick<HiddenBook, 'pdf'>): HiddenBookDownload | null {
   const href = book.pdf?.trim()
-  if (!href) return null
-  const match = HIDDEN_BOOK_PDF_PATH.exec(href)
-  if (!match || match[1].includes('..')) return null
-  return { href, fileName: match[1] }
+  if (!href?.startsWith(HIDDEN_BOOK_RELEASE_PATH)) return null
+  const fileName = href.slice(HIDDEN_BOOK_RELEASE_PATH.length)
+  if (!HIDDEN_BOOK_PDF_NAME.test(fileName) || fileName.includes('..')) return null
+  return { href, fileName }
 }
 
 export const HIDDEN_BOOKS: HiddenBook[] = [
@@ -142,6 +143,236 @@ export const HIDDEN_BOOKS: HiddenBook[] = [
     ],
     sourceNote: '封面与书目信息来自你提供的 PDF。站内按四本合集的第一册建立入口；介绍为阅读导航，具体论证以原书为准。下载文件为四本合集，共 1372 页，约 95 MB。',
     tone: 'ink',
-    pdf: '/hidden/books/zhou-jintao-cycle-collection.pdf',
+    pdf: 'https://github.com/N0SH27/tradinglab/releases/download/books-v1/zhou-jintao-cycle-collection.pdf',
+  },
+  {
+    id: 'hive-mind',
+    index: '06',
+    title: '蜂巢思维：群体意识如何影响你',
+    spineTitle: '蜂巢思维',
+    creator: '萨拉·罗斯·卡瓦纳 / 蒋宗强',
+    creatorRole: '作者 / 译者',
+    category: '社会心理 · 群体行为',
+    cover: '/hidden/books/hive-mind.webp',
+    summary: '从群体同步、情绪传染与社交技术出发，观察个人判断如何被身处的关系网络塑造。',
+    paragraphs: [
+      '本书结合心理学、神经科学、历史学与访谈讨论“蜂巢思维”：人的思想、情绪与大脑活动会在群体中相互影响，而智能手机和社交媒体进一步改变了这种同步的速度与范围。',
+      '对交易阅读而言，可以把它当作检视信息环境的入口：记录一个判断来自亲身验证、所处圈层，还是反复转述，同时区分群体共识与事实本身。这里提供的是阅读视角，不把心理学研究直接等同于市场规律。',
+    ],
+    prompts: [
+      '这个判断来自直接证据，还是来自我所在群体的重复强化？',
+      '社交技术在这里加强了真实联系，还是替代了独立核验？',
+      '什么证据能够让我修正与圈层一致的看法？',
+    ],
+    sourceNote: '封面、版权信息与前言来自你提供的 PDF；以上为阅读导航。下载文件共 258 页，约 3 MB。',
+    tone: 'paper',
+    pdf: 'https://github.com/N0SH27/tradinglab/releases/download/books-v1/hive-mind.pdf',
+  },
+  {
+    id: 'poor-economics',
+    index: '07',
+    title: '贫穷的本质：我们为什么摆脱不了贫穷',
+    spineTitle: '贫穷的本质',
+    creator: '阿比吉特·班纳吉 / 埃斯特·迪弗洛',
+    creatorRole: '作者',
+    category: '发展经济学 · 决策约束',
+    cover: '/hidden/books/poor-economics.webp',
+    summary: '从饥饿、健康、教育、家庭与金融约束等具体问题，理解贫困中的选择与政策障碍。',
+    paragraphs: [
+      '本书从穷人的真实生活与选择出发，结合长期调查、数据和实验，讨论健康、教育、生育、储蓄、信贷、创业与公共政策。作者试图把宏大的贫困争论拆成能够被具体研究的问题。',
+      '阅读时可重点记录小额成本、信息缺口与制度摩擦如何共同限制选择，避免用单一性格标签解释复杂处境。书中的证据也应回到具体地区、时间和研究条件中理解，而不是直接外推成普遍政策答案。',
+    ],
+    prompts: [
+      '这个选择受到的是收入、信息、制度，还是多种约束的共同影响？',
+      '研究证据来自什么地区与样本，能够外推到多大范围？',
+      '看似微小的障碍为什么会持续改变长期结果？',
+    ],
+    sourceNote: '封面、书名页、目录与前言来自你提供的修订版 PDF；以上为阅读导航。下载文件共 249 页，约 2.4 MB。',
+    tone: 'ink',
+    pdf: 'https://github.com/N0SH27/tradinglab/releases/download/books-v1/poor-economics.pdf',
+  },
+  {
+    id: 'tech-revolutions-finance',
+    index: '08',
+    title: '技术革命与金融资本',
+    spineTitle: '技术革命与金融资本',
+    creator: '卡洛塔·佩雷斯',
+    creatorRole: '作者',
+    category: '技术变迁 · 金融资本',
+    cover: '/hidden/books/tech-revolutions-finance.webp',
+    summary: '以技术—经济范式及金融资本、生产资本的互动，梳理技术革命从爆发到成熟的阶段性框架。',
+    paragraphs: [
+      '本书以工业革命以来的技术变迁为历史参照，讨论创新集群、金融资本与生产资本如何相互作用。版本前言将相关过程概括为爆发、狂热、协调与成熟四个阶段，并呈现技术扩散与制度变化之间的关系。',
+      '适合把它作为历史比较模型，而不是预测当前市场的固定时钟。阅读时可同时保留书中框架与本版推荐序提出的批评，检查平台经济、开源创新和当代金融结构是否改变了模型原来的前提。',
+    ],
+    prompts: [
+      '当前讨论的是技术创新、资本扩张，还是制度适应的哪个阶段？',
+      '金融资本与生产资本在这段历史中的动机和约束分别是什么？',
+      '哪些当代条件已经不同于模型所依据的历史经验？',
+    ],
+    sourceNote: '封面、前言与推荐序信息来自你提供的 PDF；以上为阅读导航，不将历史模型直接视为当前预测。下载文件共 217 页，约 12 MB。',
+    tone: 'paper',
+    pdf: 'https://github.com/N0SH27/tradinglab/releases/download/books-v1/tech-revolutions-finance.pdf',
+  },
+  {
+    id: 'trading-for-a-living',
+    index: '09',
+    title: '以交易为生',
+    spineTitle: '以交易为生',
+    creator: '亚历山大·埃尔德 / 符彩霞',
+    creatorRole: '作者 / 译者',
+    category: '交易心理 · 策略与风控',
+    cover: '/hidden/books/trading-for-a-living.webp',
+    summary: '围绕交易心理、交易战术与资金管理，把方法选择、执行纪律与风险约束放在同一张阅读地图上。',
+    paragraphs: [
+      '本书封面将内容分为心理学、交易战术与资金管理三个维度。站内把它放在交易方法与实践的交叉口，用来同时检视人的行为、所使用的策略，以及账户能够承受的风险。',
+      '阅读时可将三类笔记分开记录，再用一份交易计划把它们连接起来：什么情况下行动、什么情况下失效、单次与连续错误会造成多大影响。具体指标或战术仍需独立回测，不能把书中示例直接当成当前买卖信号。',
+    ],
+    prompts: [
+      '这个交易想法有明确的前提、失效条件和风险预算吗？',
+      '执行偏差来自策略本身，还是来自情绪与临场决策？',
+      '连续失误时，资金管理规则能否让账户继续保留选择空间？',
+    ],
+    sourceNote: '封面与书名页来自你提供的扫描版 PDF；以上为阅读导航，不构成交易建议。下载文件共 230 页，约 43.4 MB。',
+    tone: 'silver',
+    pdf: 'https://github.com/N0SH27/tradinglab/releases/download/books-v1/trading-for-a-living.pdf',
+  },
+  {
+    id: 'too-big-to-fail',
+    index: '10',
+    title: '大而不倒',
+    spineTitle: '大而不倒',
+    creator: '安德鲁·罗斯·索尔金 / 巴曙松、陈剑等',
+    creatorRole: '作者 / 译者',
+    category: '金融危机 · 纪实',
+    cover: '/hidden/books/too-big-to-fail.webp',
+    summary: '沿华尔街与华盛顿应对金融危机的叙事，观察机构、关键人物与系统性风险如何相互作用。',
+    paragraphs: [
+      '本书封面将内容概括为华尔街与华盛顿如何拯救金融体系及自身的内幕故事。它适合作为金融危机的叙事阅读入口，把抽象的机构名称还原到具体事件、决策者与约束条件之中。',
+      '阅读时可按时间线整理关键节点，区分当时能够获得的信息与事后才知道的结果，并记录政府、金融机构和市场之间的行动如何相互影响。叙事中的事后访谈也应与公开时间和同期材料相互核对。',
+    ],
+    prompts: [
+      '这个决策发生时，参与者已经知道什么，又无法知道什么？',
+      '机构目标、个人激励与系统性风险在哪里发生了冲突？',
+      '哪些安排暂时阻止了危机，又可能把风险转移到未来？',
+    ],
+    sourceNote: '封面与书名页来自你提供的扫描版 PDF；以上为阅读导航。下载文件共 635 页，约 29.1 MB。',
+    tone: 'ink',
+    pdf: 'https://github.com/N0SH27/tradinglab/releases/download/books-v1/too-big-to-fail.pdf',
+  },
+  {
+    id: 'psychology-of-money',
+    index: '11',
+    title: '金钱心理学：财富、人性和幸福的永恒真相',
+    spineTitle: '金钱心理学',
+    creator: '摩根·豪泽尔 / 李青宗',
+    creatorRole: '作者 / 译者',
+    category: '行为金融 · 财富观',
+    cover: '/hidden/books/psychology-of-money.webp',
+    summary: '从行为而非单一智商或公式出发，理解财富、风险、复利与幸福之间的关系。',
+    paragraphs: [
+      '本书用人物故事讨论财务结果与行为习惯之间的关系。序言将金钱心理学称为一种软技能：知道公式和规则，并不等于人在贪婪、恐惧与压力中仍能按规则行动。',
+      '全书由二十个可独立阅读的主题章节组成。适合做短篇对照阅读：把知识上的“应该怎么做”与现实中的“实际上怎么做”分开，再检查自己的时间尺度、风险承受能力和对幸福的定义是否一致。',
+    ],
+    prompts: [
+      '这个财务决定是在回应长期目标，还是短期情绪与他人比较？',
+      '同样的结果中，哪些来自行为，哪些可能来自运气与所处时代？',
+      '我定义的“足够”是什么，它如何影响风险与选择？',
+    ],
+    sourceNote: '封面、版权信息与序言来自你提供的 PDF；以上为阅读导航。下载文件共 246 页，约 10.3 MB。',
+    tone: 'paper',
+    pdf: 'https://github.com/N0SH27/tradinglab/releases/download/books-v1/psychology-of-money.pdf',
+  },
+  {
+    id: 'fogg-behavior-model',
+    index: '12',
+    title: '福格行为模型',
+    spineTitle: '福格行为模型',
+    creator: 'B.J.福格 / 徐毅',
+    creatorRole: '作者 / 译者',
+    category: '行为设计 · 微习惯',
+    cover: '/hidden/books/fogg-behavior-model.webp',
+    summary: '用动机、能力与提示理解行为，把模糊愿望拆成容易开始、能够重复的小行动。',
+    paragraphs: [
+      '本书以 B=MAP 为核心：行为在动机、能力和提示同时出现时发生。目录沿三个要素展开，并继续讨论微习惯、锚点时刻、积极情绪与庆祝，将行为改变整理为可以逐步练习的设计过程。',
+      '阅读时可把一个想改变的行为写成具体实验：明确愿望，列出可能行动，缩小到容易完成的版本，再为它安排已有日程中的提示。它是行为设计工具，不应被直接解释成消除交易偏差或获得投资结果的保证。',
+    ],
+    prompts: [
+      '我想改变的是模糊愿望，还是一个能被清楚描述的具体行为？',
+      '行动没有发生时，缺少的是动机、能力，还是有效提示？',
+      '怎样把下一步缩小到足够容易，并用什么锚点触发它？',
+    ],
+    sourceNote: '封面、目录与前言来自你提供的 PDF；以上为阅读导航。下载文件共 360 页，约 10.3 MB。',
+    tone: 'ink',
+    pdf: 'https://github.com/N0SH27/tradinglab/releases/download/books-v1/fogg-behavior-model.pdf',
+  },
+  {
+    id: 'behavioral-finance',
+    index: '13',
+    title: '行为金融学：投资者、企业和市场',
+    spineTitle: '行为金融学',
+    creator: 'H.肯特·贝克 / 约翰·R.诺夫辛格',
+    creatorRole: '编著',
+    category: '行为金融 · 综合研究',
+    cover: '/hidden/books/behavioral-finance.webp',
+    summary: '从心理偏向到资产定价、公司金融与社会影响，建立一张跨主体的行为金融阅读地图。',
+    paragraphs: [
+      '这本编著以六篇、三十六章组织内容：基础与关键概念，心理学概念和行为偏向，资产定价的行为因素，行为公司金融，投资者行为，以及社会影响。直觉推断、过度自信、熟悉偏向、市场无效、融资决策和机构投资者等主题被放在同一框架中。',
+      '适合按问题而不是只按页序阅读：先区分研究讨论的是个人决策、企业决策还是市场结果，再记录各章的证据和适用边界。心理偏向的存在并不自动推出可利用的交易策略，也不意味着市场价格可以被简单预测。',
+    ],
+    prompts: [
+      '这一章分析的是投资者、企业、市场，还是更广泛的社会环境？',
+      '从个体心理偏向推导到群体或价格结果时，中间还需要哪些条件？',
+      '章节的证据支持什么结论，又有哪些结论不能直接外推？',
+    ],
+    sourceNote: '封面与目录来自你提供的扫描版 PDF；贺京同、高林、贺坤、李宝伟等译，贺京同校。以上为阅读导航。下载文件共 877 页，约 167.9 MB。',
+    tone: 'silver',
+    pdf: 'https://github.com/N0SH27/tradinglab/releases/download/books-v1/behavioral-finance.pdf',
+  },
+  {
+    id: 'investment-psychology',
+    index: '14',
+    title: '行为金融与投资心理学（原书第6版）',
+    spineTitle: '行为金融与投资心理学',
+    creator: '约翰 R. 诺夫辛格 / 郑磊、郑扬洋',
+    creatorRole: '作者 / 译者',
+    category: '行为金融 · 投资心理',
+    cover: '/hidden/books/investment-psychology.webp',
+    summary: '沿过度自信、处置效应、风险感知与情绪等主题，观察心理偏差如何进入投资决策。',
+    paragraphs: [
+      '本书从心理学与金融的关系出发，依次讨论过度自信、自豪与懊悔、风险感知、决策框架、心理会计、投资组合、代表性与熟悉程度、社交互动、情绪、自我控制和投资生理学。第 6 版新增投资生理学章节。',
+      '前言说明，各章通常先以日常行为描述心理偏差，再分析其对投资决策的影响，最后引用学术研究。作者将了解心理偏差定位为对传统金融工具的补充，而非替代；阅读时也应区分偏差识别、策略有效性与实际执行。',
+    ],
+    prompts: [
+      '这次判断可能受到哪种心理偏差影响，有什么可观察的迹象？',
+      '我是在评价决策过程，还是只根据一次盈亏结果反推原因？',
+      '传统金融工具与行为观察应如何互补，而不是互相替代？',
+    ],
+    sourceNote: '封面取自你提供的 PDF 第 2 页，目录与前言来自原书；以上为阅读导航，不构成收益承诺。下载文件共 330 页，约 4.6 MB。',
+    tone: 'paper',
+    pdf: 'https://github.com/N0SH27/tradinglab/releases/download/books-v1/investment-psychology.pdf',
+  },
+  {
+    id: 'behavioral-investing-principles',
+    index: '15',
+    title: '行为投资原则',
+    spineTitle: '行为投资原则',
+    creator: '丹尼尔·克罗斯比 / 张昊',
+    creatorRole: '作者 / 译者',
+    category: '行为投资 · 决策流程',
+    cover: '/hidden/books/behavioral-investing-principles.webp',
+    summary: '把行为自我管理原则转化为投资流程，检视知识、规则与临场执行之间的距离。',
+    paragraphs: [
+      '本书第一部分列出十条行为自我管理原则，涉及行为控制、顾问、情绪、个人需求、预测、多样化与风险。第二部分进入基于原则的行为投资，讨论行为风险、4C 框架及 5P 选股法。',
+      '4C 指一致性、清晰性、勇气和信念。阅读重点可以放在原则如何形成流程：哪些规则需要事先写清，哪些条件会削弱执行，如何用记录检查偏离。书中方法有各自前提，不能被视为保证收益或避免损失的机械答案。',
+    ],
+    prompts: [
+      '我已经把原则写成可执行规则，还是只记住了正确口号？',
+      '流程在哪种市场或情绪状态下最容易被临时放弃？',
+      '一致性、清晰性、勇气和信念中，当前最薄弱的是哪一项？',
+    ],
+    sourceNote: '封面、目录与译者序来自你提供的 PDF；以上为阅读导航，不构成投资建议。下载文件共 284 页，约 13.1 MB。',
+    tone: 'ink',
+    pdf: 'https://github.com/N0SH27/tradinglab/releases/download/books-v1/behavioral-investing-principles.pdf',
   },
 ]

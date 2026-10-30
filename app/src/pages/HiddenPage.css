@@ -946,6 +946,8 @@
 .ah-research-current > div { display: flex; align-items: flex-end; gap: 20px; margin-top: auto; padding-top: 32px; }
 .ah-research-current strong { font-family: 'IBM Plex Mono', monospace; font-size: 64px; font-weight: 400; line-height: .9; }
 .ah-research-current > div span { color: var(--ah-muted); font-family: 'IBM Plex Mono', 'Noto Sans SC', monospace; font-size: 8px; line-height: 1.8; letter-spacing: .08em; }
+.ah-research-topic-enter { display: flex; align-items: center; justify-content: space-between; gap: 48px; align-self: flex-start; min-width: 180px; margin-top: 28px; padding: 12px 0; border: 0; border-top: 1px solid var(--ah-text); background: transparent; color: var(--ah-text); font-family: 'IBM Plex Mono', 'Noto Sans SC', monospace; font-size: 10px; letter-spacing: .1em; cursor: pointer; }
+.ah-research-topic-enter:hover { background: var(--ah-text); color: var(--ah-bg); padding-right: 10px; padding-left: 10px; }
 
 .ah-media-masonry { min-height: 400px; }
 .ah-media-masonry .masonry__image { filter: grayscale(1); }
