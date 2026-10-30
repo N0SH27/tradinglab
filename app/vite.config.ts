@@ -4,6 +4,7 @@ import { defineConfig, loadEnv, type Plugin } from 'vite'
 import { inspectAttr } from 'kimi-plugin-inspect-react'
 import hiddenAccessHandler from './api/hidden-access.js'
 import hiddenContentHandler from './api/hidden-content.js'
+import hiddenMarketHandler from './api/hidden-market.js'
 
 /* 本地开发复用同一组 Serverless handlers；生产环境由 Vercel /api 直接执行。 */
 function localHiddenApi(): Plugin {
@@ -19,6 +20,9 @@ function localHiddenApi(): Plugin {
         } catch (error) {
           next(error)
         }
+      })
+      server.middlewares.use('/api/hidden-market', (req, res, next) => {
+        void hiddenMarketHandler(req, res).catch(next)
       })
     },
   }

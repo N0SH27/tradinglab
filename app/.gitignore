@@ -11,6 +11,10 @@ node_modules
 dist
 dist-ssr
 *.local
+.tmp-source-materials/
+.tmp-market-*
+.tmp-hidden-e2e-chrome/
+.tmp-rea/
 
 # Editor directories and files
 .vscode/*

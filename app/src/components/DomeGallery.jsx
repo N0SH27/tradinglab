@@ -124,7 +124,8 @@ export default function DomeGallery({
   openedImageHeight = '400px',
   imageBorderRadius = '30px',
   openedImageBorderRadius = '30px',
-  grayscale = true
+  grayscale = true,
+  onImageClick
 }) {
   const rootRef = useRef(null);
   const mainRef = useRef(null);
@@ -568,21 +569,22 @@ export default function DomeGallery({
       if (movedRef.current) return;
       if (performance.now() - lastDragEndAt.current < 80) return;
       if (openingRef.current) return;
-      openItemFromElement(e.currentTarget);
+      if (onImageClick) onImageClick(e.currentTarget.getAttribute('aria-label'));
+      else openItemFromElement(e.currentTarget);
     },
-    [openItemFromElement]
+    [onImageClick, openItemFromElement]
   );
 
   const onTilePointerUp = useCallback(
     e => {
-      if (e.pointerType !== 'touch') return;
+      if (e.pointerType !== 'touch' || onImageClick) return;
       if (draggingRef.current) return;
       if (movedRef.current) return;
       if (performance.now() - lastDragEndAt.current < 80) return;
       if (openingRef.current) return;
       openItemFromElement(e.currentTarget);
     },
-    [openItemFromElement]
+    [onImageClick, openItemFromElement]
   );
 
   useEffect(() => {

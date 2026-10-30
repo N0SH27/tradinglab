@@ -13,6 +13,7 @@ export type DomeGalleryProps = {
   imageBorderRadius?: string
   openedImageBorderRadius?: string
   grayscale?: boolean
+  onImageClick?: (alt: string) => void
 }
 
 export default function DomeGallery(props: DomeGalleryProps): ReactElement

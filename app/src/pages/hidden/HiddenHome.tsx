@@ -1,13 +1,22 @@
+import { useLayoutEffect } from 'react'
 import CircularCarousel from '../../components/CircularCarousel'
 import type { HiddenCollectionId, PrivateContent } from './hiddenTypes'
 
 type Props = {
   content: PrivateContent
+  initialIndex: number
+  restoreScroll: boolean
   onOpenCollection: (id: HiddenCollectionId) => void
   onOpenSearch: () => void
+  onSelectionChange: (index: number) => void
 }
 
-export default function HiddenHome({ content, onOpenCollection, onOpenSearch }: Props) {
+export default function HiddenHome({ content, initialIndex, restoreScroll, onOpenCollection, onOpenSearch, onSelectionChange }: Props) {
+  useLayoutEffect(() => {
+    if (!restoreScroll) return
+    document.getElementById('private-collections')?.scrollIntoView({ behavior: 'instant', block: 'start' })
+  }, [restoreScroll])
+
   return (
     <main className="ah-private">
       <section className="ah-hero" aria-labelledby="after-hours-title">
@@ -56,6 +65,8 @@ export default function HiddenHome({ content, onOpenCollection, onOpenSearch }: 
             innerShade={0.45}
             cornerRadius={0}
             captions
+            initialIndex={initialIndex}
+            onChange={onSelectionChange}
             onItemClick={(_, index) => onOpenCollection(content.collections[index].id)}
           />
         </div>

@@ -1,43 +1,34 @@
-import { useMemo, useState, type KeyboardEvent, type MouseEvent } from 'react'
+import { useMemo, useState, type KeyboardEvent } from 'react'
 import AnimatedList from '../../components/AnimatedList'
 import DomeGallery from '../../components/DomeGallery'
 import Folder from '../../components/Folder'
-import MagicBento from '../../components/MagicBento'
 import Masonry from '../../components/Masonry'
 import Stack from '../../components/Stack'
-import type { HiddenCollection as Collection, HiddenCollectionId } from './hiddenTypes'
+import HiddenDashboard from './HiddenDashboard'
+import HiddenBookshelf from './HiddenBookshelf'
+import HiddenToolDirectory from './HiddenToolDirectory'
+import { HIDDEN_BOOKS } from './hiddenBooks'
+import type { HiddenCollection as Collection, HiddenCollectionId, InvestorProfile, ToolGroup } from './hiddenTypes'
 
 type Props = {
   collection: Collection
+  investors: InvestorProfile[]
+  toolGroups: ToolGroup[]
   onGoHome: () => void
   onOpenLibrary: () => void
+  onOpenInvestor: (id: string) => void
 }
 
 const STAGE_HELP: Partial<Record<HiddenCollectionId, string>> = {
   research: '点击或拖出最上方卷宗，切换研究分类。',
-  media: '选择一张封面，查看对应的内容归档。',
-  tools: '打开文件夹，整理工具索引、说明与工作流。',
-  dashboards: '选择看板分类；真实数据接入前不展示数值。',
+  media: '单击书脊预览封面；再次单击封面进入书籍介绍。',
+  tools: '打开文件夹，或在下方按分类访问真实网站。',
+  dashboards: '指数主源不可用时自动切换备用源；其他模块接入真实数据前保持空白。',
   conversations: '点击选择分类，也可聚焦列表后使用方向键。',
-  investors: '拖动旋转图廊，点击图块放大并选择框架分类。',
+  investors: '拖动旋转图廊，点击人物进入独立档案；下方也可直接查找。',
 }
 
-const TOOL_SHEETS = [
-  { title: '工具索引', description: '内容等待归档' },
-  { title: '使用说明', description: '口径等待补充' },
-  { title: '工作流', description: '步骤等待整理' },
-]
-
-function DashboardPlaceholder() {
-  return (
-    <div className="ah-dashboard-placeholder">
-      <span className="ah-dashboard-cross" aria-hidden="true">+</span>
-      <span>WAITING FOR DATA</span>
-    </div>
-  )
-}
-
-export default function HiddenCollection({ collection, onGoHome, onOpenLibrary }: Props) {
+export default function HiddenCollection({ collection, investors, toolGroups, onGoHome, onOpenLibrary, onOpenInvestor }: Props) {
   const [activeGroup, setActiveGroup] = useState(0)
   const [openFolder, setOpenFolder] = useState<number | null>(null)
   const active = collection.groups[activeGroup] ?? { title: collection.title, description: collection.summary }
@@ -52,28 +43,20 @@ export default function HiddenCollection({ collection, onGoHome, onOpenLibrary }
     height: [1180, 760, 1020][index] ?? 900,
   })), [collection.groups, collection.src])
 
-  const investorImages = useMemo(() => collection.groups.map(group => ({
-    src: group.src ?? collection.src,
-    alt: group.title,
-  })), [collection.groups, collection.src])
+  const investorImages = useMemo(() => investors.map(profile => ({
+    src: profile.src,
+    alt: profile.name,
+  })), [investors])
 
-  const selectDomeTile = (target: EventTarget | null) => {
-    if (!(target instanceof Element)) return
-    const tile = target.closest('.item__image')
-    if (!tile) return
-    const index = collection.groups.findIndex(group => group.title === tile.getAttribute('aria-label'))
-    if (index >= 0) setActiveGroup(index)
-  }
-
-  const onDomeClick = (event: MouseEvent<HTMLDivElement>) => {
-    selectDomeTile(event.target)
+  const openDomeProfile = (name: string) => {
+    const profile = investors.find(item => item.name === name)
+    if (profile) onOpenInvestor(profile.id)
   }
 
   const onDomeKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key !== 'Enter' && event.key !== ' ') return
     if (!(event.target instanceof HTMLElement) || !event.target.classList.contains('item__image')) return
     event.preventDefault()
-    selectDomeTile(event.target)
     event.target.click()
   }
 
@@ -118,18 +101,37 @@ export default function HiddenCollection({ collection, onGoHome, onOpenLibrary }
         )
       case 'media':
         return (
-          <div className="ah-media-masonry" data-active-group={activeGroup}>
-            <Masonry
-              items={mediaItems}
-              columns="auto"
-              columnWidth={270}
-              gap={16}
-              radius={0}
-              captions="always"
-              lightbox={false}
-              draggable={false}
-              onItemClick={(_, index) => setActiveGroup(index)}
-            />
+          <div className="ah-media-browser" data-active-group={activeGroup}>
+            <div className="ah-media-tabs" role="tablist" aria-label="书籍与影像分类">
+              {collection.groups.map((group, index) => (
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={activeGroup === index}
+                  className="ah-media-tab"
+                  onClick={() => setActiveGroup(index)}
+                  key={group.title}
+                >
+                  <span>{String(index + 1).padStart(2, '0')}</span>
+                  <strong>{group.title}</strong>
+                </button>
+              ))}
+            </div>
+            {activeGroup === 0 ? <HiddenBookshelf /> : (
+              <div className="ah-media-masonry ah-media-single" role="tabpanel" aria-label={active.title}>
+                <Masonry
+                  items={[mediaItems[activeGroup]]}
+                  columns="auto"
+                  columnWidth={270}
+                  gap={16}
+                  radius={0}
+                  captions="always"
+                  lightbox={false}
+                  draggable={false}
+                  onItemClick={() => {}}
+                />
+              </div>
+            )}
           </div>
         )
       case 'tools':
@@ -138,7 +140,7 @@ export default function HiddenCollection({ collection, onGoHome, onOpenLibrary }
             {collection.groups.map((group, index) => (
               <article className="ah-tool-folder" data-active={activeGroup === index ? '' : undefined} key={group.title}>
                 <Folder
-                  items={TOOL_SHEETS}
+                  items={(toolGroups[index]?.links ?? []).slice(0, 3).map(link => ({ title: link.title, description: link.institution }))}
                   label={group.title}
                   open={openFolder === index}
                   onOpenChange={open => {
@@ -164,28 +166,7 @@ export default function HiddenCollection({ collection, onGoHome, onOpenLibrary }
           </div>
         )
       case 'dashboards':
-        return (
-          <div className="ah-dashboard-grid" data-active-group={activeGroup}>
-            <MagicBento
-              items={collection.groups.map((group, index) => ({
-                id: `dashboard-${index}`,
-                title: group.title,
-                description: group.description,
-                label: `${String(index + 1).padStart(2, '0')} / NO SOURCE`,
-                visual: <DashboardPlaceholder />,
-                colSpan: index === 0 ? 2 : 1,
-                rowSpan: index === 0 ? 2 : 1,
-              }))}
-              columns={3}
-              rowHeight={180}
-              gap={12}
-              radius={0}
-              glowColor="#f7f7f7"
-              textAutoHide={false}
-              onItemClick={(_, index) => setActiveGroup(index)}
-            />
-          </div>
-        )
+        return <HiddenDashboard />
       case 'conversations':
         return (
           <div className="ah-conversation-list" data-active-group={activeGroup}>
@@ -212,23 +193,16 @@ export default function HiddenCollection({ collection, onGoHome, onOpenLibrary }
         )
       case 'investors':
         return (
-          <div
-            className="ah-investor-dome"
-            data-active-group={activeGroup}
-            onClickCapture={onDomeClick}
-            onKeyDown={onDomeKeyDown}
-          >
+          <div className="ah-investor-dome" onKeyDown={onDomeKeyDown}>
             <DomeGallery
               images={investorImages}
+              onImageClick={openDomeProfile}
               fit={0.55}
               minRadius={360}
               maxRadius={620}
               segments={28}
               overlayBlurColor="#101010"
-              openedImageWidth="min(78vw, 560px)"
-              openedImageHeight="min(110vw, 420px)"
               imageBorderRadius="0px"
-              openedImageBorderRadius="0px"
               grayscale
             />
           </div>
@@ -247,7 +221,7 @@ export default function HiddenCollection({ collection, onGoHome, onOpenLibrary }
           <h1>{collection.title}</h1>
         </div>
         <div className="ah-collection-header-meta">
-          <span>00 / ENTRIES</span>
+          <span>{collection.id === 'investors' ? `${investors.length} / PROFILES` : collection.id === 'tools' ? '21 / LINKS' : collection.id === 'dashboards' ? '06 / INDICES' : collection.id === 'media' && activeGroup === 0 ? `${String(HIDDEN_BOOKS.length).padStart(2, '0')} / BOOKS` : '00 / ENTRIES'}</span>
           <span>DIRECTORY READY</span>
         </div>
       </header>
@@ -260,18 +234,35 @@ export default function HiddenCollection({ collection, onGoHome, onOpenLibrary }
       <section className={`ah-collection-interactive ah-collection-interactive--${collection.id}`} aria-label={`${collection.title}交互目录`}>
         <div className="ah-collection-stage-heading">
           <span>{String(activeGroup + 1).padStart(2, '0')} / {active.title}</span>
-          <p>{STAGE_HELP[collection.id]}</p>
+          <p>{collection.id === 'media' && activeGroup !== 0 ? '当前分类的内容索引待继续归档。' : STAGE_HELP[collection.id]}</p>
         </div>
         {renderStage()}
       </section>
 
-      <section className="ah-collection-empty" aria-label="内容归档区" aria-live="polite">
-        <span>{String(activeGroup + 1).padStart(2, '0')} / CONTENT ARCHIVE</span>
-        <div>
-          <h2>{active.title} · 内容等待归档。</h2>
-          <p>{collection.editorial}</p>
-        </div>
-      </section>
+      {collection.id === 'tools' && <HiddenToolDirectory groups={toolGroups} activeGroup={activeGroup} onSelect={index => { setActiveGroup(index); setOpenFolder(null) }} />}
+      {collection.id === 'investors' && (
+        <section className="ah-investor-directory" aria-label="全部投资者档案">
+          <div className="ah-investor-directory-heading"><span>20 / PROFILE INDEX</span><p>姓名字卡代表论坛 ID，不代表已核实的真实身份或公开照片。</p></div>
+          <div className="ah-investor-directory-grid">
+            {investors.map(profile => (
+              <button type="button" onClick={() => onOpenInvestor(profile.id)} key={profile.id}>
+                <img src={profile.src} alt="" loading="lazy" />
+                <span><small>{profile.index} / {profile.kind}</small><strong>{profile.name}</strong><span>{profile.focus}</span></span>
+                <span aria-hidden="true">↗</span>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+      {!['tools', 'dashboards', 'investors'].includes(collection.id) && !(collection.id === 'media' && activeGroup === 0) && (
+        <section className="ah-collection-empty" aria-label="内容归档区" aria-live="polite">
+          <span>{String(activeGroup + 1).padStart(2, '0')} / CONTENT ARCHIVE</span>
+          <div>
+            <h2>{active.title} · 内容等待归档。</h2>
+            <p>{collection.editorial}</p>
+          </div>
+        </section>
+      )}
 
       <footer className="ah-collection-footer">
         <button type="button" onClick={onGoHome}>← 返回目录轮播</button>

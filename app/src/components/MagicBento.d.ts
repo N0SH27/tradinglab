@@ -18,6 +18,7 @@ export type MagicBentoProps = {
   radius?: number
   glowColor?: string
   textAutoHide?: boolean
+  intro?: boolean
   className?: string
   style?: CSSProperties
   onItemClick?: (item: MagicBentoItem, index: number) => void

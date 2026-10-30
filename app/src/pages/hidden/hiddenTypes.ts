@@ -58,6 +58,32 @@ export type HiddenCollection = {
   editorial: string
 }
 
+export type InvestorProfile = {
+  id: string
+  index: string
+  name: string
+  english: string
+  kind: string
+  focus: string
+  era?: string
+  summary: string
+  src: string
+  framework: string[]
+  execution: string[]
+  risks: string[]
+  checklist: string[]
+  sources: { label: string; locator: string; url?: string }[]
+  attribution: string
+  photoSource?: { label: string; url: string }
+}
+
+export type ToolGroup = {
+  id: string
+  title: string
+  description: string
+  links: { title: string; institution: string; url: string; description: string }[]
+}
+
 export type PrivateContent = {
   kicker: string
   title: [string, string]
@@ -66,6 +92,8 @@ export type PrivateContent = {
   domains: HiddenDomain[]
   notes: PrivateNote[]
   currentPath: HiddenPath
+  investors: InvestorProfile[]
+  toolGroups: ToolGroup[]
 }
 
 export const NOTE_TYPE_LABELS: Record<NoteType, string> = {

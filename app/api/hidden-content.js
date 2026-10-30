@@ -1,7 +1,11 @@
 import { hasServerConfig, hasValidSession, sendJson } from './_hidden-access.js'
+import { INVESTORS } from './hidden-investors.js'
+import { TOOL_GROUPS } from './hidden-tools.js'
 
-/* 示例知识只从受保护接口发出。正式内容接入数据库前，不要复制进公开前端包。 */
+/* 私人知识只从受保护接口发出；人物内容保留原始出处和历史语境。 */
 const PRIVATE_CONTENT = {
+  investors: INVESTORS,
+  toolGroups: TOOL_GROUPS,
   kicker: 'TRADINGLABB / PRIVATE STUDY',
   title: ['AFTER', 'HOURS'],
   intro: '把观察整理成规则，把规则交给案例验证。这里是私人交易体系、课程与复盘档案的入口。',
@@ -9,15 +13,13 @@ const PRIVATE_CONTENT = {
     {
       id: 'library', index: '01', title: '交易知识 Library', shortTitle: '交易知识 Library', english: 'KNOWLEDGE LIBRARY',
       summary: '交易体系、实操课程与复盘档案的统一工作台，按主题、类型与状态持续整理。',
-      src: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=900&q=80&auto=format&fit=max&sat=-100',
-      format: 'SYSTEM / COURSE / REVIEW', groups: [],
+      src: '/hidden/library.jpg', format: 'SYSTEM / COURSE / REVIEW', groups: [],
       editorial: '从轮播进入完整三栏资料库，继续整理、检索与回看交易知识。',
     },
     {
       id: 'research', index: '02', title: '高价值研报与文章', shortTitle: '研报与文章', english: 'RESEARCH & ESSAYS',
       summary: '沉淀值得反复阅读的研究，把结论还原为证据、假设与可以持续追踪的问题。',
-      src: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=900&q=80&auto=format&fit=max&sat=-100',
-      format: 'RESEARCH / ESSAY / SPECIAL',
+      src: '/hidden/research.jpg', format: 'RESEARCH / ESSAY / SPECIAL',
       groups: [
         { title: '产业与宏观', description: '产业周期、政策环境、宏观变量与关键传导路径。' },
         { title: '公司与商业模式', description: '公司研究、商业模式、竞争优势与长期跟踪材料。' },
@@ -28,44 +30,38 @@ const PRIVATE_CONTENT = {
     {
       id: 'media', index: '03', title: '书籍、视频与影视剧', shortTitle: '书籍与影像', english: 'BOOKS & SCREEN',
       summary: '从书籍、纪录片、课程视频与影视作品中提取可讨论、可验证的商业与交易认知。',
-      src: 'https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=900&q=80&auto=format&fit=max&sat=-100',
-      format: 'BOOK / VIDEO / FILM',
+      src: '/hidden/media.jpg', format: 'BOOK / VIDEO / FILM',
       groups: [
-        { title: '书籍与长篇阅读', description: '投资、商业、心理与历史书籍的阅读笔记和章节索引。', src: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=900&q=80&auto=format&fit=max&sat=-100' },
-        { title: '纪录片与视频', description: '纪录片、课程与长视频的主题标记和重点片段。', src: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=900&q=80&auto=format&fit=max&sat=-100' },
-        { title: '影视剧与商业案例', description: '从人物决策与情节中拆解商业案例，区分戏剧表达与现实。', src: 'https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=900&q=80&auto=format&fit=max&sat=-100' },
+        { title: '书籍与长篇阅读', description: '投资、商业、心理与历史书籍的阅读笔记和章节索引。', src: '/hidden/library.jpg' },
+        { title: '纪录片与视频', description: '纪录片、课程与长视频的主题标记和重点片段。', src: '/hidden/conversations.jpg' },
+        { title: '影视剧与商业案例', description: '从人物决策与情节中拆解商业案例，区分戏剧表达与现实。', src: '/hidden/media.jpg' },
       ],
       editorial: '后续按作品建立条目，将书摘、时间码、个人评论与相关知识笔记关联起来。',
     },
     {
       id: 'tools', index: '04', title: '实用工具', shortTitle: '实用工具', english: 'PRACTICAL TOOLS',
-      summary: '集中管理研究、数据测量与交易执行工具，记录用途、使用边界和实际工作流。',
-      src: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=900&q=80&auto=format&fit=max&sat=-100',
-      format: 'RESEARCH / DATA / EXECUTION',
-      groups: [
-        { title: '研究与信息工具', description: '公告、研报、新闻与资料检索工具及其使用说明。' },
-        { title: '数据与测量工具', description: '行情、指标、统计与量化测量工具的入口和口径记录。' },
-        { title: '复盘与执行工具', description: '交易计划、检查清单、截图归档与复盘工作流。' },
-      ],
-      editorial: '后续为每个工具补充用途、访问方式、数据口径与适用场景，不只收藏链接。',
+      summary: '从原始机构获取宏观、房地产与能源数据，并保留用途、发布日期和统计口径。',
+      src: '/hidden/tools.jpg', format: '21 OFFICIAL LINKS / 3 DRAWERS',
+      groups: TOOL_GROUPS.map(group => ({ title: group.title, description: group.description })),
+      editorial: '精选自用户提供的美国数据网站清单。外部网站可能调整访问权限与数据口径，使用时以原始机构说明为准。',
     },
     {
       id: 'dashboards', index: '05', title: '数据看板', shortTitle: '数据看板', english: 'DATA DASHBOARDS',
-      summary: '将分散的数据观察组织成固定视图，保留指标定义、更新时间与解释边界。',
-      src: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=900&q=80&auto=format&fit=max&sat=-100',
-      format: 'MACRO / INDUSTRY / PORTFOLIO',
+      summary: '以指数、成交、市场宽度、题材与涨停梯队组织盘后观察；没有可靠数据的位置保持空白。',
+      src: '/hidden/dashboards.jpg', format: 'INDEX / BREADTH / THEMES',
       groups: [
-        { title: '宏观与流动性', description: '利率、汇率、信用与流动性条件的集中观察。' },
-        { title: '产业与供需', description: '产业价格、库存、产能和供需变化的持续追踪。' },
-        { title: '市场与组合', description: '市场宽度、资产表现、持仓暴露与组合风险视图。' },
+        { title: '核心指数', description: '上证、深证、创业板、上证 50、沪深 300 与科创 50。' },
+        { title: '成交额', description: '沪深两市成交额及变化，待接入统一口径。' },
+        { title: '涨跌分布', description: '上涨、下跌与平盘家数，待接入市场宽度数据。' },
+        { title: '热门题材', description: '题材强度与持续性，待定义并接入真实统计。' },
+        { title: '涨停梯队', description: '连板高度与晋级结构，待接入可复核的涨停口径。' },
       ],
-      editorial: '后续逐个接入真实看板，并标明数据来源、更新频率和指标口径。',
+      editorial: '布局参考盘后复盘信息结构，不复制第三方复盘站数据。指数优先使用东方财富公开行情，失败时自动切换腾讯公开行情，均可能延迟。',
     },
     {
       id: 'conversations', index: '06', title: '财经对话与现场实录', shortTitle: '播客与访谈', english: 'CONVERSATIONS & MEETINGS',
       summary: '保存财经播客、线下沙龙、大佬访谈与年度股东大会实录，留住观点出现的完整语境。',
-      src: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=900&q=80&auto=format&fit=max&sat=-100',
-      format: 'PODCAST / INTERVIEW / MEETING',
+      src: '/hidden/conversations.jpg', format: 'PODCAST / INTERVIEW / MEETING',
       groups: [
         { title: '财经播客与线下沙龙', description: '节目、对谈与沙龙的主题索引、重点片段和听后笔记。' },
         { title: '大佬访谈', description: '成熟从业者与投资者访谈中的判断依据和经验边界。' },
@@ -75,15 +71,10 @@ const PRIVATE_CONTENT = {
     },
     {
       id: 'investors', index: '07', title: '投资者框架与持仓思路', shortTitle: '投资者框架', english: 'INVESTOR PLAYBOOKS',
-      summary: '研究成熟投资者如何形成判断、搭建体系与管理持仓，而不是只复制一个结论或代码。',
-      src: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=900&q=80&auto=format&fit=max&sat=-100',
-      format: 'FRAMEWORK / SYSTEM / POSITION',
-      groups: [
-        { title: '思考框架', description: '问题定义、决策原则、能力圈与常见认知偏差。', src: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=900&q=80&auto=format&fit=max&sat=-100' },
-        { title: '投资体系', description: '研究流程、标的选择、买卖条件与风险约束的整体结构。', src: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=900&q=80&auto=format&fit=max&sat=-100' },
-        { title: '持仓思路与复盘', description: '公开持仓背后的假设、变化过程与事后再验证。', src: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=900&q=80&auto=format&fit=max&sat=-100' },
-      ],
-      editorial: '后续按投资者建立长期档案，区分公开事实、个人归纳与不同周期的观点变化。',
+      summary: '从公开人物与淘股吧论坛 ID 的历史资料中提炼决策方法，区分来源、编辑归纳与当前事实。',
+      src: '/hidden/investors.jpg', format: '20 PROFILES / SOURCED NOTES',
+      groups: INVESTORS.map(profile => ({ title: profile.name, description: profile.focus, src: profile.src })),
+      editorial: '淘股吧是论坛，不是人物。论坛昵称使用姓名字卡，避免误配真人照片；历史观点不代表今日建议。',
     },
   ],
   domains: [

@@ -33,6 +33,7 @@ export interface CircularCarouselProps {
   innerShade?: number
   cornerRadius?: number
   captions?: boolean
+  initialIndex?: number
   onChange?: (index: number) => void
   onItemClick?: (item: CircularCarouselItem, index: number) => void
   className?: string

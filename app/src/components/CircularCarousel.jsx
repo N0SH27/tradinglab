@@ -202,6 +202,7 @@ const CircularCarousel = ({
   innerShade = 0.6,
   cornerRadius = 12,
   captions = false,
+  initialIndex = 0,
   onChange,
   onItemClick,
   className = '',
@@ -252,6 +253,8 @@ const CircularCarousel = ({
     });
   }, [along, axis, curveValue, layout.inward, radius]);
 
+  const requestedIndex = Number.isFinite(initialIndex) ? Math.trunc(initialIndex) : 0;
+  const initialActive = ((requestedIndex % count) + count) % count;
   const rootRef = useRef(null);
   const stageRef = useRef(null);
   const cameraRef = useRef(null);
@@ -259,15 +262,15 @@ const CircularCarousel = ({
   const cardRefs = useRef([]);
   const wakeRef = useRef(() => {});
   const measureRef = useRef(() => {});
-  const activeRef = useRef(0);
-  const [active, setActive] = useState(0);
+  const activeRef = useRef(initialActive);
+  const [active, setActive] = useState(initialActive);
   const [ready, setReady] = useState(false);
   const [dragging, setDragging] = useState(false);
   const readyRef = useRef(false);
   readyRef.current = ready;
 
   const stateRef = useRef({
-    angle: 0,
+    angle: -initialActive * step,
     velocity: 0,
     target: null,
     dir: 0,
