@@ -259,13 +259,22 @@ try {
       assert.equal(await evaluate(`!!document.querySelector('.ah-book-immersive--detail [role="dialog"][aria-modal="true"]')`), true)
       assert.equal(await evaluate(`document.querySelectorAll('.ah-book-detail-reading section').length`), 3)
       assert.equal(await evaluate(`document.querySelectorAll('.ah-book-detail-reading ol li').length`), 3)
-      assert.equal(await evaluate(`!!document.querySelector('.ah-book-download')`), false)
+
+      /* 仅当前浏览器会话移除配置，核验无附件时不显示下载入口。 */
+      await evaluate(`import('/src/pages/hidden/hiddenBooks.ts').then(({ HIDDEN_BOOKS }) => {
+        delete HIDDEN_BOOKS[1].pdf;
+        return true;
+      })`)
+      await evaluate(`document.querySelector('.ah-book-detail-nav button').click()`)
+      await waitFor(`!!document.querySelector('.ah-book-preview') && !document.querySelector('.ah-book-detail')`)
+      await evaluate(`document.querySelector('.ah-book-holo-button').click()`)
+      await waitFor(`document.querySelector('.ah-book-detail-header h1')?.textContent === '我和小明' && !document.querySelector('.ah-book-download')`)
       await sleep(500)
       await screenshot('desktop-book-detail.png')
       await evaluate(`document.querySelector('.ah-book-detail-nav button').click()`)
       await waitFor(`!!document.querySelector('.ah-book-preview') && !document.querySelector('.ah-book-detail')`)
 
-      /* 仅当前浏览器会话注入白名单附件配置，不实际下载大型 PDF。 */
+      /* 注入白名单附件配置，不实际下载大型 PDF。 */
       await evaluate(`import('/src/pages/hidden/hiddenBooks.ts').then(({ HIDDEN_BOOKS }) => {
         HIDDEN_BOOKS[1].pdf = '${BOOK_RELEASE}e2e-book-download.pdf';
         return true;
@@ -287,7 +296,7 @@ try {
       await evaluate(`document.querySelector('.ah-book-detail-nav button').click()`)
       await waitFor(`!!document.querySelector('.ah-book-preview') && !document.querySelector('.ah-book-detail')`)
       await evaluate(`import('/src/pages/hidden/hiddenBooks.ts').then(({ HIDDEN_BOOKS }) => {
-        delete HIDDEN_BOOKS[1].pdf;
+        HIDDEN_BOOKS[1].pdf = '${BOOK_RELEASE}me-and-xiaoming.pdf';
         return true;
       })`)
       await evaluate(`window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))`)
@@ -322,6 +331,10 @@ try {
       await sleep(300)
       await screenshot('desktop-book-fogg-detail.png')
       const expectedPdfNames = [
+        'xie-guozhong-advice.pdf',
+        'me-and-xiaoming.pdf',
+        'chaogu-yangjia.pdf',
+        'top-hot-money-thoughts.pdf',
         'zhou-jintao-cycle-collection.pdf',
         'hive-mind.pdf',
         'poor-economics.pdf',

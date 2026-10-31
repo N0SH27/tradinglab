@@ -55,6 +55,7 @@ export const HIDDEN_BOOKS: HiddenBook[] = [
     ],
     sourceNote: '封面来自你提供的 PDF。以上为站内阅读导航，不代替原文；历史观点不构成当前投资建议。',
     tone: 'paper',
+    pdf: 'https://github.com/N0SH27/tradinglab/releases/download/books-v1/xie-guozhong-advice.pdf',
   },
   {
     id: 'me-and-xiaoming',
@@ -77,6 +78,7 @@ export const HIDDEN_BOOKS: HiddenBook[] = [
     ],
     sourceNote: '封面取自你提供的非全集注解版 PDF。论坛 ID 不等同已核实的真实身份；以上为阅读导航，不复述未核实业绩。',
     tone: 'ink',
+    pdf: 'https://github.com/N0SH27/tradinglab/releases/download/books-v1/me-and-xiaoming.pdf',
   },
   {
     id: 'chaogu-yangjia',
@@ -99,6 +101,7 @@ export const HIDDEN_BOOKS: HiddenBook[] = [
     ],
     sourceNote: '封面取自你提供的第三方整理 PDF。人物简介与历史业绩叙述未在站内独立核实；论坛 ID 不作为真实身份认证。',
     tone: 'paper',
+    pdf: 'https://github.com/N0SH27/tradinglab/releases/download/books-v1/chaogu-yangjia.pdf',
   },
   {
     id: 'top-hot-money-thoughts',
@@ -111,7 +114,7 @@ export const HIDDEN_BOOKS: HiddenBook[] = [
     cover: '/hidden/books/youzi.webp',
     summary: '作为游资观点的历史资料入口，按人物、时间与市场语境建立索引，而非寻找统一答案。',
     paragraphs: [
-      '这是一份以「顶级游资的思考」为题的淘股吧资料合集。封面标注“内部资料 非卖品”，站内仅作为你已有材料的阅读索引，不提供公开下载。',
+      '这是一份以「顶级游资的思考」为题的淘股吧资料合集，封面标注“内部资料 非卖品”。站内将其作为历史资料入口，原文通过 GitHub Releases 提供下载。',
       '不同人物、不同时期的经验可能互相矛盾。整理时应先标明出处、日期和讨论背景，再比较它们对选股、节奏、风险与执行的不同回答，避免把语录拼成看似一致的交易系统。',
     ],
     prompts: [
@@ -119,8 +122,9 @@ export const HIDDEN_BOOKS: HiddenBook[] = [
       '观点之间的矛盾来自定义不同、周期不同，还是方法本身不同？',
       '哪些说法能够用历史样本检验，哪些只能作为个人经验保留？',
     ],
-    sourceNote: '封面来自你提供的资料合集，原始汇编者与具体篇目出处需在阅读时继续核对。本页仅作索引，不提供文件分发。',
+    sourceNote: '封面来自你提供的资料合集，原始汇编者与具体篇目出处需在阅读时继续核对；原文通过本仓库 GitHub Releases 分发。',
     tone: 'silver',
+    pdf: 'https://github.com/N0SH27/tradinglab/releases/download/books-v1/top-hot-money-thoughts.pdf',
   },
   {
     id: 'true-meaning-of-cycles',

@@ -12,9 +12,13 @@ test('十五本书使用同一份完整书目配置，编号与顺序一致', ()
   }
 })
 
-test('只有 books-v1 中已配置的十一份 PDF 才生成下载信息', () => {
+test('十五本书均使用 books-v1 的 PDF 并生成下载信息', () => {
   const configured = HIDDEN_BOOKS.filter(book => getHiddenBookDownload(book) !== null)
   assert.deepEqual(configured.map(book => book.id), [
+    'xie-guozhong-advice',
+    'me-and-xiaoming',
+    'chaogu-yangjia',
+    'top-hot-money-thoughts',
     'true-meaning-of-cycles',
     'hive-mind',
     'poor-economics',
@@ -28,6 +32,10 @@ test('只有 books-v1 中已配置的十一份 PDF 才生成下载信息', () =>
     'behavioral-investing-principles',
   ])
   assert.deepEqual(configured.map(book => getHiddenBookDownload(book)?.fileName), [
+    'xie-guozhong-advice.pdf',
+    'me-and-xiaoming.pdf',
+    'chaogu-yangjia.pdf',
+    'top-hot-money-thoughts.pdf',
     'zhou-jintao-cycle-collection.pdf',
     'hive-mind.pdf',
     'poor-economics.pdf',
