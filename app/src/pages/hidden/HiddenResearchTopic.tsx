@@ -181,7 +181,7 @@ export default function HiddenResearchTopic({ path, topicId, topics, onBack, onO
                           type="search"
                           value={searchInput}
                           onChange={event => setSearchInput(event.target.value)}
-                          placeholder="例如：存储、AI 算力、RC-001"
+                          placeholder="例如：再通胀、AI 产业、RC-007"
                           maxLength={80}
                         />
                         <button type="submit">检索 →</button>

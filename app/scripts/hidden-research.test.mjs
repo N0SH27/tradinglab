@@ -39,41 +39,48 @@ function response() {
   }
 }
 
-test('六篇初始文章全部连接现有真实报告，编号和路由唯一', () => {
-  assert.equal(RESEARCH_ARTICLES.length, 6)
-  assert.equal(new Set(RESEARCH_ARTICLES.map(article => article.id)).size, 6)
-  assert.equal(new Set(RESEARCH_ARTICLES.map(article => article.archiveId)).size, 6)
-  assert.equal(new Set(RESEARCH_ARTICLES.map(article => article.href)).size, 6)
+test('阴页仅保留两篇外部研报，编号、黑页路由与专题归属唯一', () => {
+  assert.equal(RESEARCH_ARTICLES.length, 2)
+  assert.deepEqual(RESEARCH_ARTICLES.map(article => article.id), ['report-7', 'report-8'])
+  assert.equal(new Set(RESEARCH_ARTICLES.map(article => article.archiveId)).size, 2)
+  assert.equal(new Set(RESEARCH_ARTICLES.map(article => article.href)).size, 2)
   for (const article of RESEARCH_ARTICLES) {
-    assert.match(article.href, new RegExp(`^#/research/${article.id}$`))
-    assert.equal(article.topic, 'industry-macro')
+    assert.equal(article.href, `#/after-hours/report/${article.id}`)
+    assert.equal(article.topic, article.id === 'report-8' ? 'company-business' : 'industry-macro')
     assert.equal(fs.existsSync(path.join(process.cwd(), 'public', article.image)), true, article.image)
+    assert.equal(fs.existsSync(path.join(process.cwd(), 'src', 'pages', 'research', `${article.id.replace('report-', 'Report')}.tsx`)), true, article.href)
   }
 })
 
-test('三个专题计数真实，默认索引按日期由新到旧', () => {
+test('三个专题计数真实，默认索引只显示黑页新增研报', () => {
   const counts = RESEARCH_TOPICS.map(topic => queryResearch({ topic: topic.id }).topic.count)
-  assert.deepEqual(counts, [6, 0, 0])
+  assert.deepEqual(counts, [1, 1, 0])
   const result = queryResearch({ topic: 'industry-macro' })
-  assert.equal(result.total, 6)
+  assert.equal(result.total, 1)
   assert.equal(result.pageSize, 15)
   assert.equal(result.pageCount, 1)
-  assert.deepEqual(result.articles.map(article => article.id), ['report-6', 'report-5', 'report-4', 'report-3', 'report-2', 'report-1'])
-  assert.deepEqual(result.featured.map(article => article.id), ['report-2', 'report-1', 'report-3'])
+  assert.deepEqual(result.articles.map(article => article.id), ['report-7'])
+  assert.deepEqual(result.featured.map(article => article.id), ['report-7'])
+  const company = queryResearch({ topic: 'company-business' })
+  assert.equal(company.total, 1)
+  assert.deepEqual(company.articles.map(article => article.id), ['report-8'])
+  assert.deepEqual(company.featured.map(article => article.id), ['report-8'])
 })
 
-test('搜索、标签、类型与排序均在服务端执行', () => {
-  const storage = queryResearch({ topic: 'industry-macro', q: '存储' })
-  assert.deepEqual(storage.articles.map(article => article.id), ['report-5', 'report-2'])
-  assert.equal(queryResearch({ topic: 'industry-macro', q: 'rc-001' }).articles[0].id, 'report-1')
-  assert.equal(queryResearch({ topic: 'industry-macro', tag: 'AI 算力' }).total, 3)
-  assert.equal(queryResearch({ topic: 'industry-macro', tag: '存储周期' }).total, 2)
-  assert.equal(queryResearch({ topic: 'industry-macro', kind: 'report' }).total, 6)
-  assert.equal(queryResearch({ topic: 'industry-macro', kind: 'essay' }).total, 6, '不可用类型回退为全部')
+test('搜索、标签、类型与排序均在服务端执行，阳页重复内容不再入索引', () => {
+  assert.equal(queryResearch({ topic: 'industry-macro', q: '存储' }).total, 0)
+  assert.equal(queryResearch({ topic: 'industry-macro', q: 'rc-001' }).total, 0)
+  assert.equal(queryResearch({ topic: 'industry-macro', q: 'rc-007' }).articles[0].id, 'report-7')
+  assert.equal(queryResearch({ topic: 'industry-macro', q: '再通胀' }).articles[0].id, 'report-7')
+  assert.equal(queryResearch({ topic: 'company-business', q: '注意力' }).articles[0].id, 'report-8')
+  assert.equal(queryResearch({ topic: 'industry-macro', tag: 'AI 产业' }).total, 1)
+  assert.equal(queryResearch({ topic: 'industry-macro', tag: '中国宏观' }).total, 1)
+  assert.equal(queryResearch({ topic: 'industry-macro', kind: 'report' }).total, 1)
+  assert.equal(queryResearch({ topic: 'industry-macro', kind: 'essay' }).total, 1, '不可用类型回退为全部')
   const oldest = queryResearch({ topic: 'industry-macro', sort: 'oldest' })
-  assert.equal(oldest.articles[0].id, 'report-1')
+  assert.equal(oldest.articles[0].id, 'report-7')
   const titled = queryResearch({ topic: 'industry-macro', sort: 'title' })
-  assert.deepEqual(titled.articles.map(article => article.id), [...titled.articles].sort((left, right) => left.title.localeCompare(right.title, 'zh-CN')).map(article => article.id))
+  assert.deepEqual(titled.articles.map(article => article.id), ['report-7'])
 })
 
 test('十五篇一页，超过后分页不遗漏不重复，越界页自动收敛', () => {
@@ -107,14 +114,12 @@ test('十五篇一页，超过后分页不遗漏不重复，越界页自动收�
 })
 
 test('空专题、无结果与非法参数保持稳定', () => {
-  for (const topic of ['company-business', 'cross-asset']) {
-    const result = queryResearch({ topic })
-    assert.equal(result.total, 0)
-    assert.equal(result.page, 1)
-    assert.equal(result.pageCount, 0)
-    assert.deepEqual(result.articles, [])
-    assert.deepEqual(result.featured, [])
-  }
+  const result = queryResearch({ topic: 'cross-asset' })
+  assert.equal(result.total, 0)
+  assert.equal(result.page, 1)
+  assert.equal(result.pageCount, 0)
+  assert.deepEqual(result.articles, [])
+  assert.deepEqual(result.featured, [])
   const empty = queryResearch({ topic: 'industry-macro', q: '不存在的检索词' })
   assert.equal(empty.total, 0)
   assert.equal(empty.pageCount, 0)
@@ -151,9 +156,10 @@ test('研究接口复用配置、方法、会话和未知专题保护', () => {
   assert.equal(unknown.statusCode, 404)
 
   const valid = response()
-  hiddenResearchHandler(request({ url: '/api/hidden-research?topic=industry-macro&q=%E5%AD%98%E5%82%A8', session: true }), valid)
+  hiddenResearchHandler(request({ url: `/api/hidden-research?topic=industry-macro&q=${encodeURIComponent('再通胀')}`, session: true }), valid)
   assert.equal(valid.statusCode, 200)
-  assert.equal(valid.body.total, 2)
+  assert.equal(valid.body.total, 1)
+  assert.equal(valid.body.articles[0].id, 'report-7')
   assert.equal(valid.headers['Cache-Control'], 'no-store, max-age=0')
 })
 
@@ -164,7 +170,7 @@ test('总内容接口只暴露专题元数据与真实计数，不回传整份�
   assert.equal(res.statusCode, 200)
   const research = res.body.collections.find(collection => collection.id === 'research')
   assert.deepEqual(research.groups.map(group => [group.id, group.count]), [
-    ['industry-macro', 6], ['company-business', 0], ['cross-asset', 0],
+    ['industry-macro', 1], ['company-business', 1], ['cross-asset', 0],
   ])
   assert.equal('articles' in research, false)
   assert.equal('researchArticles' in res.body, false)

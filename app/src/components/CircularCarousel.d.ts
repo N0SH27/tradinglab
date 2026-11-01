@@ -22,6 +22,7 @@ export interface CircularCarouselProps {
   interval?: number
   direction?: 'left' | 'right'
   draggable?: boolean
+  wheel?: 'horizontal' | 'both'
   momentum?: number
   snap?: boolean
   pauseOnHover?: boolean

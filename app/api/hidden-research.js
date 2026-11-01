@@ -17,7 +17,7 @@ export const RESEARCH_TOPICS = [
     title: '公司与商业模式',
     english: 'COMPANY & BUSINESS MODEL',
     description: '公司研究、商业模式、竞争优势与长期跟踪材料。',
-    summary: '围绕公司如何创造、分配并守住价值建立档案。真实内容完成归档前，这里保持空白。',
+    summary: '围绕公司如何创造、分配并守住价值建立档案，也观察技术如何重写组织、岗位与协作方式。',
   },
   {
     id: 'cross-asset',
@@ -31,46 +31,18 @@ export const RESEARCH_TOPICS = [
 
 export const RESEARCH_ARTICLES = [
   {
-    id: 'report-1', topic: 'industry-macro', archiveId: 'RC-001',
-    title: '中国 AI 算力基础设施产业链研究',
-    summary: '最紧的环节从芯片，搬到了封装设备与厂房。',
-    source: 'TradingLabb', date: '2026.08', version: 'v1.1.2', kind: 'report',
-    tags: ['AI 算力'], href: '#/research/report-1', image: '/hidden/research/report-1.svg', featuredOrder: 2,
+    id: 'report-7', topic: 'industry-macro', archiveId: 'RC-007',
+    title: '中国 AI：更多增长，更少再通胀',
+    summary: 'AI 的增长红利主要来自出口而非投资；就业与再通胀并未同步出现。',
+    source: 'Barclays', date: '2026.10', version: '导读 v1.0', kind: 'report',
+    tags: ['中国宏观', 'AI 产业', '汇率与利率'], href: '#/after-hours/report/report-7', image: '/hidden/research/report-7.svg', featuredOrder: 1,
   },
   {
-    id: 'report-2', topic: 'industry-macro', archiveId: 'RC-002',
-    title: '存储周期：价格上涨失效的周期解剖',
-    summary: 'DDR4 每月涨约两成，Q4 合约价再涨五成——但股价已经不跟了。',
-    source: 'TradingLabb', date: '2026.08', version: 'v1.1.2', kind: 'report',
-    tags: ['存储周期'], href: '#/research/report-2', image: '/hidden/research/report-2.svg', featuredOrder: 1,
-  },
-  {
-    id: 'report-3', topic: 'industry-macro', archiveId: 'RC-003',
-    title: '电力约束：从判断到可跟踪结构',
-    summary: '当所有人盯着芯片，电力指标正成为智算中心选址的第一约束。',
-    source: 'TradingLabb', date: '2026.08', version: 'v1.1.2', kind: 'report',
-    tags: ['电力约束', 'AI 算力'], href: '#/research/report-3', image: '/hidden/research/report-3.svg', featuredOrder: 3,
-  },
-  {
-    id: 'report-4', topic: 'industry-macro', archiveId: 'RC-004',
-    title: '商保支付端：从政策推演到目录落地',
-    summary: '通道建好了——水还没有来。',
-    source: 'TradingLabb', date: '2026.09', version: 'v0.2', kind: 'report',
-    tags: ['医药政策'], href: '#/research/report-4', image: '/hidden/research/report-4.svg', featuredOrder: 4,
-  },
-  {
-    id: 'report-5', topic: 'industry-macro', archiveId: 'RC-005',
-    title: '存储：紧缺与斜率的分离',
-    summary: '利润率历史极值的同一周，涨价共识从 +200% 腰斩到 +100%。',
-    source: 'TradingLabb', date: '2026.09', version: 'v1.0.0', kind: 'report',
-    tags: ['存储周期'], href: '#/research/report-5', image: '/hidden/research/report-5.svg', featuredOrder: 5,
-  },
-  {
-    id: 'report-6', topic: 'industry-macro', archiveId: 'RC-006',
-    title: '算力租赁的单位经济学',
-    summary: '13.1 个月回本——利率上升，为什么还没有杀死 AI 基建。',
-    source: 'TradingLabb', date: '2026.09', version: 'v1.0.0', kind: 'report',
-    tags: ['AI 算力'], href: '#/research/report-6', image: '/hidden/research/report-6.svg', featuredOrder: 6,
+    id: 'report-8', topic: 'company-business', archiveId: 'RC-008',
+    title: 'Anthropic：AI 如何重构工作与就业',
+    summary: '初级技术招聘占比降至 9% 的另一面，是人的注意力与判断力成为新瓶颈。',
+    source: 'The Anthropic Institute', date: '2026.10', version: '导读 v1.0', kind: 'report',
+    tags: ['AI 原生组织', '劳动与招聘', '组织协作'], href: '#/after-hours/report/report-8', image: '/hidden/research/report-8.svg', featuredOrder: 1,
   },
 ]
 

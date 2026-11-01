@@ -54,6 +54,15 @@ export interface ReportMeta {
   date: string      // e.g. '2026.08'
   review: string    // e.g. 'PASS · v1.1.1'（跟踪周期制版本号）
   kind?: string     // default 'INDUSTRY'
+  source?: {
+    publication: string
+    originalTitle: string
+    authors: string
+    originalUrl?: string
+    pdfUrl?: string
+  }
+  backHref?: string
+  backLabel?: string
 }
 
 /* 轻量行内标记：**bold** 与 `code` */
@@ -289,7 +298,7 @@ export default function ReportPage({
   }, [])
 
   return (
-    <div ref={rootRef} className="max-w-[1400px] mx-auto px-5 md:px-10 pb-24">
+    <div ref={rootRef} className="report-page max-w-[1400px] mx-auto px-5 md:px-10 pb-24">
       <PageHead
         zh={meta.title}
         en={`${meta.kind ?? 'INDUSTRY'} · ${meta.date} · RESEARCH`}
@@ -300,12 +309,32 @@ export default function ReportPage({
         <span className="font-mono-num tnum text-xs ink-3 tracking-widest">最近修订 {meta.date} · {meta.review}</span>
       </div>
 
+      {meta.source && (
+        <aside className="grid md:grid-cols-12 gap-5 md:gap-10 border border-[rgb(var(--line))] p-6 md:p-8" data-reveal aria-label="原报告信息与原文入口">
+          <div className="md:col-span-4">
+            <span className="label-sm block">{meta.no} / SOURCE DOCUMENT</span>
+            <span className="block font-serif-sc font-bold text-xl mt-4">{meta.source.publication}</span>
+          </div>
+          <div className="md:col-span-8 space-y-3">
+            <p className="font-serif-sc text-lg leading-relaxed">{meta.source.originalTitle}</p>
+            <p className="text-sm ink-2 leading-relaxed">作者：{meta.source.authors}</p>
+            <p className="text-sm ink-3 leading-relaxed">本页为中文编辑导读与阅读索引，不是全文翻译。数据、预测与市场观点均归属于原报告；编辑解读会单独标明。</p>
+            {(meta.source.originalUrl || meta.source.pdfUrl) && (
+              <div className="flex flex-wrap gap-x-6 gap-y-3 pt-2">
+                {meta.source.originalUrl && <a href={meta.source.originalUrl} target="_blank" rel="noreferrer" className="btn-line">访问原始发布页 ↗</a>}
+                {meta.source.pdfUrl && <a href={meta.source.pdfUrl} target="_blank" rel="noreferrer" className="btn-line" download={meta.source.pdfUrl.split('/').pop()}>下载原文 PDF ↗</a>}
+              </div>
+            )}
+          </div>
+        </aside>
+      )}
+
       {sections.map((s, si) => (
         <section
           key={s.id}
           id={s.id}
           className={`grid md:grid-cols-12 gap-6 md:gap-10 py-14 md:py-20 ${
-            si > 0 ? 'hairline-t' : ''
+            si > 0 || meta.source ? 'hairline-t' : ''
           }`}
           data-reveal
         >
@@ -325,7 +354,7 @@ export default function ReportPage({
       ))}
 
       <div className="hairline-t pt-10 flex justify-between items-center flex-wrap gap-4">
-        <a href="#/research" className="btn-line">← ALL RESEARCH</a>
+        <a href={meta.backHref ?? '#/research'} className="btn-line">← {meta.backLabel ?? 'ALL RESEARCH'}</a>
         <span className="font-mono-num text-xs ink-3 tracking-[0.3em]">HSN · TRADINGLABB</span>
       </div>
     </div>

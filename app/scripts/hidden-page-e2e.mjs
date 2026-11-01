@@ -74,6 +74,14 @@ async function setPassword(value) {
 
 async function screenshot(name) {
   if ((MOBILE_ONLY && name.startsWith('desktop-')) || (COLLECTIONS_ONLY && name === 'desktop-locked.png')) return
+  if (name.includes('report-')) {
+    await waitFor(`(() => {
+      const source = document.querySelector('aside[aria-label="原报告信息与原文入口"]');
+      const title = document.querySelector('.ink-title-reveal');
+      return source && title?.classList.contains('on') && getComputedStyle(source).opacity === '1' &&
+        [...title.querySelectorAll('span')].every(span => getComputedStyle(span).opacity === '1');
+    })()`)
+  }
   console.log(`CAPTURE ${name}`)
   const result = await send('Page.captureScreenshot', {
     format: 'png',
@@ -86,16 +94,23 @@ async function screenshot(name) {
 async function assertCarouselReturn(index, title) {
   await waitFor(`location.hash === '#/after-hours' && document.querySelector('.circular-carousel')?.hasAttribute('data-ready')`)
   await waitFor(`document.querySelector('.circular-carousel__title')?.firstChild?.textContent === ${JSON.stringify(title)}`)
-  const state = await evaluate(`({
-    caption: document.querySelector('.circular-carousel__title').firstChild.textContent,
-    sectionTop: document.querySelector('.ah-carousel-section').getBoundingClientRect().top,
-    scrollY: window.scrollY,
-    grayscale: getComputedStyle(document.querySelector('.circular-carousel__photo')).filter,
-    live: document.querySelector('.circular-carousel__live').textContent,
-  })`)
+  const state = await evaluate(`(() => {
+    const stage = document.querySelector('.ah-carousel-stage').getBoundingClientRect()
+    return {
+      caption: document.querySelector('.circular-carousel__title').firstChild.textContent,
+      stageTop: stage.top,
+      stageBottom: stage.bottom,
+      scrollY: window.scrollY,
+      pageHeight: document.documentElement.scrollHeight,
+      viewportHeight: window.innerHeight,
+      grayscale: getComputedStyle(document.querySelector('.circular-carousel__photo')).filter,
+      live: document.querySelector('.circular-carousel__live').textContent,
+    }
+  })()`)
   assert.equal(state.caption, title)
-  assert.ok(Math.abs(state.sectionTop) < 2, `返回后轮播未对齐顶部：${state.sectionTop}`)
-  assert.ok(state.scrollY > 0, '返回后仍停留在 AFTER HOURS 首屏')
+  assert.equal(state.scrollY, 0, '返回后首页不应保留滚动位置')
+  assert.ok(state.pageHeight <= state.viewportHeight + 1, `首页出现纵向滚动：${state.pageHeight} > ${state.viewportHeight}`)
+  assert.ok(state.stageTop >= 0 && state.stageBottom <= state.viewportHeight + 1, '轮播区域超出单屏视口')
   assert.equal(state.grayscale, 'grayscale(1)')
   assert.ok(state.live.includes(`${index + 1} of 7`), `轮播选中项错误：${state.live}`)
 }
@@ -196,14 +211,29 @@ try {
   }
 
   if (!MOBILE_ONLY) {
-    await evaluate(`document.querySelector('.ah-scroll-link').click()`)
     await waitFor(`document.querySelector('.circular-carousel')?.hasAttribute('data-ready')`)
     await sleep(1800)
     assert.equal(await evaluate(`document.querySelectorAll('.circular-carousel__card').length`), 7)
     assert.equal(await evaluate(`location.hash`), '#/after-hours')
     assert.equal(await evaluate(`!!document.querySelector('.ah-carousel-current, .ah-system-section, .ah-path-section, .ah-recent-section, .ah-footer')`), false)
-    assert.equal(await evaluate(`document.querySelector('.ah-carousel-section').lastElementChild.classList.contains('ah-carousel-stage')`), true)
+    assert.equal(await evaluate(`!!document.querySelector('.ah-home-intro, .ah-home-toolbar, .ah-header-meta')`), false)
+    assert.equal(await evaluate(`document.querySelector('.ah-header-search').textContent`), '搜索')
+    assert.equal(await evaluate(`!!document.querySelector('.ah-home-directory .ah-section-heading') && !document.querySelector('.ah-home-divider')`), false)
+    assert.equal(await evaluate(`getComputedStyle(document.querySelector('.ah-home-divider')).borderTopWidth === '1px' && getComputedStyle(document.querySelector('.ah-home-divider')).borderBottomWidth === '0px'`), true)
+    assert.equal(await evaluate(`!!document.querySelector('.ah-home-directory > .ah-carousel-stage')`), true)
+    assert.equal(await evaluate(`window.scrollY === 0 && document.documentElement.scrollHeight <= window.innerHeight + 1`), true)
     await screenshot('desktop-carousel.png')
+    await evaluate(`document.querySelector('.ah-header-search').click()`)
+    await waitFor(`!!document.querySelector('.ah-search-dialog')`)
+    await evaluate(`document.querySelector('.ah-search-input-row button').click()`)
+    await waitFor(`!document.querySelector('.ah-search-dialog')`)
+
+    /* 单屏首页把纵向滚轮映射为目录切换，键盘 Home 可回到第一项。 */
+    await evaluate(`document.querySelector('.circular-carousel').dispatchEvent(new WheelEvent('wheel', { deltaY: 180, bubbles: true, cancelable: true }))`)
+    await waitFor(`!document.querySelector('.circular-carousel__live').textContent.includes('1 of 7')`)
+    assert.equal(await evaluate(`window.scrollY`), 0)
+    await evaluate(`document.querySelector('.circular-carousel').dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true }))`)
+    await waitFor(`document.querySelector('.circular-carousel__live').textContent.includes('1 of 7')`)
 
     /* 七张卡片都是真实目录入口；Library 保持原三栏工作台。 */
     await evaluate(`document.querySelector('[data-cc-index="0"]').click()`)
@@ -435,11 +465,11 @@ try {
     console.log('STAGE research topic desktop')
     await evaluate(`window.location.hash = '/after-hours/collection/research'`)
     await waitFor(`!!document.querySelector('.ah-research-topic-enter')`)
-    assert.match(await evaluate(`document.querySelector('.ah-research-current').textContent`), /06.*真实研究已归档/s)
+    assert.match(await evaluate(`document.querySelector('.ah-research-current').textContent`), /01.*真实研究已归档/s)
     await evaluate(`document.querySelector('.ah-research-topic-enter').click()`)
-    await waitFor(`location.hash === '#/after-hours/research/industry-macro' && document.querySelectorAll('.ah-research-article-row').length === 6`)
+    await waitFor(`location.hash === '#/after-hours/research/industry-macro' && document.querySelectorAll('.ah-research-article-row').length === 1`)
     await sleep(500)
-    assert.equal(await evaluate(`document.querySelectorAll('.ah-research-featured .chroma-card').length`), 3)
+    assert.equal(await evaluate(`document.querySelectorAll('.ah-research-featured .chroma-card').length`), 1)
     await waitFor(`(() => {
       const grid = document.querySelector('.ah-research-featured .chroma-grid');
       const card = document.querySelector('.ah-research-featured .chroma-card');
@@ -447,13 +477,22 @@ try {
       return getComputedStyle(grid).opacity === '1' && card.getBoundingClientRect().height > 200 && card.querySelector('.chroma-title').getBoundingClientRect().height > 20 && image.complete && image.naturalWidth > 0;
     })()`)
     assert.equal(await evaluate(`document.querySelectorAll('.ah-research-topic-sidebar .line-sidebar__button').length`), 3)
-    assert.equal(await evaluate(`document.querySelector('.ah-research-topic-header-meta').textContent.includes('06 / ENTRIES')`), true)
-    assert.deepEqual(await evaluate(`[...document.querySelectorAll('.ah-research-article-row')].map(row => row.getAttribute('href'))`), [
-      '#/research/report-6', '#/research/report-5', '#/research/report-4', '#/research/report-3', '#/research/report-2', '#/research/report-1',
-    ])
-    assert.equal(await evaluate(`[...document.querySelectorAll('.ah-research-featured a.chroma-card, .ah-research-article-row')].every(link => link.target !== '_blank')`), true)
+    assert.equal(await evaluate(`document.querySelector('.ah-research-topic-header-meta').textContent.includes('01 / ENTRIES')`), true)
+    assert.deepEqual(await evaluate(`[...document.querySelectorAll('.ah-research-article-row')].map(row => row.getAttribute('href'))`), ['#/after-hours/report/report-7'])
+    assert.equal(await evaluate(`[...document.querySelectorAll('.ah-research-featured a.chroma-card, .ah-research-article-row')].every(link => link.target !== '_blank' && link.getAttribute('href').startsWith('#/after-hours/report/'))`), true)
     await evaluate(`window.scrollTo(0, 0)`)
     await screenshot('desktop-research-topic.png')
+
+    /* 阴页只保留外部新增研报，从索引到详情都不挂载公开 Layout。 */
+    await evaluate(`document.querySelector('.ah-research-featured a.chroma-card').click()`)
+    await waitFor(`location.hash === '#/after-hours/report/report-7' && document.querySelector('h1')?.textContent.includes('更多增长')`)
+    assert.equal(await evaluate(`document.querySelectorAll('section').length >= 6 && document.body.innerText.includes('2026 年前八个月同比 +52%')`), true)
+    assert.equal(await evaluate(`!!document.querySelector('.after-hours.ah-view-report .ah-report-page') && !document.querySelector('header.fixed') && getComputedStyle(document.querySelector('.after-hours')).backgroundColor === 'rgb(16, 16, 16)'`), true)
+    assert.equal(await evaluate(`document.querySelector('a[download="barclays-china-ai-watch.pdf"]')?.href === 'https://github.com/user-attachments/files/34213653/barclays-china-ai-watch.pdf'`), true)
+    assert.equal(await evaluate(`document.documentElement.scrollWidth <= window.innerWidth`), true)
+    await screenshot('desktop-report-7.png')
+    await evaluate(`document.querySelector('a[href="#/after-hours/research/industry-macro"]').click()`)
+    await waitFor(`location.hash === '#/after-hours/research/industry-macro' && document.querySelectorAll('.ah-research-article-row').length === 1`)
 
     await evaluate(`(() => {
       const input = document.querySelector('#research-index-search');
@@ -462,32 +501,38 @@ try {
       input.dispatchEvent(new Event('input', { bubbles: true }));
       document.querySelector('.ah-research-search').requestSubmit();
     })()`)
-    await waitFor(`new URLSearchParams(location.hash.split('?')[1]).get('q') === '存储' && document.querySelectorAll('.ah-research-article-row').length === 2`)
-    assert.deepEqual(await evaluate(`[...document.querySelectorAll('.ah-research-article-row')].map(row => row.getAttribute('href'))`), ['#/research/report-5', '#/research/report-2'])
+    await waitFor(`new URLSearchParams(location.hash.split('?')[1]).get('q') === '存储' && !!document.querySelector('.ah-research-no-results')`)
+    assert.equal(await evaluate(`document.querySelectorAll('.ah-research-article-row').length`), 0)
     assert.equal(await evaluate(`!!document.querySelector('.ah-research-featured')`), false)
     await evaluate(`document.querySelector('.ah-research-clear').click()`)
-    await waitFor(`location.hash === '#/after-hours/research/industry-macro' && document.querySelectorAll('.ah-research-article-row').length === 6`)
-    await evaluate(`[...document.querySelectorAll('.ah-research-tags button')].find(button => button.textContent.startsWith('AI 算力')).click()`)
-    await waitFor(`new URLSearchParams(location.hash.split('?')[1]).get('tag') === 'AI 算力' && document.querySelectorAll('.ah-research-article-row').length === 3`)
-    assert.equal(await evaluate(`document.querySelector('.ah-research-article-row').getAttribute('href')`), '#/research/report-6')
-    await evaluate(`document.querySelector('.ah-research-article-row').click()`)
-    await waitFor(`location.hash === '#/research/report-6'`)
-    await evaluate(`history.back()`)
-    await waitFor(`new URLSearchParams(location.hash.split('?')[1]).get('tag') === 'AI 算力' && document.querySelectorAll('.ah-research-article-row').length === 3`)
+    await waitFor(`location.hash === '#/after-hours/research/industry-macro' && document.querySelectorAll('.ah-research-article-row').length === 1`)
+    await evaluate(`[...document.querySelectorAll('.ah-research-tags button')].find(button => button.textContent.startsWith('AI 产业')).click()`)
+    await waitFor(`new URLSearchParams(location.hash.split('?')[1]).get('tag') === 'AI 产业' && document.querySelectorAll('.ah-research-article-row').length === 1`)
+    assert.equal(await evaluate(`document.querySelector('.ah-research-article-row').getAttribute('href')`), '#/after-hours/report/report-7')
 
-    await send('Page.navigate', { url: `${BASE}/#/after-hours/research/industry-macro?q=${encodeURIComponent('存储')}&sort=oldest&page=99` })
-    await waitFor(`document.querySelectorAll('.ah-research-article-row').length === 2`)
-    assert.deepEqual(await evaluate(`[...document.querySelectorAll('.ah-research-article-row')].map(row => row.getAttribute('href'))`), ['#/research/report-2', '#/research/report-5'])
+    await send('Page.navigate', { url: `${BASE}/#/after-hours/research/industry-macro?q=${encodeURIComponent('再通胀')}&sort=oldest&page=99` })
+    await waitFor(`document.querySelectorAll('.ah-research-article-row').length === 1`)
+    assert.equal(await evaluate(`document.querySelector('.ah-research-article-row').getAttribute('href')`), '#/after-hours/report/report-7')
     assert.match(await evaluate(`document.querySelector('.ah-research-results-meta').textContent`), /PAGE 1/)
     assert.equal(await evaluate(`document.documentElement.scrollWidth <= window.innerWidth`), true)
 
     await send('Page.navigate', { url: `${BASE}/#/after-hours/research/company-business` })
-    await waitFor(`!!document.querySelector('.ah-research-topic-empty')`)
-    assert.equal(await evaluate(`document.querySelectorAll('.ah-research-article-row, .ah-research-featured').length`), 0)
+    await waitFor(`document.querySelectorAll('.ah-research-article-row').length === 1 && document.querySelectorAll('.ah-research-featured .chroma-card').length === 1`)
+    assert.equal(await evaluate(`document.querySelector('.ah-research-article-row').getAttribute('href')`), '#/after-hours/report/report-8')
+    await evaluate(`document.querySelector('.ah-research-article-row').click()`)
+    await waitFor(`location.hash === '#/after-hours/report/report-8' && document.querySelector('h1')?.textContent.includes('工作与就业')`)
+    assert.equal(await evaluate(`document.querySelectorAll('section').length >= 6 && document.body.innerText.includes('192 名采用编码 Agent')`), true)
+    assert.equal(await evaluate(`!!document.querySelector('.after-hours.ah-view-report .ah-report-page') && !document.querySelector('header.fixed') && getComputedStyle(document.querySelector('.after-hours')).backgroundColor === 'rgb(16, 16, 16)'`), true)
+    assert.equal(await evaluate(`document.querySelector('a[href="https://anthropic.com/research/employment-at-anthropic"]')?.target === '_blank'`), true)
+    assert.equal(await evaluate(`document.querySelector('a[download="anthropic-employment.pdf"]')?.href === 'https://github.com/user-attachments/files/34213652/anthropic-employment.pdf'`), true)
+    assert.equal(await evaluate(`document.documentElement.scrollWidth <= window.innerWidth`), true)
+    await screenshot('desktop-report-8.png')
+    await evaluate(`document.querySelector('a[href="#/after-hours/research/company-business"]').click()`)
+    await waitFor(`location.hash === '#/after-hours/research/company-business' && document.querySelectorAll('.ah-research-article-row').length === 1`)
     await evaluate(`document.querySelectorAll('.ah-research-topic-sidebar .line-sidebar__button')[2].click()`)
     await waitFor(`location.hash === '#/after-hours/research/cross-asset' && !!document.querySelector('.ah-research-topic-empty')`)
     await evaluate(`document.querySelectorAll('.ah-research-topic-sidebar .line-sidebar__button')[0].click()`)
-    await waitFor(`location.hash === '#/after-hours/research/industry-macro' && document.querySelectorAll('.ah-research-article-row').length === 6`)
+    await waitFor(`location.hash === '#/after-hours/research/industry-macro' && document.querySelectorAll('.ah-research-article-row').length === 1`)
   }
 
   if (!COLLECTIONS_ONLY && !MOBILE_ONLY) {
@@ -623,9 +668,14 @@ try {
   await waitFor(`!!document.querySelector('.ah-private')`)
   await waitFor(`document.querySelector('.circular-carousel')?.hasAttribute('data-ready')`)
   assert.equal(await evaluate(`window.innerWidth === 390 && document.documentElement.scrollWidth <= window.innerWidth`), true)
-  await evaluate(`window.scrollTo(0, document.querySelector('.ah-carousel-stage').getBoundingClientRect().top + window.scrollY)`)
   await sleep(900)
   assert.equal(await evaluate(`window.innerWidth === 390 && document.documentElement.scrollWidth <= window.innerWidth`), true)
+  assert.equal(await evaluate(`!!document.querySelector('.ah-home-intro, .ah-home-toolbar, .ah-header-meta')`), false)
+  assert.equal(await evaluate(`document.querySelector('.ah-header-search').textContent`), '搜索')
+  assert.equal(await evaluate(`!!document.querySelector('.ah-home-directory .ah-section-heading') && !document.querySelector('.ah-home-divider')`), false)
+  assert.equal(await evaluate(`getComputedStyle(document.querySelector('.ah-home-divider')).borderTopWidth === '1px' && getComputedStyle(document.querySelector('.ah-home-divider')).borderBottomWidth === '0px'`), true)
+  assert.equal(await evaluate(`window.scrollY === 0 && document.documentElement.scrollHeight <= window.innerHeight + 1`), true)
+  assert.equal(await evaluate(`(() => { const stage = document.querySelector('.ah-carousel-stage').getBoundingClientRect(); return stage.top >= 0 && stage.bottom <= window.innerHeight + 1 })()`), true)
   await screenshot('mobile-carousel.png')
   console.log('CHECK mobile carousel')
 
@@ -704,9 +754,9 @@ try {
 
   console.log('CHECK mobile research topic')
   await send('Page.navigate', { url: `${BASE}/#/after-hours/research/industry-macro` })
-  await waitFor(`document.querySelectorAll('.ah-research-article-row').length === 6`)
+  await waitFor(`document.querySelectorAll('.ah-research-article-row').length === 1`)
   await sleep(500)
-  assert.equal(await evaluate(`document.querySelectorAll('.ah-research-featured .chroma-card').length`), 3)
+  assert.equal(await evaluate(`document.querySelectorAll('.ah-research-featured .chroma-card').length`), 1)
   await waitFor(`(() => {
     const grid = document.querySelector('.ah-research-featured .chroma-grid');
     const card = document.querySelector('.ah-research-featured .chroma-card');
@@ -724,10 +774,28 @@ try {
     setter.call(select, 'company-business');
     select.dispatchEvent(new Event('change', { bubbles: true }));
   })()`)
-  await waitFor(`location.hash === '#/after-hours/research/company-business' && !!document.querySelector('.ah-research-topic-empty')`)
+  await waitFor(`location.hash === '#/after-hours/research/company-business' && document.querySelectorAll('.ah-research-article-row').length === 1`)
   assert.equal(await evaluate(`document.documentElement.scrollWidth <= window.innerWidth`), true)
+  await evaluate(`document.querySelector('.ah-research-article-row').click()`)
+  await waitFor(`location.hash === '#/after-hours/report/report-8' && document.querySelector('h1')?.textContent.includes('工作与就业')`)
+  assert.equal(await evaluate(`!!document.querySelector('.after-hours.ah-view-report .ah-report-page') && !document.querySelector('header.fixed')`), true)
+  assert.equal(await evaluate(`document.documentElement.scrollWidth <= window.innerWidth`), true)
+  await screenshot('mobile-report-8.png')
+  await evaluate(`document.querySelector('a[href="#/after-hours/research/company-business"]').click()`)
+  await waitFor(`location.hash === '#/after-hours/research/company-business' && document.querySelectorAll('.ah-research-article-row').length === 1`)
+
+  /* 旧公开地址不再渲染外部研报；只有黑页内部路由可以阅读。 */
+  await send('Page.navigate', { url: `${BASE}/#/research/report-7` })
+  await waitFor(`location.hash === '#/research/report-7' && !!document.querySelector('button[aria-label="HSN 符号"]')`)
+  assert.equal(await evaluate(`!!document.querySelector('.report-page') || document.querySelector('h1')?.textContent.includes('更多增长')`), false)
+  await send('Page.navigate', { url: `${BASE}/#/after-hours/report/report-7` })
+  await waitFor(`location.hash === '#/after-hours/report/report-7' && document.querySelector('h1')?.textContent.includes('更多增长')`)
+  assert.equal(await evaluate(`!!document.querySelector('.after-hours.ah-view-report .ah-report-page') && !document.querySelector('header.fixed')`), true)
+  assert.equal(await evaluate(`document.documentElement.scrollWidth <= window.innerWidth`), true)
+  await screenshot('mobile-report-7.png')
   await send('Page.navigate', { url: `${BASE}/#/after-hours/research/industry-macro?q=${encodeURIComponent('存储')}` })
-  await waitFor(`document.querySelectorAll('.ah-research-article-row').length === 2`)
+  await waitFor(`!!document.querySelector('.ah-research-no-results')`)
+  assert.equal(await evaluate(`document.querySelectorAll('.ah-research-article-row').length`), 0)
   assert.equal(await evaluate(`window.innerWidth === 390 && document.documentElement.scrollWidth <= window.innerWidth`), true)
 
   await send('Page.navigate', { url: `${BASE}/#/after-hours/library` })

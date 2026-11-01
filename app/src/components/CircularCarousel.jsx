@@ -191,6 +191,7 @@ const CircularCarousel = ({
   interval = 3,
   direction = 'left',
   draggable = true,
+  wheel = 'horizontal',
   momentum = 0.6,
   snap = true,
   pauseOnHover = true,
@@ -307,6 +308,7 @@ const CircularCarousel = ({
     speed,
     interval: Math.max(0.5, interval),
     draggable,
+    wheel,
     momentum: clamp(momentum, 0, 1),
     snap,
     pauseOnHover,
@@ -647,7 +649,10 @@ const CircularCarousel = ({
     const onWheel = event => {
       const s = settingsRef.current;
       if (!s.draggable) return;
-      const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : 0;
+      const horizontal = Math.abs(event.deltaX) > Math.abs(event.deltaY);
+      const primary = horizontal ? event.deltaX : s.wheel === 'both' ? event.deltaY : 0;
+      const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? root.clientHeight : 1;
+      const delta = primary * unit;
       if (!delta) return;
       event.preventDefault();
       const perPixel = 180 / (Math.PI * s.radius * state.fit);

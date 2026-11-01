@@ -209,60 +209,56 @@
   text-underline-offset: 5px;
 }
 
-.ah-private { position: relative; }
-
-.ah-hero {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-height: 100dvh;
-  padding: 110px clamp(22px, 3.4vw, 54px) 48px;
+.after-hours.ah-view-home {
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
 }
 
-.ah-hero h1 {
-  align-self: center;
-  font-size: clamp(5rem, 13.4vw, 15rem);
-  text-align: center;
+.ah-view-home .ah-shell {
+  height: 100dvh;
+  min-height: 0;
 }
 
-.ah-hero .ah-kicker { text-align: center; }
+.ah-private {
+  position: relative;
+  height: 100dvh;
+  min-height: 0;
+}
 
-.ah-hero-bottom {
+.ah-home-directory {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  height: 100%;
+  min-height: 0;
+  padding: 106px clamp(22px, 3.4vw, 54px) 24px;
+}
+
+.ah-home-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 420px);
   align-items: end;
-  gap: 40px;
-  margin-top: auto;
-  padding-top: 56px;
+  gap: 48px;
+  padding-bottom: 24px;
 }
 
-.ah-hero-bottom p {
-  max-width: 480px;
-  margin: 0;
-  font-size: 16px;
-  line-height: 1.8;
-}
+.ah-home-heading .ah-kicker { margin-bottom: 12px; }
 
-.ah-scroll-link {
-  padding: 0 0 5px;
-  border: 0;
-  border-bottom: 1px solid currentColor;
-  background: transparent;
-  color: inherit;
+.ah-home-heading h1 {
+  margin: 0 0 0 -.055em;
   font-family: 'IBM Plex Mono', 'Noto Sans SC', monospace;
-  font-size: 11px;
-  letter-spacing: .1em;
-  text-decoration: none;
-  cursor: pointer;
-  transition: opacity .4s ease;
+  font-size: clamp(40px, 5.4vw, 78px);
+  font-weight: 400;
+  line-height: .9;
+  letter-spacing: -.075em;
 }
-.ah-scroll-link:hover { opacity: .6; }
 
-.ah-carousel-section {
-  min-height: 100dvh;
-  padding: 64px clamp(22px, 3.4vw, 54px) 72px;
-  border-top: 1px solid rgb(247 247 247 / .2);
-  background: var(--ah-bg);
+.ah-home-intro {
+  max-width: 420px;
+  margin: 0;
+  color: rgb(247 247 247 / .72);
+  font-size: 13px;
+  line-height: 1.8;
 }
 
 .ah-section-heading {
@@ -277,15 +273,19 @@
   letter-spacing: .16em;
 }
 
+.ah-home-divider {
+  border-top: 1px solid var(--ah-text);
+}
+
 .ah-carousel-stage {
-  height: clamp(470px, 62vh, 690px);
+  min-height: 0;
   margin: 0 calc(clamp(22px, 3.4vw, 54px) * -1);
 }
 
 .ah-carousel-stage .circular-carousel__photo { filter: grayscale(1); }
 
 .ah-carousel-stage .circular-carousel__caption {
-  bottom: 14px;
+  bottom: 10px;
   font-family: 'IBM Plex Mono', 'Noto Sans SC', monospace;
 }
 
@@ -302,34 +302,22 @@
   letter-spacing: .1em;
 }
 
-.ah-carousel-current {
-  display: grid;
-  grid-template-columns: minmax(100px, 1fr) minmax(0, 2fr);
-  gap: 32px;
-  padding-top: 28px;
+.ah-home-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding-top: 12px;
   border-top: 1px solid rgb(247 247 247 / .2);
 }
 
-.ah-carousel-current-index,
 .ah-carousel-help {
+  margin: 0;
   color: var(--ah-muted);
   font-family: 'IBM Plex Mono', 'Noto Sans SC', monospace;
-  font-size: 11px;
-  letter-spacing: .12em;
-}
-
-.ah-carousel-current p {
-  max-width: 680px;
-  margin: 0;
-  color: rgb(247 247 247 / .78);
-  font-size: 15px;
-  line-height: 1.9;
-}
-
-.ah-carousel-help {
-  margin: 26px 0 0;
-  text-align: right;
   font-size: 9px;
+  letter-spacing: .1em;
+  text-align: right;
 }
 
 .ah-footer {
@@ -1020,6 +1008,24 @@
   .ah-investor-dome { height: 500px; margin: 0 -12px; }
 }
 
+/* 外部研报留在黑页阅读体系：只覆盖本页变量，公开报告的纸面主题不变。 */
+.ah-report-page {
+  --paper: 16 16 16;
+  --ink: 247 247 247;
+  --ink-2: 194 194 194;
+  --ink-3: 148 148 148;
+  --line: 57 57 57;
+  --cinnabar: 222 122 110;
+  --water: 151 176 191;
+}
+.ah-report-back { display: inline-flex; text-decoration: none; }
+.ah-report-page .report-page { max-width: 1180px; padding: 0 0 48px; }
+.ah-report-page .report-page > header { padding: 44px 0 52px; }
+.ah-report-page .report-page > header h1 { font-size: clamp(42px, 6vw, 80px); line-height: 1.1; text-wrap: balance; }
+.ah-report-page .report-page section { scroll-margin-top: 28px; }
+.ah-report-page .report-page table { min-width: 560px; }
+.ah-report-page .report-page .btn-line { text-decoration: none; }
+
 /* 内容详情 */
 .ah-note-back { padding: 0 0 5px; border: 0; border-bottom: 1px solid rgb(247 247 247 / .3); background: transparent; color: var(--ah-muted); font: inherit; letter-spacing: inherit; cursor: pointer; }
 .ah-note-header { max-width: 1120px; padding: 64px 0 72px; }
@@ -1138,6 +1144,8 @@
   .ah-footer { grid-template-columns: 1fr; gap: 18px; }
   .ah-footer > span:last-child { justify-self: start; }
   .ah-workspace { padding-top: 100px; }
+  .ah-report-page .report-page > header { padding: 32px 0 40px; }
+  .ah-report-page .report-page > header h1 { font-size: clamp(34px, 10vw, 50px); }
   .ah-workspace-heading { align-items: flex-start; flex-direction: column; padding-bottom: 28px; }
   .ah-library-heading-meta { width: 100%; justify-content: space-between; }
   .ah-library-row { grid-template-columns: 32px minmax(0, 1fr) 14px; gap: 12px; min-height: 96px; padding: 16px 8px; }
@@ -1164,7 +1172,6 @@
 .ah-text-button:focus-visible,
 .ah-reveal:focus-visible,
 .ah-enter:focus-visible,
-.ah-scroll-link:focus-visible,
 .ah-carousel-stage .circular-carousel:focus-visible {
   outline: 1px solid var(--ah-text);
   outline-offset: 6px;
@@ -1181,15 +1188,26 @@
   }
   .ah-lock h1 { font-size: clamp(4.3rem, 22vw, 8rem); }
   .ah-access { max-width: none; }
-  .ah-hero h1 { font-size: clamp(4.4rem, 22vw, 9rem); }
-  .ah-hero-bottom { grid-template-columns: 1fr; gap: 28px; }
-  .ah-scroll-link { justify-self: start; }
-  .ah-carousel-section { padding-top: 42px; padding-bottom: 54px; }
-  .ah-carousel-stage { height: 500px; }
-  .ah-carousel-current { grid-template-columns: 1fr; gap: 14px; }
-  .ah-carousel-current p { font-size: 14px; }
-  .ah-carousel-help { text-align: left; }
+  .ah-home-directory { padding: 84px 22px 18px; }
+  .ah-home-heading { grid-template-columns: 1fr; gap: 0; padding-bottom: 18px; }
+  .ah-home-heading h1 { font-size: clamp(34px, 9vw, 54px); }
+  .ah-home-heading .ah-kicker { font-size: 8px; letter-spacing: .14em; }
+  .ah-home-intro { display: none; }
+  .ah-home-directory .ah-section-heading { font-size: 8px; }
+  .ah-home-toolbar { flex-wrap: wrap; gap: 10px 16px; }
+  .ah-home-toolbar .ah-command-hint { gap: 12px; font-size: 9px; }
+  .ah-carousel-help { margin-left: auto; font-size: 8px; }
   .ah-footer { flex-direction: column; }
+}
+
+@media (max-height: 640px) {
+  .ah-home-directory { padding-top: 72px; padding-bottom: 14px; }
+  .ah-home-heading { padding-bottom: 12px; }
+  .ah-home-heading .ah-kicker, .ah-home-intro { display: none; }
+  .ah-home-heading h1 { font-size: 34px; }
+  .ah-home-directory .ah-section-heading { padding: 7px 0; }
+  .ah-home-toolbar { padding-top: 8px; }
+  .ah-carousel-stage .circular-carousel__caption { bottom: 4px; }
 }
 
 /* 真实网站目录：文件夹负责分类，完整链接目录负责查找和访问。 */
