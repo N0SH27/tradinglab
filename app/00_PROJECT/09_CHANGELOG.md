@@ -5,6 +5,13 @@
 
 ---
 
+## 2026-11-02 · W44 证据入账：消化批 + 地图 5 节点 + 7 项裁决落账
+
+**Decision**：`now.ts` +4 Observation（黑色星期五「信用事件升级为股权事件」/ Anthropic IPO 评级天花板「11-16 硬验证节点」/ 存储「斜率放缓、方向不变」/ 法国债市政治风险定价）+ 3 条目注记（美银 IG 口径边界并第二波条目 / 四家原厂反向样本并涨价≠利润条目 / 智谱 vs Anthropic 层内差异并国产大模型 API 条目）+ 头注释更新；`map.ts` 5 节点 observation 补证据（dram / server / cloud / optical / app，valuation 全部维持不动；39 周 InP 断供级判断在 optical 节点层正式降级为交付错配 + 供应商集中度）；`thesis.ts` 3 命题 evidence +3（compute ×1 / memory-cycle ×1 / optical-module ×1），probability 全部不动；`journal.ts` W44 入库批 + 裁决 + 宏观/存储条目；`cycle.ts`「半导体设备」note 补产能瓶颈外溢 + 正反馈环跑完一圈（stage 不动、非 C1 字段不入账）；context-history 新增 `ctx-20261102` + initial 快照 re-baseline（62 → 66 条）。
+**Why**：44 周消化批（32 篇 + 总纲 v22 + 历史积压收官批）经网站更新裁决清单逐项裁决——研究层 7 项（L4-C10 升正式改名「AI 债务危机」+ 四科目组合监控指标 / L4-C20 降权为单标的排查项 / 避险资产挤兑失灵登记 L4 候选 + 判据 / L4-12 并入主体内分歧三层 / 资产负债表决定 CapEx 定位 L4-C10 应用层 / 43 周遗留 4 项收口 / Anthropic IPO 登记两栏硬验证节点）+ 网站层清单全部按建议采纳，Ledger 零变更（本周为方法论层升级、无 conviction 概率调整）。
+**Impact**：Observation 62 → 66 条；check 429/430 通过——1 项失败为预存问题（`37dc919` 日志页改版在 Cycle.tsx 引入 `note.split('；')` 文本提取，与 check [17] 冲突），非本次改动引入，Cycle.tsx 未动待本人裁决；build ✓。Commit 见 git log。
+**Not Changed**：ledger.ts（本周无 conviction 变更）/ map 节点 valuation 与 state（信用事件与结构信号不改节点层判断）/ Cycle.tsx 与全部组件页面 / essays.ts / Report 页 / framework.ts·method.ts（LOCKED）。
+
 ## 2026-10-25 · W43 证据入账：消化批 + 地图 3 节点 + 7 项裁决落账
 
 **Decision**：`now.ts` +3 Observation（AI 信用危机第二波「判据实证 + Meta FCF 首负 + 四种融资形态」/ 涨价≠利润「L4-C20 候选」/ 归因三段法「L4 方法纪律」）+ 3 条目注记（第二波数字并 CoreWeave / 2027 量价锁定 + 西数反向传导并美光 FQ4 / 10Y 含义反转并股债背离）+ 头注释更新；`map.ts` 3 节点 observation 补证据（gpu / dram / cloud，valuation 全部维持不动）；`thesis.ts` 3 命题 evidence +3（compute ×1 / memory-cycle ×1 / ai-app ×1），probability 全部不动；`journal.ts` W43 入库批 + 裁决 + 宏观/存储条目；`cycle.ts`「AI 应用」note 补 Muse 变现首数据（stage 不动、非 C1 字段不入账）；context-history 新增 `ctx-20261025` + initial 快照 re-baseline（59 → 62 条）。
