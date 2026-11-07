@@ -12,6 +12,13 @@
 **Impact**：Report #1 / #5 review 版本 bump；Ledger 新增 1 条 confirm 型复审登记；check / build 见下方运行结果；Commit 见 git log。
 **Not Changed**：map 节点（本次季度回顾不触地图）/ Cycle.tsx（预存 check 冲突待本人裁决）/ essays.ts（候选仅登记不成文）/ framework.ts·method.ts（LOCKED）/ 其余命题概率与 #3/#4 报告页。
 
+## 2026-11-07（补）· 复审裁决与 11-16 触发器登记
+
+**Decision**：`journal.ts` 2026.11.07 条目补两条本人拍板记录：① memory-cycle 复审裁决——维持 68% 不改判，复审时点改挂 Q4 合约价实锚与 ASP 环比序列（双落地开改判窗口、合约价续涨 + ASP 正斜率则关闭复审）；② 11-16 Anthropic IPO 三候选（essay《同一个诊断，两个切面》/ Report #6 review / 新增专题《AI 债务危机》）统一登记共用触发器，到点一并处理、登记期内不提前成文。
+**Why**：季度回顾遗留两项待本人拍板事项，本人裁决「均按建议推进」——复审不在方向性表态阶段改判（四场电话会表态不能替代实锚），IPO 候选合并处理避免同一节点分散开工。
+**Impact**：Journal 条目 +2；Ledger / 命题概率 / 报告页 / essays.ts 全部不动；check / build 见 git log。
+**Not Changed**：ledger.ts（无新 conviction 事实，复审登记条目保留原样）/ 其余全部对象。
+
 ## 2026-11-02 · W44 证据入账：消化批 + 地图 5 节点 + 7 项裁决落账
 
 **Decision**：`now.ts` +4 Observation（黑色星期五「信用事件升级为股权事件」/ Anthropic IPO 评级天花板「11-16 硬验证节点」/ 存储「斜率放缓、方向不变」/ 法国债市政治风险定价）+ 3 条目注记（美银 IG 口径边界并第二波条目 / 四家原厂反向样本并涨价≠利润条目 / 智谱 vs Anthropic 层内差异并国产大模型 API 条目）+ 头注释更新；`map.ts` 5 节点 observation 补证据（dram / server / cloud / optical / app，valuation 全部维持不动；39 周 InP 断供级判断在 optical 节点层正式降级为交付错配 + 供应商集中度）；`thesis.ts` 3 命题 evidence +3（compute ×1 / memory-cycle ×1 / optical-module ×1），probability 全部不动；`journal.ts` W44 入库批 + 裁决 + 宏观/存储条目；`cycle.ts`「半导体设备」note 补产能瓶颈外溢 + 正反馈环跑完一圈（stage 不动、非 C1 字段不入账）；context-history 新增 `ctx-20261102` + initial 快照 re-baseline（62 → 66 条）。
