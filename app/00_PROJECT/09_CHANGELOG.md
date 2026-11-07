@@ -5,6 +5,13 @@
 
 ---
 
+## 2026-11-07 · W35–W44 季度回顾：thesis 内容层 + Report review ×2 + 复审登记
+
+**Decision**：`thesis.ts` compute 命题补第四阴面（四大 CSP 融资结构可持续性：微软租赁 / 亚马逊表内债 / 谷歌表外承诺 / Meta 股权+债，L4-C10「AI 债务危机」为唯一外部裁判）+ 第三假设，72% 不动，`updated` → 2026.11.07；`ledger.ts` 新增 `rev-memory-cycle-20261107`（68 → 68，确认 + 登记正式复审——证伪条件值守满两个月持续逼近，改判与否待本人拍板）；`Report1.tsx` review v1.1.2 → v1.1.3（§01 补事后验证：卖铲子四分法 + 加息正反馈环第一圈，火车头变量新增融资约束维度）；`Report5.tsx` review v1.0.0 → v1.0.1（§05 补事后验证：ASP 环比序列可检验判据升级 + 供给上修 2028 + 涨价≠利润降权为单标的排查项）；`journal.ts` 新增 2026.11.07 季度回顾条目（三层判定 + 复审登记 + 两个 essay 候选登记）。
+**Why**：本人要求基于最近三个月（W35–W44）十周消化批判断 essay / report / thesis 可更新项——季度回顾裁决清单全部按建议采纳：thesis 主张进 ×2（compute 融资维度 / memory-cycle 复审登记）+ 静默 ×6；essay 候选登记 ×2（《同一个诊断，两个切面》维持挂 11-16 IPO 节点；《数字的三重身份》挂 M-08 正式裁决）；Report review ×2 + 缓 ×2（#6 与新增《AI 债务危机》专题共用 11-16 节点）。验证不是变化，全部概率不动。
+**Impact**：Report #1 / #5 review 版本 bump；Ledger 新增 1 条 confirm 型复审登记；check / build 见下方运行结果；Commit 见 git log。
+**Not Changed**：map 节点（本次季度回顾不触地图）/ Cycle.tsx（预存 check 冲突待本人裁决）/ essays.ts（候选仅登记不成文）/ framework.ts·method.ts（LOCKED）/ 其余命题概率与 #3/#4 报告页。
+
 ## 2026-11-02 · W44 证据入账：消化批 + 地图 5 节点 + 7 项裁决落账
 
 **Decision**：`now.ts` +4 Observation（黑色星期五「信用事件升级为股权事件」/ Anthropic IPO 评级天花板「11-16 硬验证节点」/ 存储「斜率放缓、方向不变」/ 法国债市政治风险定价）+ 3 条目注记（美银 IG 口径边界并第二波条目 / 四家原厂反向样本并涨价≠利润条目 / 智谱 vs Anthropic 层内差异并国产大模型 API 条目）+ 头注释更新；`map.ts` 5 节点 observation 补证据（dram / server / cloud / optical / app，valuation 全部维持不动；39 周 InP 断供级判断在 optical 节点层正式降级为交付错配 + 供应商集中度）；`thesis.ts` 3 命题 evidence +3（compute ×1 / memory-cycle ×1 / optical-module ×1），probability 全部不动；`journal.ts` W44 入库批 + 裁决 + 宏观/存储条目；`cycle.ts`「半导体设备」note 补产能瓶颈外溢 + 正反馈环跑完一圈（stage 不动、非 C1 字段不入账）；context-history 新增 `ctx-20261102` + initial 快照 re-baseline（62 → 66 条）。

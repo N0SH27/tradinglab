@@ -18,6 +18,14 @@ export interface JournalEntry {
 
 export const JOURNAL: JournalEntry[] = [
   {
+    date: '2026.11.07',
+    items: [
+      { type: 'new', target: '季度回顾', note: 'W35–W44 十周消化批季度回顾（essay / report / thesis 三层判定，本人裁决全部采纳后执行）：① Thesis 层——compute 命题补第四阴面与第三假设（四大 CSP 融资结构可持续性，L4-C10「AI 债务危机」为唯一外部裁判，72% 不动）；memory-cycle 命题证伪条件值守满两个月且持续逼近（Q3 +632%/+783%、两次「业绩创新高股价创新低」独立样本），Ledger 登记正式复审 rev-memory-cycle-20261107（68→68，登记不改判）；ai-app / robot / newenergy / rare-earth / innovative-drug / value-capture 六命题静默不动；② Essay 层——两个候选登记不成文：《同一个诊断，两个切面》维持挂 11-16 Anthropic IPO 验证节点（历史遗留）；《数字的三重身份》（口径纪律 M-08）等 M-08 升正式 Method Candidate 裁决后成文；③ Report 层——Report #5 review v1.0.0→v1.0.1（ASP 环比序列可检验判据升级 + 供给上修 2028 + 涨价≠利润降权为单标的排查项）；Report #1 review v1.1.2→v1.1.3（卖铲子四分法 + 加息正反馈环第一圈，火车头变量新增融资约束维度）；Report #6 缓（与 essay 共用 11-16 节点）；新增季度专题《AI 债务危机》缓（共用 11-16 节点）；#3/#4 静默。' },
+      { type: 'new', target: '复审登记', note: 'Ledger 入账 rev-memory-cycle-20261107：68% → 68%（确认 + 登记复审）。两个月值守期证据持续逼近证伪条件「三星、海力士盈利预测不降反升」（Q3 三星营业利润约 800 亿美元全球第一、海力士 578.1 亿；韩厂 PE 3–4 倍 vs 科技均值 16.9 倍），但反向证据仍在桌上（四档价差、长协强度排序、四家原厂利润率未衰减 80%/80%/85.1%/55%）——复审立案，改判与否待本人拍板，本次概率不动。', thesisId: 'memory-cycle' },
+      { type: 'new', target: '算力', note: 'compute 命题内容层补第四阴面：四大 CSP 资本开支被三种融资方式各自撑住（微软租赁 / 亚马逊表内债 / 谷歌表外承诺 / Meta 股权+债），融资成本成为 AI 交易的第一监控变量（L4-C10）——融资结构一旦被债务市场重新定价，订单的「需求叙事」将被釜底抽薪；assumptions 补第三假设（融资结构窗口内可持续、不被重新定价）。验证不是变化，72% 不动。', thesisId: 'compute' },
+    ],
+  },
+  {
     date: '2026.11.02',
     items: [
       { type: 'new', target: '入库消化', note: '44 周消化批入账（32 篇 + 体系记忆周报总纲 v21→v22、历史积压补全收官批）：NOW +4 新观察（黑色星期五「信用事件升级为股权事件」/ Anthropic IPO 评级天花板「11-16 硬验证节点」/ 存储「斜率放缓、方向不变」/ 法国债市政治风险定价）+ 3 条目注记（美银 IG 口径边界并第二波条目 / 四家原厂反向样本并涨价≠利润条目 / 智谱 vs Anthropic 层内差异并国产大模型 API 条目）；地图 5 节点补证据（dram / server / cloud / optical / app，valuation 全部不动；39 周 InP 断供级判断在 optical 节点层正式降级）；命题注记 +3 命题（compute ×1 / memory-cycle ×1 / optical-module ×1，概率全部不动）；周期盘 note 补加息正反馈环跑完一圈（stage 不动）。Ledger 零变更（本周为方法论层升级、无 conviction 概率调整，沿用验证不是变化纪律）。', thesisId: 'compute' },
