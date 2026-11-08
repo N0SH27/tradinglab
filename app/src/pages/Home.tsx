@@ -1,6 +1,6 @@
-import { useRef, useState } from 'react'
-import { THESES, LEDGER, SITE } from '../data/content'
-import { deltaOf, deriveCurrentBelief, lastRevisedOf, latestChanges } from '../data/ledger'
+import { useEffect, useRef, useState } from 'react'
+import { THESES, LEDGER, OBSERVATIONS, SITE, INDUSTRY_MAP, WATCH_DATES } from '../data/content'
+import { deltaOf, deriveCurrentBelief, derivePlumState, lastRevisedOf, latestChanges, type PlumState } from '../data/ledger'
 import { HSNSeal } from '../components/Brand'
 import { HiddenEntryLogo } from '../components/HiddenEntryLogo'
 import { PolarityInstrument, type PolarityState } from '../components/PolarityInstrument'
@@ -9,10 +9,10 @@ import { PolarityXiao } from '../components/PolarityXiao'
 import { useRevealRoot } from '../hooks/useReveal'
 import { HeroInk } from '../ink/HeroInk'
 
-/* 寒梅表态（2026-10-26 Human 裁决）：阴·含苞 / 平·疏放 / 阳·盛放。
-   当前市场多空立场由 HSN 手动维护此处（站点数据层无立场字段，不发明数据）。 */
-type PlumState = 'bud' | 'sparse' | 'bloom'
-const PLUM_STATE: PlumState = 'sparse'
+/* 寒梅表态（2026-10-26 Human 裁决三态：阴·含苞 / 平·疏放 / 阳·盛放；
+   2026-11-08 HSN 裁决改为 derivePlumState 全量派生，不再手动维护——
+   score = 非零 delta 全量平均，±3 换态；站点数据层仍无立场字段，不发明数据）。 */
+const PLUM_STATE = derivePlumState(LEDGER)
 const PLUM_IMG: Record<PlumState, string> = {
   bud: 'ink/plum-bud.png',
   sparse: 'ink/plum-sparse.png',
@@ -140,6 +140,14 @@ const FILTER_META: Record<PolarityState, { zh: string; en: string; color: string
   yin: { zh: '阴', en: 'YIN', color: 'rgb(var(--water))' },
 }
 
+/* H-2a 热力图墨色分级（0 = 无观察的浅痕，1–3 = 条数越深越浓） */
+const HEAT_BG: Record<number, string> = {
+  0: 'bg-[rgb(var(--ink))]/[0.05]',
+  1: 'bg-[rgb(var(--ink))]/30',
+  2: 'bg-[rgb(var(--ink))]/65',
+  3: 'bg-[rgb(var(--ink))]',
+}
+
 export default function Home() {
   const rootRef = useRevealRoot<HTMLDivElement>()
   const dotRef = useRef<HTMLSpanElement>(null)
@@ -148,6 +156,82 @@ export default function Home() {
   /* WHAT CHANGED（V2-C.1 · Human 裁决：3～5 条真实变化，LEDGER 派生）：
      每命题最新一条 delta≠0，时间倒序；confirm 不投影，底层账本不动。 */
   const changes = latestChanges(LEDGER, 5)
+
+  /* H-2a demo（2026-11-08）：NOW 观察日历——五个月滚动窗口（前两月 + 本月 + 未来两月，
+     随日期自动滑动），连续格网。回溯观察落墨格，前瞻锚点（WATCH_DATES）落空心朱砂格；
+     全部数据只读自 data layer，零写死。格距响应式：桌面 34px 格 / 移动 13px 格。 */
+  const obsByDay = new Map<string, typeof OBSERVATIONS>()
+  for (const o of OBSERVATIONS) {
+    const p = o.date.split('.')
+    const key = `${p[0]}.${p[1].padStart(2, '0')}.${(p[2] ?? '01').padStart(2, '0')}`
+    const arr = obsByDay.get(key) ?? []
+    arr.push(o)
+    obsByDay.set(key, arr)
+  }
+  const watchByDay = new Map<string, typeof WATCH_DATES>()
+  for (const w of WATCH_DATES) {
+    const arr = watchByDay.get(w.date) ?? []
+    arr.push(w)
+    watchByDay.set(w.date, arr)
+  }
+  const fmtDay = (d: Date) =>
+    `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`
+  const now = new Date()
+  /* 窗口：前两月 1 号所在周的周一 → 未来两月最后一天（回看观察密度 + 前瞻锚点同图） */
+  const winStart = new Date(now.getFullYear(), now.getMonth() - 2, 1)
+  winStart.setDate(winStart.getDate() - ((winStart.getDay() + 6) % 7))
+  const winEnd = new Date(now.getFullYear(), now.getMonth() + 3, 0)
+  const totalDays = Math.round((winEnd.getTime() - winStart.getTime()) / 86400000) + 1
+  const colCount = Math.ceil(totalDays / 7)
+  /* 格距响应式：<640px 用 13px 格（整图 ~350px 免滑），桌面用 34px 格 */
+  const [cellPitch, setCellPitch] = useState(40)
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 640px)')
+    const upd = () => setCellPitch(mq.matches ? 15 : 40)
+    upd()
+    mq.addEventListener('change', upd)
+    return () => mq.removeEventListener('change', upd)
+  }, [])
+  const cellGap = cellPitch <= 20 ? 2 : 6
+  const cellSize = cellPitch - cellGap
+  const grid: ({ key: string; n: number; watch: number } | null)[][] = Array.from(
+    { length: colCount },
+    (_, c) =>
+      Array.from({ length: 7 }, (_, r) => {
+        const idx = c * 7 + r
+        if (idx >= totalDays) return null
+        const d = new Date(winStart)
+        d.setDate(d.getDate() + idx)
+        const key = fmtDay(d)
+        return { key, n: obsByDay.get(key)?.length ?? 0, watch: watchByDay.get(key)?.length ?? 0 }
+      }),
+  )
+  /* 月份标尺：只标窗口内五个月（-2…+2），位置 = 当月 1 号所在列，
+     月初 bleed 进来的上月尾段不标 */
+  const monthLabels = [-2, -1, 0, 1, 2].map((i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() + i, 1)
+    const idx = Math.round((d.getTime() - winStart.getTime()) / 86400000)
+    return {
+      col: Math.floor(idx / 7),
+      label: `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}`,
+    }
+  })
+  const [hoverCell, setHoverCell] = useState<{ c: number; r: number; key: string; text: string } | null>(null)
+  const [selectedDay, setSelectedDay] = useState<string | null>(null)
+
+  /* 卡片弹层：Escape 关闭 + 锁定底层滚动 */
+  useEffect(() => {
+    if (!selectedDay) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSelectedDay(null)
+    }
+    window.addEventListener('keydown', onKey)
+    document.body.style.overflow = 'hidden'
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      document.body.style.overflow = ''
+    }
+  }, [selectedDay])
 
   return (
     <div ref={rootRef}>
@@ -267,6 +351,23 @@ export default function Home() {
                   )
                 })}
               </div>
+              {/* H-3 demo（2026-11-08）：Lens 激活后的纯派生反馈——零新组件、
+                  零新数据，文案全部由 INDUSTRY_MAP 推导；待 HSN 审后定是否保留。 */}
+              {polarity &&
+                (() => {
+                  const nodes = INDUSTRY_MAP.nodes.filter((n) => n.state === polarity)
+                  const shown = nodes
+                    .slice(0, 4)
+                    .map((n) => n.name)
+                    .join(' / ')
+                  return (
+                    <p className="mt-8 font-mono-num text-xs ink-3 tracking-widest leading-relaxed">
+                      当前处于『{FILTER_META[polarity].zh}』的产业：{shown}
+                      {nodes.length > 4 ? ` 等 ${nodes.length} 个` : ''}（{nodes.length}/
+                      {INDUSTRY_MAP.nodes.length}）
+                    </p>
+                  )
+                })()}
             </div>
             <div className="md:col-span-8" data-reveal>
               <PolarityXiao active={polarity} />
@@ -274,6 +375,206 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* ── H-2a · NOW 观察日历（demo：五个月滚动窗口[前两月+本月+未来两月]，
+          连续格网响应式格距；回溯观察 = 墨格，前瞻锚点 = 空心朱砂格；
+          hover 浮签 · 点击弹卡片全屏虚化） ── */}
+      <section className="hairline-t">
+        <div className="max-w-[1400px] mx-auto px-5 md:px-10 py-20 md:py-28">
+          <div className="max-w-6xl mx-auto" data-reveal>
+            <span className="label-sm ink-3 block mb-10">NOW · 正在观察的变化</span>
+            <div className="overflow-x-auto pb-1">
+              <div
+                className="relative mx-auto w-fit"
+                style={{ width: colCount * cellPitch - cellGap }}
+              >
+                {/* 月份标尺 */}
+                <div className="relative h-4 mb-2">
+                  {monthLabels.map((ml) => (
+                    <span
+                      key={ml.col}
+                      className="absolute top-0 font-mono-num text-[10px] ink-3 tracking-wider"
+                      style={{ left: ml.col * cellPitch }}
+                    >
+                      {ml.label}
+                    </span>
+                  ))}
+                </div>
+                {/* 日期格网：周为列、周一至周日为行 */}
+                <div
+                  className="grid grid-flow-col"
+                  style={{ gap: cellGap, gridTemplateRows: `repeat(7, ${cellSize}px)` }}
+                >
+                  {grid.map((col, c) =>
+                    col.map((cell, r) =>
+                      cell === null ? (
+                        <span key={`${c}-${r}`} />
+                      ) : (
+                        <button
+                          key={cell.key}
+                          type="button"
+                          tabIndex={cell.n + cell.watch > 0 ? 0 : -1}
+                          aria-label={
+                            cell.watch > 0
+                              ? `${cell.key} · ${watchByDay.get(cell.key)![0].label}`
+                              : cell.n > 0
+                                ? `${cell.key} · ${cell.n} 条观察`
+                                : cell.key
+                          }
+                          onClick={() =>
+                            cell.n + cell.watch > 0 &&
+                            setSelectedDay((cur) => (cur === cell.key ? null : cell.key))
+                          }
+                          onMouseEnter={() =>
+                            (cell.n > 0 || cell.watch > 0) &&
+                            setHoverCell({
+                              c,
+                              r,
+                              key: cell.key,
+                              text:
+                                cell.watch > 0
+                                  ? watchByDay.get(cell.key)![0].label
+                                  : `${cell.n} 条观察`,
+                            })
+                          }
+                          onMouseLeave={() => setHoverCell(null)}
+                          style={{ height: cellSize, width: cellSize }}
+                          className={`${
+                            cell.watch > 0
+                              ? `ring-1 ring-[rgb(var(--cinnabar))] ${
+                                  selectedDay === cell.key
+                                    ? 'bg-[rgb(var(--cinnabar))]/25'
+                                    : 'bg-[rgb(var(--cinnabar))]/[0.07] hover:bg-[rgb(var(--cinnabar))]/20'
+                                }`
+                              : `${HEAT_BG[cell.n === 0 ? 0 : cell.n === 1 ? 1 : cell.n === 2 ? 2 : 3]} ${
+                                  cell.n > 0
+                                    ? `cursor-pointer ${
+                                        selectedDay === cell.key
+                                          ? 'ring-1 ring-[rgb(var(--cinnabar))]'
+                                          : 'hover:ring-1 hover:ring-[rgb(var(--cinnabar))]'
+                                      }`
+                                    : 'cursor-default'
+                                }`
+                          }`}
+                        />
+                      ),
+                    ),
+                  )}
+                </div>
+                {/* hover 浮签 */}
+                {hoverCell && (
+                  <div
+                    className="pointer-events-none absolute z-10 -translate-x-1/2 whitespace-nowrap bg-[rgb(var(--ink))] px-2 py-1 font-mono-num text-[10px] text-[rgb(var(--paper))]"
+                    style={{
+                      left: Math.max(
+                        100,
+                        Math.min(
+                          hoverCell.c * cellPitch + cellSize / 2,
+                          colCount * cellPitch - cellGap - 100,
+                        ),
+                      ),
+                      top: 24 + hoverCell.r * cellPitch,
+                    }}
+                  >
+                    {hoverCell.key} · {hoverCell.text}
+                  </div>
+                )}
+              </div>
+            </div>
+            {/* 计量行：图例（墨色 = 已落账观察，朱砂空心 = 待验证锚点） */}
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+              <span className="font-mono-num text-[10px] tracking-widest ink-3">
+                五个月窗口（前两月 · 本月 · 未来两月）随日期滑动
+              </span>
+              <span className="flex flex-wrap items-center gap-4 font-mono-num text-[10px] ink-3">
+                <span className="flex items-center gap-1.5">
+                  少
+                  {[1, 2, 3].map((l) => (
+                    <span key={l} className={`h-[17px] w-[17px] ${HEAT_BG[l]}`} />
+                  ))}
+                  多
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="h-[17px] w-[17px] ring-1 ring-[rgb(var(--cinnabar))] bg-[rgb(var(--cinnabar))]/[0.07]" />
+                  待验证
+                </span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── H-2a 卡片弹层：点击日格 → 独立卡片，背景全屏虚化 ── */}
+      {selectedDay && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-5"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${selectedDay} 的观察`}
+          onClick={() => setSelectedDay(null)}
+        >
+          <div className="absolute inset-0 bg-[rgb(var(--ink))]/40 backdrop-blur-sm" />
+          <div
+            className="relative w-full max-w-xl max-h-[75vh] overflow-y-auto bg-[rgb(var(--paper))] border border-[rgb(var(--line))] p-8 md:p-10"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-baseline justify-between">
+              <p className="font-mono-num tnum text-xs tracking-widest ink-3">
+                {selectedDay}
+                {watchByDay.has(selectedDay) && ` · ${watchByDay.get(selectedDay)!.length} 项待验证`}
+                {obsByDay.has(selectedDay) && ` · ${obsByDay.get(selectedDay)!.length} 条观察`}
+              </p>
+              <button
+                type="button"
+                onClick={() => setSelectedDay(null)}
+                aria-label="关闭"
+                className="font-mono-num text-xs tracking-widest ink-3 hover:text-[rgb(var(--ink))] transition-colors cursor-pointer"
+              >
+                关闭 ×
+              </button>
+            </div>
+            {/* 待验证锚点 */}
+            {watchByDay.has(selectedDay) && (
+              <div className="mt-6 space-y-5 border-t border-[rgb(var(--line))] pt-6">
+                {watchByDay.get(selectedDay)!.map((w) => {
+                  const linked = OBSERVATIONS.find((o) => o.id === w.observationId)
+                  return (
+                    <div key={w.label}>
+                      <p className="font-serif-sc font-bold text-lg md:text-xl tracking-tight">
+                        <span className="mr-2 inline-block h-2 w-2 ring-1 ring-[rgb(var(--cinnabar))] align-middle" />
+                        {w.label}
+                      </p>
+                      {w.note && <p className="mt-2 text-xs ink-3 leading-relaxed">{w.note}</p>}
+                      {linked && (
+                        <p className="mt-2 font-mono-num text-[10px] tracking-widest ink-3">
+                          关联观察 · {linked.title}
+                        </p>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+            {/* 当日观察 */}
+            {obsByDay.has(selectedDay) && (
+              <div
+                className={`space-y-6 ${
+                  watchByDay.has(selectedDay)
+                    ? 'mt-6 border-t border-[rgb(var(--line))] pt-6'
+                    : 'mt-6 border-t border-[rgb(var(--line))] pt-6'
+                }`}
+              >
+                {obsByDay.get(selectedDay)!.map((o) => (
+                  <div key={o.id}>
+                    <p className="font-serif-sc font-bold text-lg md:text-xl tracking-tight">{o.title}</p>
+                    <p className="mt-2 text-sm ink-2 leading-relaxed">{o.summary}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ── ③ What Changed · 每命题最新一条真实变化（判断 > 数字，数字只读自 Ledger） ── */}
       <section className="hairline-t">
@@ -322,7 +623,10 @@ export default function Home() {
       {/* ── WUWEI · 静默收束（V2-C.1 Option A：一句话 + 唯一极简入口，无营销） ── */}
       <section className="hairline-t">
         <div className="max-w-[1400px] mx-auto px-5 md:px-10 py-28 md:py-40 text-center">
-          <p className="font-serif-sc text-lg md:text-xl ink-2 leading-relaxed" data-reveal>
+          <p className="font-mono-num text-xs tracking-[0.3em] ink-3" data-reveal>
+            {THESES.length} 个命题 · {OBSERVATIONS.length} 条观察
+          </p>
+          <p className="mt-8 font-serif-sc text-lg md:text-xl ink-2 leading-relaxed" data-reveal>
             有时，正确的仓位是空仓。
           </p>
           <a

@@ -23,6 +23,24 @@ export function directionOf(r: Revision): RevisionDirection {
 }
 
 /**
+ * 寒梅表态派生（2026-11-08 HSN 裁决，替代原 PLUM_STATE 手动维护）：
+ *   score = 全量非零 delta 之和 / 非零修正次数（全量平均，非窗口）
+ *   score ≥ +3 → bloom（阳 · 盛放）；score ≤ −3 → bud（阴 · 含苞）；其余 → sparse（平 · 疏放）
+ * 不持有字段、不发明数据——与 delta/direction 同一派生纪律（V2-04.5）。
+ * 阈值 ±3：单次大修正或三次同向小修正才换态，confirm（delta=0）不参与。
+ */
+export type PlumState = 'bud' | 'sparse' | 'bloom'
+
+export function derivePlumState(ledger: Revision[]): PlumState {
+  const nonzero = ledger.filter((r) => deltaOf(r) !== 0)
+  if (nonzero.length === 0) return 'sparse'
+  const score = nonzero.reduce((s, r) => s + deltaOf(r), 0) / nonzero.length
+  if (score >= 3) return 'bloom'
+  if (score <= -3) return 'bud'
+  return 'sparse'
+}
+
+/**
  * 同日多条 Revision 的确定性次序（Rule 01 + V2-06-05 R-01 裁决）：
  * id 以 `-N` 后缀表达同日序号（首条无后缀 = 1，其后 -2、-3……），
  * 序号大者 = 当日更晚的认知事件。Current Belief 不得依赖数组物理顺序。

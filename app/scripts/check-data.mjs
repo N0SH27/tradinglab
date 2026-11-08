@@ -574,6 +574,39 @@ try {
     const hit = code.match(c1Mechanism)
     !hit ? ok(`${f}: 无 C1 机制泄漏`) : bad(`${f}: 命中 C1 机制标识符 "${hit[1]}"`)
   }
+  // ── 33. 公共展示文本禁内部编号（E-01 机器断言，2026-11-08）──
+  // 内部编号体系（L4-Cxx 候选 / L4-xx 正式 / M-xx 元结论 / Q-xx / C-xx / OD-x / L1–L4 层级）
+  // 属数据层语言，不得出现在公共 UI 文本。豁免两类：
+  //  a) journal.ts 两条本人今晚亲自修改的节点（季度回顾 / 11-16 触发器登记）——按内容特征豁免，
+  //     本人改完提交后若编号仍在该行，断言会重新报出。
+  //  b) essays.ts / essay-versions.ts 的 M-06 自述（散文主题即该偏差本身，"在体系里它叫 M-06" 为文学装置）。
+  console.log('\n[33] 公共文本内部编号扫描（E-01）')
+  const codeToken = /(^|[^A-Za-z0-9-])((L[1-4]|M|Q|C|OD)-[0-9]+[ab]?|L4-C[0-9]+[ab]?)|(^|[^A-Za-z0-9])L[1-4]([^A-Za-z0-9]|$)/g
+  const scanTargets = [
+    ...readdirSync(join(dataDir, 'domains')).filter((f) => f.endsWith('.ts') && f !== 'context-history.ts').map((f) => join(dataDir, 'domains', f)),
+    ...readdirSync(join(root, 'src/pages')).filter((f) => f.endsWith('.tsx')).map((f) => join(root, 'src/pages', f)),
+    ...readdirSync(join(root, 'src/pages/research')).filter((f) => f.endsWith('.tsx')).map((f) => join(root, 'src/pages/research', f)),
+  ]
+  const codeExempt = (file, line) => {
+    if (file.endsWith('domains/journal.ts') &&
+        (line.includes('W35–W44 十周消化批季度回顾') || line.includes('11-16 Anthropic IPO 三个候选共用触发器'))) return true
+    if ((file.endsWith('domains/essays.ts') || file.endsWith('domains/essay-versions.ts')) &&
+        (line.includes('在体系里它叫 M-06') || line.includes('M-06 单调外推偏差的体系级反思'))) return true
+    return false
+  }
+  let codeHits = 0
+  for (const file of scanTargets) {
+    const code = stripComments(readFileSync(file, 'utf8'))
+    const rel = file.split('src/')[1]
+    code.split('\n').forEach((line, i) => {
+      codeToken.lastIndex = 0
+      if (codeToken.test(line) && !codeExempt(rel, line)) {
+        bad(`${rel}:${i + 1} 公共文本含内部编号: ${line.trim().slice(0, 80)}`)
+        codeHits++
+      }
+    })
+  }
+  codeHits === 0 && ok('公共展示文本无内部编号泄漏（domains + pages + research pages）')
 } catch (err) {
   bad(`数据文件无法解析：${err.message}`)
   console.error(err)
