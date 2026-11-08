@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { THESES, LEDGER, OBSERVATIONS, SITE, INDUSTRY_MAP, WATCH_DATES } from '../data/content'
+import { THESES, LEDGER, OBSERVATIONS, SITE, WATCH_DATES } from '../data/content'
 import { deltaOf, deriveCurrentBelief, derivePlumState, lastRevisedOf, latestChanges, type PlumState } from '../data/ledger'
 import { HSNSeal } from '../components/Brand'
 import { HiddenEntryLogo } from '../components/HiddenEntryLogo'
@@ -206,15 +206,12 @@ export default function Home() {
         return { key, n: obsByDay.get(key)?.length ?? 0, watch: watchByDay.get(key)?.length ?? 0 }
       }),
   )
-  /* 月份标尺：只标窗口内五个月（-2…+2），位置 = 当月 1 号所在列，
-     月初 bleed 进来的上月尾段不标 */
+  /* 月份标尺：只标窗口内五个月（-2…+2），位置 = 当月 1 号所在列；
+     月初 bleed 进来的上月尾段不标；只标月份，不标年份（HSN 裁决） */
   const monthLabels = [-2, -1, 0, 1, 2].map((i) => {
     const d = new Date(now.getFullYear(), now.getMonth() + i, 1)
     const idx = Math.round((d.getTime() - winStart.getTime()) / 86400000)
-    return {
-      col: Math.floor(idx / 7),
-      label: `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}`,
-    }
+    return { col: Math.floor(idx / 7), label: `${d.getMonth() + 1}月` }
   })
   const [hoverCell, setHoverCell] = useState<{ c: number; r: number; key: string; text: string } | null>(null)
   const [selectedDay, setSelectedDay] = useState<string | null>(null)
@@ -351,23 +348,6 @@ export default function Home() {
                   )
                 })}
               </div>
-              {/* H-3 demo（2026-11-08）：Lens 激活后的纯派生反馈——零新组件、
-                  零新数据，文案全部由 INDUSTRY_MAP 推导；待 HSN 审后定是否保留。 */}
-              {polarity &&
-                (() => {
-                  const nodes = INDUSTRY_MAP.nodes.filter((n) => n.state === polarity)
-                  const shown = nodes
-                    .slice(0, 4)
-                    .map((n) => n.name)
-                    .join(' / ')
-                  return (
-                    <p className="mt-8 font-mono-num text-xs ink-3 tracking-widest leading-relaxed">
-                      当前处于『{FILTER_META[polarity].zh}』的产业：{shown}
-                      {nodes.length > 4 ? ` 等 ${nodes.length} 个` : ''}（{nodes.length}/
-                      {INDUSTRY_MAP.nodes.length}）
-                    </p>
-                  )
-                })()}
             </div>
             <div className="md:col-span-8" data-reveal>
               <PolarityXiao active={polarity} />
@@ -481,25 +461,7 @@ export default function Home() {
                 )}
               </div>
             </div>
-            {/* 计量行：图例（墨色 = 已落账观察，朱砂空心 = 待验证锚点） */}
-            <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-              <span className="font-mono-num text-[10px] tracking-widest ink-3">
-                五个月窗口（前两月 · 本月 · 未来两月）随日期滑动
-              </span>
-              <span className="flex flex-wrap items-center gap-4 font-mono-num text-[10px] ink-3">
-                <span className="flex items-center gap-1.5">
-                  少
-                  {[1, 2, 3].map((l) => (
-                    <span key={l} className={`h-[17px] w-[17px] ${HEAT_BG[l]}`} />
-                  ))}
-                  多
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <span className="h-[17px] w-[17px] ring-1 ring-[rgb(var(--cinnabar))] bg-[rgb(var(--cinnabar))]/[0.07]" />
-                  待验证
-                </span>
-              </span>
-            </div>
+            {/* 计量行已按 HSN 裁决删除（2026-11-08）：窗口说明与图例撤出，格网自足 */}
           </div>
         </div>
       </section>
