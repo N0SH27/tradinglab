@@ -5,6 +5,13 @@
 
 ---
 
+## 2026-11-08 · W45 证据入账：消化批 + 地图 3 节点 + 7 项裁决落账 + WATCH_DATES 锚点
+
+**Decision**：`now.ts` +5 Observation（政治-监管开关「得州暂停 125GW / 41 项提案 40 项不利」/ 11-05 崩盘与 48 小时修复「信用事件到股权事件最快样本」/ AI 债务时代「五家 YTD 2960 亿 / CDS 破 500bp / OpenAI 首期仅 110 亿」/ 换锚「11-02 生效 1.25% 官方≠降息」/ 光通信估值压缩「旭创回撤 66% 约九成 PE 压缩、EPS 仅下调 6–8% 无降级」）+ 2 条目注记（非农 +16.5 万 / 英央行加息并 fed-rate-path-reversal / 黄金重回 4000、3800/3600 降为备选并 gold-4400-reserve-shift）+ 头注释更新；WATCH_DATES 新增 4 锚（2026.11.17 英伟达 FQ3 / 2026.11.20 LPR / 2026.12.10 得州审计 / 2027.01.31 AMD Q4 预计）；`map.ts` 3 节点 observation 补证据（cloud / optical / dram，valuation 全部维持不动）；`thesis.ts` 3 命题各 +1 evidence +1 assumptions（optical-module / memory-cycle / ai-app，probability 全部不动）；`journal.ts` 新增 2026.11.08 条目（入库消化批 + 裁决 7 项 + 双周三层判定 + 宏观风险 / 存储分歧 / WATCH_DATES 运维义务）；context-history 新增 `ctx-20261108` + initial 快照 re-baseline（66 → 71 条）。
+**Why**：45 周消化批经网站更新裁决清单逐项裁决——研究层 7 项 + 网站层清单 + 双周三层判定全部按建议采纳，Ledger 零变更（验证不是变化，政治冲击只入观察与命题证据、不动 conviction）。
+**Impact**：Observation 66 → 71 条；WATCH_DATES 锚点新增 4 个（本周新增 4 / 变动 0）；check / build 见下方运行结果；Commit 见 git log。
+**Not Changed**：ledger.ts（本周零 conviction 变更，请确认）/ map 节点 valuation 与 state（政治与估值压缩信号不改节点层判断）/ 全部命题 probability / essays.ts / Report 页（11-16 Anthropic IPO 触发器相关修改本人自理）/ framework.ts·method.ts（LOCKED）/ Cycle.tsx 与全部组件页面。
+
 ## 2026-11-07 · W35–W44 季度回顾：thesis 内容层 + Report review ×2 + 复审登记
 
 **Decision**：`thesis.ts` compute 命题补第四阴面（四大 CSP 融资结构可持续性：微软租赁 / 亚马逊表内债 / 谷歌表外承诺 / Meta 股权+债，L4-C10「AI 债务危机」为唯一外部裁判）+ 第三假设，72% 不动，`updated` → 2026.11.07；`ledger.ts` 新增 `rev-memory-cycle-20261107`（68 → 68，确认 + 登记正式复审——证伪条件值守满两个月持续逼近，改判与否待本人拍板）；`Report1.tsx` review v1.1.2 → v1.1.3（§01 补事后验证：卖铲子四分法 + 加息正反馈环第一圈，火车头变量新增融资约束维度）；`Report5.tsx` review v1.0.0 → v1.0.1（§05 补事后验证：ASP 环比序列可检验判据升级 + 供给上修 2028 + 涨价≠利润降权为单标的排查项）；`journal.ts` 新增 2026.11.07 季度回顾条目（三层判定 + 复审登记 + 两个 essay 候选登记）。
