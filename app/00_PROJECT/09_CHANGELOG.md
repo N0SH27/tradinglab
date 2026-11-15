@@ -5,6 +5,15 @@
 
 ---
 
+## 2026-11-15 · W46 证据入账：消化批 + 地图 3 节点 + 9 项裁决落账 + WATCH_DATES 改注记
+
+**Decision**：`now.ts` +5 Observation（关键人物风险「黄仁勋辞任、链内按离创始人有多远重新排队」/ Anthropic IPO 路演周「8.25 亿股、70–78 美元、11-18 定价、三档募资口径」/ AI 债务市场饱和「四科目全量、发得出成本升、IG 收益率 6%」/ 存储利润率均值回归「大摩长期利润率 60%→40%、非价格拐点」/ 旧卡租价倒挂「旧 GPU 现货租价高于原签约价 +30~50%」）+ 2 条目注记（黄金避险失效四组读数并 gold-4400-reserve-shift / NVDA 砍倍数不动 EPS 五组并 debt-era-2960b）+ 头注释更新；WATCH_DATES Anthropic 锚改注记（11-16 目标挂牌周 → 11-18 定价、11-19 交易）+ 新增 2 锚（2026.11.16 华为云 CloudRobo 发布会 / 2026.11.19 中美俄三方会晤「预计」）；`map.ts` 3 节点 observation 补证据（gpu / cloud / dram，valuation 全部维持不动）；`thesis.ts` 2 命题各 +1 evidence（memory-cycle 矛盾值守样本 / optical-module 五组跨市场同向样本，probability 全部不动）；`journal.ts` 新增 2026.11.15 条目（入库消化批 + 裁决 9 项 + 总纲 v24 七项升级 + WATCH_DATES 运维）；context-history 新增 `ctx-20261115` + initial 快照 re-baseline（71 → 76 条）。
+**Why**：46 周消化批（51 篇 + 总纲 v23→v24）经网站更新裁决清单逐项裁决——研究层 9 项（估值倍数压缩 vs 盈利锚五组样本升正式 / 预付款出资分层序列 / 旧卡租价倒挂登记单调外推新反例类型 / AI 债务危机新增预付款子目 + 表外承诺改可扣减 / 黄金只登记失效项 / 关键人物风险升总纲第三开关 / 预付款分层挂读表法 / 存储均值回归与涨价叙事并存不裁定 / Anthropic 锚改注记）全部按建议采纳，Ledger 零变更（验证不是变化）。
+**Impact**：Observation 71 → 76 条；WATCH_DATES 本周新增 2 锚 / 变动 1 锚；check / build 见下方运行结果；Commit 见 git log。
+**Not Changed**：ledger.ts（本周零 conviction 变更，请确认）/ map 节点 valuation 与 state / 全部命题 probability / essays.ts / Report 页（11-16 Anthropic IPO 触发器相关修改本人自理）/ framework.ts·method.ts（LOCKED）/ Cycle.tsx 与全部组件页面。
+
+---
+
 ## 2026-11-08 · W45 证据入账：消化批 + 地图 3 节点 + 7 项裁决落账 + WATCH_DATES 锚点
 
 **Decision**：`now.ts` +5 Observation（政治-监管开关「得州暂停 125GW / 41 项提案 40 项不利」/ 11-05 崩盘与 48 小时修复「信用事件到股权事件最快样本」/ AI 债务时代「五家 YTD 2960 亿 / CDS 破 500bp / OpenAI 首期仅 110 亿」/ 换锚「11-02 生效 1.25% 官方≠降息」/ 光通信估值压缩「旭创回撤 66% 约九成 PE 压缩、EPS 仅下调 6–8% 无降级」）+ 2 条目注记（非农 +16.5 万 / 英央行加息并 fed-rate-path-reversal / 黄金重回 4000、3800/3600 降为备选并 gold-4400-reserve-shift）+ 头注释更新；WATCH_DATES 新增 4 锚（2026.11.17 英伟达 FQ3 / 2026.11.20 LPR / 2026.12.10 得州审计 / 2027.01.31 AMD Q4 预计）；`map.ts` 3 节点 observation 补证据（cloud / optical / dram，valuation 全部维持不动）；`thesis.ts` 3 命题各 +1 evidence +1 assumptions（optical-module / memory-cycle / ai-app，probability 全部不动）；`journal.ts` 新增 2026.11.08 条目（入库消化批 + 裁决 7 项 + 双周三层判定 + 宏观风险 / 存储分歧 / WATCH_DATES 运维义务）；context-history 新增 `ctx-20261108` + initial 快照 re-baseline（66 → 71 条）。
