@@ -5,6 +5,15 @@
 
 ---
 
+## 2026-11-22 · W47 证据入账：消化批 + 地图 3 节点 + 11 项裁决落账 + WATCH_DATES 6 锚核销 / 6 锚新增
+
+**Decision**：`now.ts` +2 Observation（治理三级递进「超预期定价需求、暴跌定价信用：英伟达 11-17 全面超预期、11-20 SEC 会计调查 −14.01%、11-22 州刑事调查」/ 五资产同跌与加息环自限「11-20 全亚太暴跌、VIX 触 40、黄金连破四关、11-21 交易员不再完全定价 12 月加息」）+ 4 条目注记（Anthropic 终裁 83 美元/9.8 亿股/813.4 亿/首日 97.17/次日 88.91、旧 904 亿并列标时点 / 腾讯 capex 见顶第四版挂 42 周双坐标不新增编号 / 存储涨崩并存 + 价格条款三档并 46 周双轴 / 黄金失效项成组、判定窗口 12-09 FOMC）+ 头注释更新；WATCH_DATES 6 锚到点核销注记（11-16 华为 / 11-16 沃什 / 11-17 英伟达 / 11-18 Anthropic / 11-19 三方会晤部分落地 / 11-20 LPR）+ 12-09 FOMC 锚补自限段验证点 + 新增 6 锚（2026.11.23 首批主动 ETF 上市 / 2026.11.24 华为 Mate X8 定档 / 2026.11.30 融资保证金 80% / 2026.12.06 纳斯达克 23/5 / 2026.12.07 恒生科技扩容生效 / 2026.12.15 Anthropic 解禁「预计」）；`map.ts` 3 节点 observation 补证据（gpu / cloud / dram，valuation 全部维持不动）；`thesis.ts` 2 命题各 +1 evidence（compute 信用侧量化与治理三级 / memory-cycle 涨崩并存与价格条款三档，probability 全部不动）；`journal.ts` 新增 2026.11.22 条目（入库消化批 + 裁决 11 项 + 双周三层判定 + WATCH_DATES 运维）；context-history 新增 `ctx-20261122` + initial 快照 re-baseline（76 → 78 条）。
+**Why**：47 周消化批（46 篇 + 体系记忆周报 v4）经网站更新裁决清单逐项裁决——研究层 11 项（AI 债务危机升正式、价格条款三档升正式、Anthropic 字段终裁、黄金只登记失效项、46 周遗留五项打包、43 周「免疫」命题缓判只登记、增速见顶第四版挂历史编号、抽水双阶段/治理三级列方法候选、加息正反馈环拆两命题、v4 三处错配显式标注 + 三层校核固化、ETF 反转登记否）+ 双周三层判定（《同一个诊断，两个切面》/ Report #6 / 新增《AI 债务危机》专题 / 候选 essay《关键人物风险》主张进，Report #1 review 随 Anthropic 终裁）全部按建议采纳，Ledger 零变更（验证不是变化）。
+**Impact**：Observation 76 → 78 条；WATCH_DATES 本周新增 6 锚 / 核销注记 6 锚 / 核实更正 2 处（恒生科技 12-01 → 12-07 生效、Mate X8 定档 11-24）；MSCI 纳入 Anthropic 一说未核到官方口径、不落锚；check / build 见下方运行结果；Commit 见 git log。
+**Not Changed**：ledger.ts（本周零 conviction 变更，请确认）/ map 节点 valuation 与 state / 全部命题 probability / essays.ts / Report 页正文（触发器到点的 review 补记随下期执行）/ framework.ts·method.ts（LOCKED）/ Cycle.tsx 与全部组件页面。
+
+---
+
 ## 2026-11-15 · W46 证据入账：消化批 + 地图 3 节点 + 9 项裁决落账 + WATCH_DATES 改注记
 
 **Decision**：`now.ts` +5 Observation（关键人物风险「黄仁勋辞任、链内按离创始人有多远重新排队」/ Anthropic IPO 路演周「8.25 亿股、70–78 美元、11-18 定价、三档募资口径」/ AI 债务市场饱和「四科目全量、发得出成本升、IG 收益率 6%」/ 存储利润率均值回归「大摩长期利润率 60%→40%、非价格拐点」/ 旧卡租价倒挂「旧 GPU 现货租价高于原签约价 +30~50%」）+ 2 条目注记（黄金避险失效四组读数并 gold-4400-reserve-shift / NVDA 砍倍数不动 EPS 五组并 debt-era-2960b）+ 头注释更新；WATCH_DATES Anthropic 锚改注记（11-16 目标挂牌周 → 11-18 定价、11-19 交易）+ 新增 2 锚（2026.11.16 华为云 CloudRobo 发布会 / 2026.11.19 中美俄三方会晤「预计」）；`map.ts` 3 节点 observation 补证据（gpu / cloud / dram，valuation 全部维持不动）；`thesis.ts` 2 命题各 +1 evidence（memory-cycle 矛盾值守样本 / optical-module 五组跨市场同向样本，probability 全部不动）；`journal.ts` 新增 2026.11.15 条目（入库消化批 + 裁决 9 项 + 总纲 v24 七项升级 + WATCH_DATES 运维）；context-history 新增 `ctx-20261115` + initial 快照 re-baseline（71 → 76 条）。
